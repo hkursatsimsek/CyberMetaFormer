@@ -1,0 +1,33 @@
+# CyberMetaFormer (Aşama 3): bölüm kipi (tam geçmiş, her adımda tahmin), k=101.
+# Ana varyant: host token'ları + uyarı yaşı kanalı, zaman karıştırıcısı nedensel konv + SSD (kapılı), topoloji sapmalı
+# host dikkati. B1 bütçesi (147–220 bin). Eğitim ayarları gru_full ile aynı; HPO M3 adım 4'te.
+model: cybermetaformer
+mode: episode
+episodes_per_batch: 16
+k: 101
+model_args:
+  d: 64
+  layers: 3
+  temporal: [conv, ssd]
+  host_mixer: topo
+  topo_mask: false
+  heads: 4
+  state: 16
+  kernel: 4
+  window: null
+  mlp_ratio: 3
+  dropout: 0.1
+  age: true
+  pos: learned
+  tokens: host
+scale: global
+optimizer: adamw
+lr: 0.001
+weight_decay: 0.01
+epochs: 30
+schedule: warmup_cosine
+warmup_frac: 0.05
+early_stopping: {patience: 5}
+loss: ce
+grad_clip: 1.0
+eval_batch_size: 16384   # bölüm kipinde 162 bölüm/parça; (B·13, kafa, 101, 101) ara tensörleri sığsın

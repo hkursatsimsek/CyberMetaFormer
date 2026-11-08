@@ -1,0 +1,34 @@
+model: lstm
+k: 8
+value: 0.9311725390429489
+trial: 16
+params:
+  layers: 1
+  hidden: 128
+  lr: 0.002862181405468322
+  weight_decay: 2.6108492995406778e-05
+  class_weights: null
+overrides:
+  model_args:
+    hidden: 128
+    layers: 1
+    dropout: 0.0
+  lr: 0.002862181405468322
+  weight_decay: 2.6108492995406778e-05
+  class_weights: null
+protocol:
+  n_trials: 25
+  ks:
+  - 8
+  - 32
+  train_episodes: 4000
+  epochs: 10
+  patience: 3
+  seed: 0
+  sampler_seed: 0
+  pruner:
+    n_startup_trials: 5
+    n_warmup_steps: 2
+n_complete: 14
+n_pruned: 11
+hours: 0.15231042431460487

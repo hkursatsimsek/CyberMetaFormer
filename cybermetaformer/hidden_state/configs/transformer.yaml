@@ -1,0 +1,16 @@
+# Aşama 2 vanilla Transformer (yalnızca kodlayıcı, token = gözlem adımı). HPO: d_model, heads, layers, ff,
+# dropout, konum kodlaması, okuma (son adım / CLS) + ortak. compile: eğitim ileri geçişi torch.compile ile.
+model: transformer
+model_args: {d_model: 128, heads: 4, layers: 2, ff: 256, dropout: 0.1, pos: learned, readout: last}
+scale: global
+optimizer: adamw
+lr: 0.001
+weight_decay: 0.01
+epochs: 30
+batch_size: 1024
+schedule: warmup_cosine
+warmup_frac: 0.05
+early_stopping: {patience: 5}
+loss: ce
+grad_clip: 1.0
+compile: true

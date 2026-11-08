@@ -1,0 +1,17 @@
+# Aşama 2 iTransformer (TSLib, token = değişken). HPO: d_model, heads, layers, ff, dropout + ortak.
+# Değerlendirme batch'i küçük: dikkat 78 × 78 token üzerinde.
+model: itransformer
+model_args: {d_model: 128, heads: 8, layers: 2, ff: 256, dropout: 0.1}
+scale: global
+optimizer: adamw
+lr: 0.001
+weight_decay: 0.01
+epochs: 30
+batch_size: 1024
+schedule: warmup_cosine
+warmup_frac: 0.05
+early_stopping: {patience: 5}
+loss: ce
+grad_clip: 1.0
+compile: true
+eval_batch_size: 8192

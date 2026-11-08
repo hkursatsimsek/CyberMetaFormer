@@ -1,0 +1,491 @@
+{
+  "device": "mps",
+  "machine": "apple-m4-pro",
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "processor": "arm",
+  "torch": "2.14.1",
+  "threads": 8,
+  "grid": {
+    "k_values": [
+      1,
+      4,
+      8,
+      16,
+      32
+    ],
+    "seeds": 5,
+    "max_epochs": 30,
+    "expected_epochs": 15,
+    "hpo_trials": 25,
+    "hpo_k": [
+      8,
+      32
+    ],
+    "hpo_train_frac": 0.25,
+    "hpo_max_epochs": 10,
+    "hpo_expected_epochs": 6,
+    "m1_models": [
+      "mlp",
+      "cnn1d",
+      "lstm",
+      "gru"
+    ],
+    "m2_models": {
+      "transformer": 1.0,
+      "patchtst": 1.0,
+      "itransformer": 1.0,
+      "tsmixer": 0.5,
+      "timemixer": 1.5,
+      "timesnet": 4.0
+    },
+    "m2_ks": [
+      8,
+      32,
+      64
+    ]
+  },
+  "models": {
+    "transformer": {
+      "8": {
+        "eager": {
+          "params": 280996,
+          "train_s_per_sample": 1.7369323732197017e-05,
+          "infer_s_per_sample": 3.590070963473598e-06,
+          "latency_ms_bs1": 0.6780835028621368,
+          "epoch_minutes": 0.4631819661919205,
+          "val_eval_minutes": 0.011966903211578662
+        },
+        "compile": {
+          "params": 280996,
+          "train_s_per_sample": 1.4285318844287076e-05,
+          "epoch_minutes": 0.38094183584765534
+        }
+      },
+      "32": {
+        "eager": {
+          "params": 284068,
+          "train_s_per_sample": 4.230192041276837e-05,
+          "infer_s_per_sample": 1.1919292887204355e-05,
+          "latency_ms_bs1": 0.5474170029629022,
+          "epoch_minutes": 1.1280512110071566,
+          "val_eval_minutes": 0.03973097629068119
+        },
+        "compile": {
+          "params": 284068,
+          "train_s_per_sample": 3.464748193238165e-05,
+          "epoch_minutes": 0.9239328515301773
+        }
+      },
+      "64": {
+        "eager": {
+          "params": 288164,
+          "train_s_per_sample": 0.0001076641440427295,
+          "infer_s_per_sample": 2.4102893391978835e-05,
+          "latency_ms_bs1": 0.5586250008491334,
+          "epoch_minutes": 2.8710438411394534,
+          "val_eval_minutes": 0.08034297797326279
+        },
+        "compile": {
+          "params": 288164,
+          "train_s_per_sample": 8.18285522470319e-05,
+          "epoch_minutes": 2.182094726587517
+        }
+      }
+    },
+    "patchtst": {
+      "8": {
+        "eager": {
+          "params": 1703460,
+          "train_s_per_sample": 0.0009991823325208316,
+          "infer_s_per_sample": 0.0003041247948403954,
+          "latency_ms_bs1": 1.2845624987676274,
+          "epoch_minutes": 26.644862200555508,
+          "val_eval_minutes": 1.0137493161346514
+        },
+        "compile": {
+          "params": 1703460,
+          "train_s_per_sample": 0.0008126271972663801,
+          "epoch_minutes": 21.670058593770136
+        }
+      },
+      "32": {
+        "eager": {
+          "params": 1704996,
+          "train_s_per_sample": 0.0009993246254929034,
+          "infer_s_per_sample": 0.00032556311714682096,
+          "latency_ms_bs1": 1.1447920041973703,
+          "epoch_minutes": 26.648656679810756,
+          "val_eval_minutes": 1.0852103904894033
+        },
+        "compile": {
+          "params": 1704996,
+          "train_s_per_sample": 0.0008111394042984443,
+          "epoch_minutes": 21.630384114625183
+        }
+      },
+      "64": {
+        "eager": {
+          "params": 1707044,
+          "train_s_per_sample": 0.0010712596025399534,
+          "infer_s_per_sample": 0.000394655558268416,
+          "latency_ms_bs1": 1.1921044970222283,
+          "epoch_minutes": 28.56692273439876,
+          "val_eval_minutes": 1.3155185275613865
+        },
+        "compile": {
+          "params": 1707044,
+          "train_s_per_sample": 0.0008914045004857485,
+          "epoch_minutes": 23.77078667961996
+        }
+      }
+    },
+    "itransformer": {
+      "8": {
+        "eager": {
+          "params": 625828,
+          "train_s_per_sample": 0.00022080230712973048,
+          "infer_s_per_sample": 5.0186286092213095e-05,
+          "latency_ms_bs1": 0.9327920015493874,
+          "epoch_minutes": 5.88806152345948,
+          "val_eval_minutes": 0.16728762030737698
+        },
+        "compile": {
+          "params": 625828,
+          "train_s_per_sample": 0.00011886555957119072,
+          "epoch_minutes": 3.1697482552317524
+        }
+      },
+      "32": {
+        "eager": {
+          "params": 628900,
+          "train_s_per_sample": 0.00021854437255797166,
+          "infer_s_per_sample": 4.992006091312599e-05,
+          "latency_ms_bs1": 0.8952500029408839,
+          "epoch_minutes": 5.827849934879244,
+          "val_eval_minutes": 0.16640020304375328
+        },
+        "compile": {
+          "params": 628900,
+          "train_s_per_sample": 0.00011830853271632691,
+          "epoch_minutes": 3.1548942057687177
+        }
+      },
+      "64": {
+        "eager": {
+          "params": 632996,
+          "train_s_per_sample": 0.00021726656054354976,
+          "infer_s_per_sample": 5.024629211429025e-05,
+          "latency_ms_bs1": 0.8881245012162253,
+          "epoch_minutes": 5.793774947827994,
+          "val_eval_minutes": 0.16748764038096747
+        },
+        "compile": {
+          "params": 632996,
+          "train_s_per_sample": 0.00012038523339796825,
+          "epoch_minutes": 3.2102728906124867
+        }
+      }
+    },
+    "tsmixer": {
+      "8": {
+        "eager": {
+          "params": 67216,
+          "train_s_per_sample": 1.2473754395614378e-05,
+          "infer_s_per_sample": 2.716978312259736e-06,
+          "latency_ms_bs1": 0.5020210010115989,
+          "epoch_minutes": 0.33263345054971677,
+          "val_eval_minutes": 0.009056594374199119
+        },
+        "compile": {
+          "params": 67216,
+          "train_s_per_sample": 1.1714355469649718e-05,
+          "epoch_minutes": 0.31238281252399247
+        }
+      },
+      "32": {
+        "eager": {
+          "params": 146944,
+          "train_s_per_sample": 1.9000874999619555e-05,
+          "infer_s_per_sample": 6.374391316713949e-06,
+          "latency_ms_bs1": 0.5436875035229605,
+          "epoch_minutes": 0.5066899999898548,
+          "val_eval_minutes": 0.021247971055713168
+        },
+        "compile": {
+          "params": 146944,
+          "train_s_per_sample": 1.6738017091455504e-05,
+          "epoch_minutes": 0.4463471224388134
+        }
+      },
+      "64": {
+        "eager": {
+          "params": 253248,
+          "train_s_per_sample": 3.456640625287832e-05,
+          "infer_s_per_sample": 1.1367684244589782e-05,
+          "latency_ms_bs1": 0.4708129999926314,
+          "epoch_minutes": 0.9217708334100886,
+          "val_eval_minutes": 0.03789228081529927
+        },
+        "compile": {
+          "params": 253248,
+          "train_s_per_sample": 2.9281046874274352e-05,
+          "epoch_minutes": 0.7808279166473161
+        }
+      }
+    },
+    "timesnet": {
+      "8": {
+        "eager": {
+          "params": 2363300,
+          "train_s_per_sample": 0.00029452823925524285,
+          "infer_s_per_sample": 9.200606282533386e-05,
+          "latency_ms_bs1": 5.547646502236603,
+          "epoch_minutes": 7.854086380139809,
+          "val_eval_minutes": 0.30668687608444617
+        },
+        "compile": {
+          "error": "AssertionError('expected size 8==8, stride 32==1 at dim=1; expected size 32==32, stride 1==8 at dim=2\\nError in op: torch.ops.aten._fft_c2c.default\\nThis error most often comes from a incorrect fake (aka meta) kernel for a custom op.\\nUse torch.library.opcheck to test your custom op.\\nSee https://pytorch.org/docs/stable/library.html#torch.library.opcheck')"
+        }
+      },
+      "32": {
+        "eager": {
+          "params": 2390948,
+          "train_s_per_sample": 0.0007983475136725815,
+          "infer_s_per_sample": 0.0001699726783040608,
+          "latency_ms_bs1": 7.113520998245804,
+          "epoch_minutes": 21.28926703126884,
+          "val_eval_minutes": 0.5665755943468693
+        },
+        "compile": {
+          "error": "AssertionError('expected size 32==32, stride 32==1 at dim=1; expected size 32==32, stride 1==32 at dim=2\\nError in op: torch.ops.aten._fft_c2c.default\\nThis error most often comes from a incorrect fake (aka meta) kernel for a custom op.\\nUse torch.library.opcheck to test your custom op.\\nSee https://pytorch.org/docs/stable/library.html#torch.library.opcheck')"
+        }
+      },
+      "64": {
+        "eager": {
+          "params": 2427812,
+          "train_s_per_sample": 0.001581275390627468,
+          "infer_s_per_sample": 0.0002966809319252898,
+          "latency_ms_bs1": 7.2686244966462255,
+          "epoch_minutes": 42.16734375006581,
+          "val_eval_minutes": 0.988936439750966
+        },
+        "compile": {
+          "error": "AssertionError('expected size 64==64, stride 32==1 at dim=1; expected size 32==32, stride 1==64 at dim=2\\nError in op: torch.ops.aten._fft_c2c.default\\nThis error most often comes from a incorrect fake (aka meta) kernel for a custom op.\\nUse torch.library.opcheck to test your custom op.\\nSee https://pytorch.org/docs/stable/library.html#torch.library.opcheck')"
+        }
+      }
+    },
+    "timemixer": {
+      "8": {
+        "eager": {
+          "params": 36968,
+          "train_s_per_sample": 2.068727636839185e-05,
+          "infer_s_per_sample": 4.173112670831832e-06,
+          "latency_ms_bs1": 2.4159794993465766,
+          "epoch_minutes": 0.551660703157116,
+          "val_eval_minutes": 0.01391037556943944
+        },
+        "compile": {
+          "params": 34536,
+          "train_s_per_sample": 1.2901957518351992e-05,
+          "epoch_minutes": 0.34405220048938645
+        }
+      },
+      "32": {
+        "eager": {
+          "params": 70724,
+          "train_s_per_sample": 3.9851460936546346e-05,
+          "infer_s_per_sample": 1.1833828409635316e-05,
+          "latency_ms_bs1": 3.1714584984001704,
+          "epoch_minutes": 1.0627056249745692,
+          "val_eval_minutes": 0.039446094698784386
+        },
+        "compile": {
+          "params": 68292,
+          "train_s_per_sample": 2.2902608399988367e-05,
+          "epoch_minutes": 0.6107362239996897
+        }
+      },
+      "64": {
+        "eager": {
+          "params": 126068,
+          "train_s_per_sample": 6.164615869153067e-05,
+          "infer_s_per_sample": 1.9254374186002583e-05,
+          "latency_ms_bs1": 3.179666502546752,
+          "epoch_minutes": 1.6438975651074845,
+          "val_eval_minutes": 0.06418124728667528
+        },
+        "compile": {
+          "params": 123636,
+          "train_s_per_sample": 3.81251220709089e-05,
+          "epoch_minutes": 1.016669921890904
+        }
+      }
+    }
+  },
+  "budget": {
+    "beklenen": {
+      "modeller": {
+        "transformer": {
+          "eager": {
+            "final": 4.701263728507716,
+            "hpo": 1.1237654345050727,
+            "k64": 3.6892335238908953
+          },
+          "compile": {
+            "final": 3.882567341024274,
+            "hpo": 0.9447913783667952,
+            "k64": 2.8280471307009747
+          },
+          "secilen": "compile"
+        },
+        "patchtst": {
+          "eager": {
+            "final": 138.4811964674758,
+            "hpo": 38.55584856678905,
+            "k64": 37.35305157745018
+          },
+          "compile": {
+            "final": 113.49850603754842,
+            "hpo": 32.310175959307216,
+            "k64": 31.357881508976682
+          },
+          "secilen": "compile"
+        },
+        "itransformer": {
+          "eager": {
+            "final": 37.69318463393321,
+            "hpo": 8.156664219839527,
+            "k64": 7.451578235261201
+          },
+          "compile": {
+            "final": 20.817120555302914,
+            "hpo": 4.787121096503119,
+            "k64": 4.222200663741818
+          },
+          "secilen": "compile"
+        },
+        "tsmixer": {
+          "eager": {
+            "final": 2.601182596078605,
+            "hpo": 0.6003385701620129,
+            "k64": 1.1995788927817348
+          },
+          "compile": {
+            "final": 2.374385509604535,
+            "hpo": 0.5499676229265344,
+            "k64": 1.0234002468282692
+          },
+          "secilen": "compile"
+        },
+        "timesnet": {
+          "eager": {
+            "final": 75.0415397045999,
+            "hpo": 20.397752058208695,
+            "k64": 53.94535023727097
+          },
+          "secilen": "eager"
+        },
+        "timemixer": {
+          "eager": {
+            "final": 4.169306995999773,
+            "hpo": 1.1423701307528629,
+            "k64": 2.1350985154927
+          },
+          "compile": {
+            "final": 2.52036223689325,
+            "hpo": 0.7301339409762322,
+            "k64": 1.3510639614719742
+          },
+          "secilen": "compile"
+        }
+      },
+      "toplam_saat": {
+        "eager": 332.66441310685224,
+        "secilen": 277.8544234412619,
+        "k64_secilen": 94.7279437489907
+      }
+    },
+    "ust_sinir": {
+      "modeller": {
+        "transformer": {
+          "eager": {
+            "final": 9.402527457015433,
+            "hpo": 1.8729423908417877,
+            "k64": 7.378467047781791
+          },
+          "compile": {
+            "final": 7.765134682048548,
+            "hpo": 1.5746522972779917,
+            "k64": 5.656094261401949
+          },
+          "secilen": "compile"
+        },
+        "patchtst": {
+          "eager": {
+            "final": 276.9623929349516,
+            "hpo": 64.25974761131509,
+            "k64": 74.70610315490036
+          },
+          "compile": {
+            "final": 226.99701207509685,
+            "hpo": 53.850293265512015,
+            "k64": 62.715763017953364
+          },
+          "secilen": "compile"
+        },
+        "itransformer": {
+          "eager": {
+            "final": 75.38636926786641,
+            "hpo": 13.594440366399212,
+            "k64": 14.903156470522402
+          },
+          "compile": {
+            "final": 41.63424111060583,
+            "hpo": 7.978535160838533,
+            "k64": 8.444401327483636
+          },
+          "secilen": "compile"
+        },
+        "tsmixer": {
+          "eager": {
+            "final": 5.20236519215721,
+            "hpo": 1.0005642836033548,
+            "k64": 2.3991577855634696
+          },
+          "compile": {
+            "final": 4.74877101920907,
+            "hpo": 0.9166127048775573,
+            "k64": 2.0468004936565385
+          },
+          "secilen": "compile"
+        },
+        "timesnet": {
+          "eager": {
+            "final": 150.0830794091998,
+            "hpo": 33.99625343034782,
+            "k64": 107.89070047454194
+          },
+          "secilen": "eager"
+        },
+        "timemixer": {
+          "eager": {
+            "final": 8.338613991999546,
+            "hpo": 1.9039502179214383,
+            "k64": 4.2701970309854
+          },
+          "compile": {
+            "final": 5.0407244737865,
+            "hpo": 1.2168899016270536,
+            "k64": 2.7021279229439483
+          },
+          "secilen": "compile"
+        }
+      },
+      "toplam_saat": {
+        "eager": 642.0032465536187,
+        "secilen": 535.8021995304275,
+        "k64_secilen": 189.4558874979814
+      }
+    }
+  }
+}

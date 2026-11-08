@@ -1,0 +1,13 @@
+# Orijinal MLP protokolü (minicage/dataset/baselines.py). repro_mlp.py ile aynı; yalnızca kıyas içindir.
+model: mlp
+model_args: {}
+scale: none
+optimizer: adam
+lr: 0.001
+epochs: 5
+batch_size: 1024
+schedule: none
+train_episodes: 4000
+train_subsample_seed: 0
+early_stopping: null
+loss: ce

@@ -1,0 +1,326 @@
+{
+ "environment": {
+  "cpu": "Apple M3 Pro",
+  "performance_cores": "6",
+  "efficiency_cores": "6",
+  "logical_cpus": "12",
+  "memory_bytes": "38654705664",
+  "macos": "27.2",
+  "platform": "macOS-27.2-arm64-arm-64bit",
+  "python": "3.12.15",
+  "torch": "2.14.1",
+  "numpy": "2.5.4",
+  "torch_default_threads": 6,
+  "load_average_before": [
+   1.8544921875,
+   1.97314453125,
+   1.9755859375
+  ],
+  "load_average_after": [
+   1.8115234375,
+   1.9560546875,
+   1.9697265625
+  ],
+  "peak_rss_bytes": 940769280
+ },
+ "protocol": {
+  "warmup_steps": 202,
+  "rounds": 5,
+  "steps_per_round": 1010,
+  "batch_size": 1,
+  "dtype": "float32",
+  "threads": [
+   1,
+   6
+  ]
+ },
+ "models": {
+  "cybermetaformer": {
+   "params": 186665,
+   "param_bytes": 746660,
+   "state_bytes": 190112,
+   "step_check_max_abs": 5.7220458984375e-06,
+   "label": "CyberMetaFormer: conv + SSD, topology-biased host attention",
+   "latency": {
+    "1": {
+     "n_steps": 5050,
+     "median_ms": 0.523041,
+     "p95_ms": 0.538,
+     "p99_ms": 0.5496912500000001,
+     "mean_ms": 0.5250300639603961,
+     "sd_ms": 0.0062509485802848515,
+     "round_medians_ms": [
+      0.524042,
+      0.522833,
+      0.522333,
+      0.5219585,
+      0.52325
+     ],
+     "round_median_sd_ms": 0.0008120452265729996
+    },
+    "6": {
+     "n_steps": 5050,
+     "median_ms": 0.8438125000000001,
+     "p95_ms": 0.884208,
+     "p99_ms": 0.9096082500000001,
+     "mean_ms": 0.8472895326732673,
+     "sd_ms": 0.028394969814575774,
+     "round_medians_ms": [
+      0.8546045,
+      0.841396,
+      0.8416455,
+      0.8421455,
+      0.842083
+     ],
+     "round_median_sd_ms": 0.005726936696437269
+    }
+   }
+  },
+  "cybermetaformer-host_tam": {
+   "params": 186617,
+   "param_bytes": 746468,
+   "state_bytes": 190112,
+   "step_check_max_abs": 5.7220458984375e-06,
+   "label": "CMF: conv + SSD, host attention without topology bias",
+   "latency": {
+    "1": {
+     "n_steps": 5050,
+     "median_ms": 0.507042,
+     "p95_ms": 0.5207311,
+     "p99_ms": 0.5309420700000002,
+     "mean_ms": 0.5091270356435643,
+     "sd_ms": 0.005919805303267718,
+     "round_medians_ms": [
+      0.50725,
+      0.5070205,
+      0.5067085,
+      0.5063545,
+      0.507416
+     ],
+     "round_median_sd_ms": 0.0004257548296848532
+    },
+    "6": {
+     "n_steps": 5050,
+     "median_ms": 0.8225,
+     "p95_ms": 0.8588561,
+     "p99_ms": 0.8835125000000003,
+     "mean_ms": 0.8245309633663365,
+     "sd_ms": 0.018783427432208805,
+     "round_medians_ms": [
+      0.823833,
+      0.8221455,
+      0.823125,
+      0.8208335,
+      0.8224165
+     ],
+     "round_median_sd_ms": 0.001126175641274501
+    }
+   }
+  },
+  "cybermetaformer-konv_gru": {
+   "params": 198329,
+   "param_bytes": 793316,
+   "state_bytes": 40352,
+   "step_check_max_abs": 2.86102294921875e-06,
+   "label": "CMF: conv + GRU (SSD replaced), topology-biased host attention",
+   "latency": {
+    "1": {
+     "n_steps": 5050,
+     "median_ms": 0.465833,
+     "p95_ms": 0.47775465,
+     "p99_ms": 0.48875217000000004,
+     "mean_ms": 0.46732277801980204,
+     "sd_ms": 0.0063794769745363425,
+     "round_medians_ms": [
+      0.466042,
+      0.4650835,
+      0.4645,
+      0.4677705,
+      0.4650835
+     ],
+     "round_median_sd_ms": 0.001284911932779821
+    },
+    "6": {
+     "n_steps": 5050,
+     "median_ms": 0.779875,
+     "p95_ms": 0.8128561000000001,
+     "p99_ms": 0.83385524,
+     "mean_ms": 0.782389002970297,
+     "sd_ms": 0.017413312638607913,
+     "round_medians_ms": [
+      0.7815415,
+      0.779833,
+      0.779979,
+      0.7796875,
+      0.7784584999999999
+     ],
+     "round_median_sd_ms": 0.0010986731429319838
+    }
+   }
+  },
+  "cybermetaformer-gru_host_topo": {
+   "params": 184499,
+   "param_bytes": 737996,
+   "state_bytes": 10400,
+   "step_check_max_abs": 3.814697265625e-06,
+   "label": "Host-token GRU, topology-biased host attention",
+   "latency": {
+    "1": {
+     "n_steps": 5050,
+     "median_ms": 0.340291,
+     "p95_ms": 0.35316655,
+     "p99_ms": 0.36185442,
+     "mean_ms": 0.34228701188118815,
+     "sd_ms": 0.005148335020616784,
+     "round_medians_ms": [
+      0.340208,
+      0.34,
+      0.3396045,
+      0.341125,
+      0.340083
+     ],
+     "round_median_sd_ms": 0.0005621196936596409
+    },
+    "6": {
+     "n_steps": 5050,
+     "median_ms": 0.592125,
+     "p95_ms": 0.62020855,
+     "p99_ms": 0.64333351,
+     "mean_ms": 0.5942045663366337,
+     "sd_ms": 0.01616345022717125,
+     "round_medians_ms": [
+      0.592084,
+      0.5922499999999999,
+      0.5918125000000001,
+      0.592458,
+      0.5919375
+     ],
+     "round_median_sd_ms": 0.00025476935647756157
+    }
+   }
+  },
+  "cybermetaformer-gru_host_attn": {
+   "params": 184451,
+   "param_bytes": 737804,
+   "state_bytes": 10400,
+   "step_check_max_abs": 3.814697265625e-06,
+   "label": "Host-token GRU, host attention without topology bias",
+   "latency": {
+    "1": {
+     "n_steps": 5050,
+     "median_ms": 0.3255,
+     "p95_ms": 0.336583,
+     "p99_ms": 0.34339591,
+     "mean_ms": 0.32726429861386136,
+     "sd_ms": 0.004555140731015927,
+     "round_medians_ms": [
+      0.3261665,
+      0.324875,
+      0.325,
+      0.325583,
+      0.3255
+     ],
+     "round_median_sd_ms": 0.0005156394573730774
+    },
+    "6": {
+     "n_steps": 5050,
+     "median_ms": 0.5683955,
+     "p95_ms": 0.59702255,
+     "p99_ms": 0.6220498300000001,
+     "mean_ms": 0.5713548059405941,
+     "sd_ms": 0.023808807265451388,
+     "round_medians_ms": [
+      0.567708,
+      0.567416,
+      0.5690415,
+      0.569708,
+      0.5678955
+     ],
+     "round_median_sd_ms": 0.0009763905852679941
+    }
+   }
+  },
+  "gru_full": {
+   "params": 183588,
+   "param_bytes": 734352,
+   "state_bytes": 1024,
+   "step_check_max_abs": 8.58306884765625e-06,
+   "label": "Full-history GRU, flat 78-d input (no host mixing)",
+   "latency": {
+    "1": {
+     "n_steps": 5050,
+     "median_ms": 0.043958,
+     "p95_ms": 0.045875,
+     "p99_ms": 0.04981291000000001,
+     "mean_ms": 0.04415144910891089,
+     "sd_ms": 0.001288545964334456,
+     "round_medians_ms": [
+      0.044125,
+      0.043958,
+      0.043917,
+      0.043917,
+      0.043792
+     ],
+     "round_median_sd_ms": 0.0001198903665854767
+    },
+    "6": {
+     "n_steps": 5050,
+     "median_ms": 0.04425,
+     "p95_ms": 0.045958,
+     "p99_ms": 0.05085491,
+     "mean_ms": 0.04438665346534654,
+     "sd_ms": 0.0014802224636193035,
+     "round_medians_ms": [
+      0.044125,
+      0.044333,
+      0.044208,
+      0.044208,
+      0.0444375
+     ],
+     "round_median_sd_ms": 0.00012292457036735995
+    }
+   }
+  },
+  "cybermetaformer-host_yok": {
+   "params": 201001,
+   "param_bytes": 804004,
+   "state_bytes": 237536,
+   "step_check_max_abs": 4.76837158203125e-06,
+   "label": "CMF: conv + SSD, no host mixer",
+   "latency": {
+    "1": {
+     "n_steps": 5050,
+     "median_ms": 0.449291,
+     "p95_ms": 0.45852255000000003,
+     "p99_ms": 0.46554366,
+     "mean_ms": 0.4494161366336634,
+     "sd_ms": 0.006479352969081457,
+     "round_medians_ms": [
+      0.450083,
+      0.449208,
+      0.449583,
+      0.449104,
+      0.4482705
+     ],
+     "round_median_sd_ms": 0.0006684455475205128
+    },
+    "6": {
+     "n_steps": 5050,
+     "median_ms": 0.640375,
+     "p95_ms": 0.67339755,
+     "p99_ms": 0.6943137500000001,
+     "mean_ms": 0.6414235752475247,
+     "sd_ms": 0.01892399380020898,
+     "round_medians_ms": [
+      0.640604,
+      0.6402289999999999,
+      0.6405,
+      0.6405,
+      0.6396040000000001
+     ],
+     "round_median_sd_ms": 0.0004065338854264971
+    }
+   }
+  }
+ }
+}

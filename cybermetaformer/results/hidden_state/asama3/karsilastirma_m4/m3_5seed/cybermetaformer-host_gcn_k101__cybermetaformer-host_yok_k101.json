@@ -1,0 +1,44 @@
+{
+  "a": "asama3/cybermetaformer-host_gcn_k101",
+  "b": "asama3/cybermetaformer-host_yok_k101",
+  "seeds_a": [
+    0,
+    1,
+    2
+  ],
+  "seeds_b": [
+    0,
+    1,
+    2
+  ],
+  "n_boot": 100000,
+  "bootstrap_seed": 0,
+  "results": {
+    "test_never_recall": {
+      "a": 0.8856467693507032,
+      "b": 0.6795113068157596,
+      "diff": 0.20613546253494364,
+      "lo": 0.18590189276341276,
+      "hi": 0.22683619867706675,
+      "p": 1.999980000199998e-05,
+      "n_boot": 100000,
+      "better": 1,
+      "p_holm": 3.999960000399996e-05,
+      "a_better": true,
+      "b_better": false
+    },
+    "ood_never_recall": {
+      "a": 0.8091432954003691,
+      "b": 0.4537134921128454,
+      "diff": 0.3554298032875237,
+      "lo": 0.3364833809955564,
+      "hi": 0.37452837772327674,
+      "p": 1.999980000199998e-05,
+      "n_boot": 100000,
+      "better": 1,
+      "p_holm": 3.999960000399996e-05,
+      "a_better": true,
+      "b_better": false
+    }
+  }
+}

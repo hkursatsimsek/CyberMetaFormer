@@ -1,0 +1,26 @@
+model: mlp
+model_args:
+  hidden:
+  - 512
+  - 512
+  - 512
+  dropout: 0.2509810409374672
+scale: global
+optimizer: adamw
+lr: 0.0012265553234742789
+weight_decay: 0.0015132827460575466
+epochs: 30
+batch_size: 1024
+schedule: warmup_cosine
+warmup_frac: 0.05
+early_stopping:
+  patience: 5
+loss: ce
+class_weights: null
+hpo:
+  study: mlp_k8
+  trial: 21
+  val_host_macro_f1: 0.9341877998456904
+k: 4
+seed: 1
+device: mps

@@ -1,0 +1,16 @@
+# Aşama 2 TimeMixer (TSLib; ölçek sayısı k'dan, k=1'de tek ölçek). HPO: d_model, ff, layers, moving_avg,
+# dropout + ortak.
+model: timemixer
+model_args: {d_model: 32, ff: 64, layers: 2, moving_avg: 5, dropout: 0.1}
+scale: global
+optimizer: adamw
+lr: 0.001
+weight_decay: 0.01
+epochs: 30
+batch_size: 1024
+schedule: warmup_cosine
+warmup_frac: 0.05
+early_stopping: {patience: 5}
+loss: ce
+grad_clip: 1.0
+compile: true

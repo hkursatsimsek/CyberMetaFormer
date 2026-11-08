@@ -1,0 +1,80 @@
+[
+  {
+    "label": "b2_L3",
+    "model_args": {
+      "layers": 3,
+      "temporal": [
+        "conv",
+        "ssd"
+      ],
+      "host_mixer": "topo",
+      "topo_mask": false,
+      "heads": 4,
+      "state": 16,
+      "kernel": 4,
+      "window": null,
+      "mlp_ratio": 3,
+      "dropout": 0.1,
+      "age": true,
+      "pos": "learned",
+      "tokens": "host",
+      "d": 240
+    },
+    "params": 2565609,
+    "step_s": 0.3468588335090317,
+    "epoch_minutes": 5.780980558483861,
+    "val_eval_minutes": 0.22807268237226241
+  },
+  {
+    "label": "b2_L4",
+    "model_args": {
+      "layers": 4,
+      "temporal": [
+        "conv",
+        "ssd"
+      ],
+      "host_mixer": "topo",
+      "topo_mask": false,
+      "heads": 4,
+      "state": 16,
+      "kernel": 4,
+      "window": null,
+      "mlp_ratio": 3,
+      "dropout": 0.1,
+      "age": true,
+      "pos": "learned",
+      "tokens": "host",
+      "d": 208
+    },
+    "params": 2582555,
+    "step_s": 0.40195227100048214,
+    "epoch_minutes": 6.699204516674702,
+    "val_eval_minutes": 0.26622568017615333
+  },
+  {
+    "label": "b2_L6",
+    "model_args": {
+      "layers": 6,
+      "temporal": [
+        "conv",
+        "ssd"
+      ],
+      "host_mixer": "topo",
+      "topo_mask": false,
+      "heads": 4,
+      "state": 16,
+      "kernel": 4,
+      "window": null,
+      "mlp_ratio": 3,
+      "dropout": 0.1,
+      "age": true,
+      "pos": "learned",
+      "tokens": "host",
+      "d": 176
+    },
+    "params": 2792863,
+    "step_s": 0.5063033539918251,
+    "epoch_minutes": 8.438389233197086,
+    "val_eval_minutes": 0.3358168467040594
+  }
+]

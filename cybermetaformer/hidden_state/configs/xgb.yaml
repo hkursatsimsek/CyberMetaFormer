@@ -1,0 +1,5 @@
+# Ham XGBoost: düzleştirilmiş son k gözlem (k×78), host başına çok sınıflı. HPO: params.
+model: xgb
+num_boost_round: 2000
+early_stopping_rounds: 50
+params: {max_depth: 6, eta: 0.1, subsample: 0.8, colsample_bytree: 0.8, min_child_weight: 1.0, reg_lambda: 1.0, max_bin: 256}

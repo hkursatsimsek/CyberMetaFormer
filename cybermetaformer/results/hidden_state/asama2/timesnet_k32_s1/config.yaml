@@ -1,0 +1,30 @@
+model: timesnet
+model_args:
+  d_model: 16
+  ff: 32
+  layers: 1
+  top_k: 3
+  kernels: 6
+  dropout: 0.0030858613643491573
+scale: global
+optimizer: adamw
+lr: 0.002074400206120547
+weight_decay: 0.00033387699205472037
+epochs: 30
+batch_size: 1024
+schedule: warmup_cosine
+warmup_frac: 0.05
+early_stopping:
+  patience: 5
+loss: ce
+grad_clip: 1.0
+compile: false
+eval_batch_size: 8192
+class_weights: null
+hpo:
+  study: timesnet_k32
+  trial: 11
+  val_host_macro_f1: 0.9260071442352654
+k: 32
+seed: 1
+device: mps

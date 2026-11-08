@@ -1,0 +1,221 @@
+{
+  "device": "mps",
+  "machine": "apple-m3-pro",
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "processor": "arm",
+  "torch": "2.14.1",
+  "threads": 6,
+  "grid": {
+    "k_values": [
+      1,
+      4,
+      8,
+      16,
+      32
+    ],
+    "seeds": 5,
+    "max_epochs": 30,
+    "expected_epochs": 15,
+    "hpo_trials": 25,
+    "hpo_k": [
+      8,
+      32
+    ],
+    "hpo_train_frac": 0.25,
+    "hpo_max_epochs": 10,
+    "hpo_expected_epochs": 6,
+    "m1_models": [
+      "mlp",
+      "cnn1d",
+      "lstm",
+      "gru"
+    ],
+    "m2_models": {
+      "transformer": 1.0,
+      "patchtst": 1.0,
+      "itransformer": 1.0,
+      "tsmixer": 0.5,
+      "timemixer": 1.5,
+      "timesnet": 4.0
+    }
+  },
+  "models": {},
+  "boyut": [
+    {
+      "model": "patchtst",
+      "k": 8,
+      "compile": true,
+      "model_args": {
+        "d_model": 128,
+        "heads": 8,
+        "layers": 2,
+        "ff": 256,
+        "dropout": 0.1,
+        "patch_ratio": 0.5
+      },
+      "params": 1703460,
+      "train_s_per_sample": 0.0009945538735109949,
+      "epoch_minutes": 26.521436626959865
+    },
+    {
+      "model": "patchtst",
+      "k": 8,
+      "compile": true,
+      "model_args": {
+        "d_model": 32,
+        "heads": 8,
+        "layers": 1,
+        "ff": 64,
+        "dropout": 0.1,
+        "patch_ratio": 0.5
+      },
+      "params": 368196,
+      "train_s_per_sample": 0.00013806347703848587,
+      "epoch_minutes": 3.6816927210262897
+    },
+    {
+      "model": "patchtst",
+      "k": 8,
+      "compile": true,
+      "model_args": {
+        "d_model": 64,
+        "heads": 8,
+        "layers": 2,
+        "ff": 128,
+        "dropout": 0.1,
+        "patch_ratio": 0.5
+      },
+      "params": 786212,
+      "train_s_per_sample": 0.0005249933881827928,
+      "epoch_minutes": 13.999823684874476
+    },
+    {
+      "model": "patchtst",
+      "k": 8,
+      "compile": true,
+      "model_args": {
+        "d_model": 128,
+        "heads": 8,
+        "layers": 2,
+        "ff": 256,
+        "dropout": 0.1,
+        "patch_ratio": 0.25
+      },
+      "params": 3140900,
+      "train_s_per_sample": 0.0015961140541662644,
+      "epoch_minutes": 42.563041444433715
+    },
+    {
+      "model": "patchtst",
+      "k": 8,
+      "compile": true,
+      "model_args": {
+        "d_model": 128,
+        "heads": 8,
+        "layers": 3,
+        "ff": 512,
+        "dropout": 0.1,
+        "patch_ratio": 0.25
+      },
+      "params": 3470756,
+      "train_s_per_sample": 0.003408998209465608,
+      "epoch_minutes": 90.90661891908287
+    },
+    {
+      "model": "timesnet",
+      "k": 32,
+      "compile": false,
+      "model_args": {
+        "d_model": 32,
+        "ff": 64,
+        "layers": 2,
+        "top_k": 3,
+        "kernels": 6,
+        "dropout": 0.1
+      },
+      "params": 2388516,
+      "train_s_per_sample": 0.0008899162797888494,
+      "epoch_minutes": 23.731100794369315
+    },
+    {
+      "model": "timesnet",
+      "k": 32,
+      "compile": false,
+      "model_args": {
+        "d_model": 16,
+        "ff": 16,
+        "layers": 1,
+        "top_k": 2,
+        "kernels": 6,
+        "dropout": 0.1
+      },
+      "params": 168868,
+      "train_s_per_sample": 0.00014333233696106618,
+      "epoch_minutes": 3.822195652295098
+    },
+    {
+      "model": "timesnet",
+      "k": 32,
+      "compile": false,
+      "model_args": {
+        "d_model": 16,
+        "ff": 32,
+        "layers": 2,
+        "top_k": 3,
+        "kernels": 6,
+        "dropout": 0.1
+      },
+      "params": 608548,
+      "train_s_per_sample": 0.00046530845122561004,
+      "epoch_minutes": 12.408225366016268
+    },
+    {
+      "model": "timesnet",
+      "k": 32,
+      "compile": false,
+      "model_args": {
+        "d_model": 64,
+        "ff": 64,
+        "layers": 2,
+        "top_k": 3,
+        "kernels": 6,
+        "dropout": 0.1
+      },
+      "params": 4776228,
+      "train_s_per_sample": 0.001660784871148735,
+      "epoch_minutes": 44.28759656396627
+    },
+    {
+      "model": "timesnet",
+      "k": 32,
+      "compile": false,
+      "model_args": {
+        "d_model": 64,
+        "ff": 128,
+        "layers": 2,
+        "top_k": 3,
+        "kernels": 6,
+        "dropout": 0.1
+      },
+      "params": 9462820,
+      "train_s_per_sample": 0.0038999254960572216,
+      "epoch_minutes": 103.99801322819258
+    },
+    {
+      "model": "timesnet",
+      "k": 32,
+      "compile": false,
+      "model_args": {
+        "d_model": 64,
+        "ff": 128,
+        "layers": 3,
+        "top_k": 3,
+        "kernels": 6,
+        "dropout": 0.1
+      },
+      "params": 14149796,
+      "train_s_per_sample": 0.005862454528312355,
+      "epoch_minutes": 156.33212075499614
+    }
+  ]
+}

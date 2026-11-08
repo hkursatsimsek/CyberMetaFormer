@@ -1,0 +1,35 @@
+model: gru
+k: 8
+value: 0.9338873256454309
+trial: 20
+params:
+  layers: 2
+  dropout: 0.11368050752704893
+  hidden: 256
+  lr: 0.0021638400921556687
+  weight_decay: 6.684278684476962e-05
+  class_weights: null
+overrides:
+  model_args:
+    hidden: 256
+    layers: 2
+    dropout: 0.11368050752704893
+  lr: 0.0021638400921556687
+  weight_decay: 6.684278684476962e-05
+  class_weights: null
+protocol:
+  n_trials: 25
+  ks:
+  - 8
+  - 32
+  train_episodes: 4000
+  epochs: 10
+  patience: 3
+  seed: 0
+  sampler_seed: 0
+  pruner:
+    n_startup_trials: 5
+    n_warmup_steps: 2
+n_complete: 20
+n_pruned: 5
+hours: 0.42909298300743104

@@ -1,0 +1,288 @@
+{
+  "info": {
+    "device": "mps",
+    "train_episodes_hash": "77526f3863258904",
+    "n_train_episodes": 16000,
+    "n_val_episodes": 2000,
+    "n_params": 186665,
+    "best_val_host_macro_f1": 0.9802340625869241,
+    "epochs_run": 30,
+    "train_seconds": 3340.400514125824,
+    "eval_seconds": 22.850258827209473
+  },
+  "reports": {
+    "val": {
+      "host_macro_f1": 0.9802340625869241,
+      "breach_f1": 0.9888576212643224,
+      "silent_recall": 0.8996507459234416,
+      "silent_exact": 0.8989291083612814,
+      "noalert_macro_f1": 0.8896346844307316,
+      "alert_recall": 0.9999781466484764,
+      "n_silent": 216175,
+      "silent_share": 0.40294170276537206,
+      "alert_age_recall": {
+        "hiç": {
+          "n": 57442,
+          "recall": 0.8847881341178928
+        },
+        "1–3": {
+          "n": 8848,
+          "recall": 0.908114828209765
+        },
+        "4–7": {
+          "n": 13700,
+          "recall": 0.8127007299270073
+        },
+        "8–15": {
+          "n": 24070,
+          "recall": 0.7902783547985044
+        },
+        "16–31": {
+          "n": 41793,
+          "recall": 0.8822051539731534
+        },
+        "32–63": {
+          "n": 53687,
+          "recall": 0.9709613127945312
+        },
+        "64+": {
+          "n": 16635,
+          "recall": 0.9900210399759544
+        }
+      },
+      "cause_recall": {
+        "kacak_5": {
+          "n": 67486,
+          "recall": 0.8810271760068755
+        },
+        "green_maske": {
+          "n": 111691,
+          "recall": 0.8835000134299094
+        },
+        "remove_maske": {
+          "n": 36998,
+          "recall": 0.9823774258068003
+        }
+      },
+      "latency": {
+        "mean_latency": 0.283558407672508,
+        "median_latency": 0.0,
+        "detected_spells": 0.996644000491979,
+        "n_spells": 56913
+      },
+      "persistence": {
+        "mean_run": 35.29964075767472,
+        "mean_held": 16.828216851730893,
+        "held_fraction": 0.4767248756794264,
+        "n_runs": 6124
+      },
+      "calibration": {
+        "ece": 0.0017370561882235666,
+        "brier": 0.020641552787482437,
+        "nll": 0.03462499206030884
+      },
+      "calibration_T": {
+        "ece": 0.0009568493923366774,
+        "brier": 0.020601959394665796,
+        "nll": 0.03401006910505839
+      },
+      "policy": {
+        "bline×sleep": 0.9965509615956285,
+        "bline×react_restore": 0.9960165015142102,
+        "bline×restore_decoys": 0.993544860601302,
+        "bline×random": 0.990564325036442,
+        "bline×react_restore_eps0.1": 0.9813944629631594,
+        "meander×sleep": 0.9695458512528723,
+        "meander×react_restore": 0.9421880158722971,
+        "meander×restore_decoys": 0.9353951939775975,
+        "meander×random": 0.9809253732253594,
+        "meander×react_restore_eps0.1": 0.9408648601988236
+      },
+      "n_episodes": 2000,
+      "episodes_hash": "76f644bdba09852a"
+    },
+    "test": {
+      "host_macro_f1": 0.980092707795245,
+      "breach_f1": 0.9883770458324824,
+      "silent_recall": 0.9005427377075683,
+      "silent_exact": 0.8997898334834523,
+      "noalert_macro_f1": 0.8885549642506011,
+      "alert_recall": 0.999984340205895,
+      "n_silent": 216495,
+      "silent_share": 0.40407141683962194,
+      "alert_age_recall": {
+        "hiç": {
+          "n": 54731,
+          "recall": 0.8854031536058176
+        },
+        "1–3": {
+          "n": 8729,
+          "recall": 0.9029671210906175
+        },
+        "4–7": {
+          "n": 13805,
+          "recall": 0.8086200651937704
+        },
+        "8–15": {
+          "n": 24927,
+          "recall": 0.7948409355317527
+        },
+        "16–31": {
+          "n": 43002,
+          "recall": 0.8937258732151993
+        },
+        "32–63": {
+          "n": 54189,
+          "recall": 0.9644392773441104
+        },
+        "64+": {
+          "n": 17112,
+          "recall": 0.9906498363721365
+        }
+      },
+      "cause_recall": {
+        "kacak_5": {
+          "n": 66396,
+          "recall": 0.8874028555937105
+        },
+        "green_maske": {
+          "n": 113817,
+          "recall": 0.8863877979563686
+        },
+        "remove_maske": {
+          "n": 36282,
+          "recall": 0.9689928890358855
+        }
+      },
+      "latency": {
+        "mean_latency": 0.27564576946118335,
+        "median_latency": 0.0,
+        "detected_spells": 0.9961036225779275,
+        "n_spells": 56976
+      },
+      "persistence": {
+        "mean_run": 35.6077302631579,
+        "mean_held": 17.098026315789475,
+        "held_fraction": 0.48017737130187765,
+        "n_runs": 6080
+      },
+      "calibration": {
+        "ece": 0.001915774281432331,
+        "brier": 0.020518961725970487,
+        "nll": 0.03422792526086853
+      },
+      "calibration_T": {
+        "ece": 0.0011025665783655622,
+        "brier": 0.020475396370152204,
+        "nll": 0.03365959204961799
+      },
+      "policy": {
+        "bline×sleep": 0.9963137335101391,
+        "bline×react_restore": 0.996766020050077,
+        "bline×restore_decoys": 0.994689980787711,
+        "bline×random": 0.9877813210280038,
+        "bline×react_restore_eps0.1": 0.982426840814621,
+        "meander×sleep": 0.9690798751102103,
+        "meander×react_restore": 0.9450214992264778,
+        "meander×restore_decoys": 0.9382854092176731,
+        "meander×random": 0.9792632701849985,
+        "meander×react_restore_eps0.1": 0.9380450851318414
+      },
+      "bootstrap": {
+        "point": 0.980092707795245,
+        "lo": 0.978936655237185,
+        "hi": 0.981194562446945
+      },
+      "n_episodes": 2000,
+      "episodes_hash": "d891f4094befdcf4"
+    },
+    "ood_test": {
+      "host_macro_f1": 0.9410669605215017,
+      "breach_f1": 0.9665620850365819,
+      "silent_recall": 0.7627473458605393,
+      "silent_exact": 0.7615386532422868,
+      "noalert_macro_f1": 0.8063804860448142,
+      "alert_recall": 0.9997953540829134,
+      "n_silent": 321008,
+      "silent_share": 0.5934701423553337,
+      "alert_age_recall": {
+        "hiç": {
+          "n": 96486,
+          "recall": 0.824389030532927
+        },
+        "1–3": {
+          "n": 7821,
+          "recall": 0.8424753867791842
+        },
+        "4–7": {
+          "n": 13916,
+          "recall": 0.6577321069272779
+        },
+        "8–15": {
+          "n": 31133,
+          "recall": 0.5593100568528571
+        },
+        "16–31": {
+          "n": 62421,
+          "recall": 0.6352189167107224
+        },
+        "32–63": {
+          "n": 83306,
+          "recall": 0.8272393345017166
+        },
+        "64+": {
+          "n": 25925,
+          "recall": 0.909778206364513
+        }
+      },
+      "cause_recall": {
+        "kacak_5": {
+          "n": 86405,
+          "recall": 0.7083154910016781
+        },
+        "green_maske": {
+          "n": 154079,
+          "recall": 0.7035481798298275
+        },
+        "remove_maske": {
+          "n": 80524,
+          "recall": 0.9344294868610601
+        }
+      },
+      "latency": {
+        "mean_latency": 0.3096502629130902,
+        "median_latency": 0.0,
+        "detected_spells": 0.9917036881947671,
+        "n_spells": 152839
+      },
+      "persistence": {
+        "mean_run": 35.82278763530856,
+        "mean_held": 14.251869211025555,
+        "held_fraction": 0.39784366744754024,
+        "n_runs": 8961
+      },
+      "calibration": {
+        "ece": 0.006976003758441548,
+        "brier": 0.04314206724315355,
+        "nll": 0.07172098367973995
+      },
+      "calibration_T": {
+        "ece": 0.0033197944770019245,
+        "brier": 0.04255347194476118,
+        "nll": 0.06897835205385822
+      },
+      "policy": {
+        "bline×react_restore_eps0.3": 0.9658860353557306,
+        "meander×react_restore_eps0.3": 0.921767448531133
+      },
+      "bootstrap": {
+        "point": 0.9410669605215017,
+        "lo": 0.939600085280391,
+        "hi": 0.9426090275845392
+      },
+      "n_episodes": 4000,
+      "episodes_hash": "dee9d1602640561c"
+    },
+    "temperature": 1.215640112116631
+  }
+}

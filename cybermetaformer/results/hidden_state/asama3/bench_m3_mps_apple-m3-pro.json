@@ -1,0 +1,318 @@
+{
+  "device": "mps",
+  "machine": "apple-m3-pro",
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "torch": "2.14.1",
+  "m3": [
+    {
+      "label": "gru_full",
+      "model": "gru_full",
+      "model_args": {
+        "hidden": 128,
+        "layers": 1,
+        "dropout": 0.0
+      },
+      "params": 84516,
+      "step_s": 0.04097258346155286,
+      "epoch_minutes": 0.6828763910258809,
+      "val_eval_minutes": 0.0027386373817915575
+    },
+    {
+      "label": "ana",
+      "model": "cybermetaformer",
+      "model_args": {
+        "d": 64,
+        "layers": 3,
+        "temporal": [
+          "conv",
+          "ssd"
+        ],
+        "host_mixer": "topo",
+        "topo_mask": false,
+        "heads": 4,
+        "state": 16,
+        "kernel": 4,
+        "window": null,
+        "mlp_ratio": 3,
+        "dropout": 0.1,
+        "age": true,
+        "pos": "learned",
+        "tokens": "host"
+      },
+      "params": 211433,
+      "step_s": 0.10763837449485436,
+      "epoch_minutes": 1.7939729082475726,
+      "val_eval_minutes": 0.07435312928677894
+    },
+    {
+      "label": "hpo_min",
+      "model": "cybermetaformer",
+      "model_args": {
+        "d": 88,
+        "layers": 2,
+        "temporal": [
+          "conv",
+          "ssd"
+        ],
+        "host_mixer": "topo",
+        "topo_mask": false,
+        "heads": 2,
+        "state": 8,
+        "kernel": 3,
+        "window": null,
+        "mlp_ratio": 2,
+        "dropout": 0.1,
+        "age": true,
+        "pos": "learned",
+        "tokens": "host"
+      },
+      "params": 208047,
+      "step_s": 0.08314639597665519,
+      "epoch_minutes": 1.3857732662775863,
+      "val_eval_minutes": 0.048512502877483724
+    },
+    {
+      "label": "hpo_max",
+      "model": "cybermetaformer",
+      "model_args": {
+        "d": 48,
+        "layers": 4,
+        "temporal": [
+          "conv",
+          "ssd"
+        ],
+        "host_mixer": "topo",
+        "topo_mask": false,
+        "heads": 4,
+        "state": 32,
+        "kernel": 6,
+        "window": null,
+        "mlp_ratio": 4,
+        "dropout": 0.1,
+        "age": true,
+        "pos": "learned",
+        "tokens": "host"
+      },
+      "params": 210491,
+      "step_s": 0.14203510450897738,
+      "epoch_minutes": 2.3672517418162897,
+      "val_eval_minutes": 0.10228162441039855
+    },
+    {
+      "label": "conv_attn",
+      "model": "cybermetaformer",
+      "model_args": {
+        "d": 64,
+        "layers": 3,
+        "temporal": [
+          "conv",
+          "attn"
+        ],
+        "host_mixer": "topo",
+        "topo_mask": false,
+        "heads": 4,
+        "state": 16,
+        "kernel": 4,
+        "window": null,
+        "mlp_ratio": 3,
+        "dropout": 0.1,
+        "age": true,
+        "pos": "learned",
+        "tokens": "host"
+      },
+      "params": 198137,
+      "step_s": 0.08437147899530828,
+      "epoch_minutes": 1.4061913165884714,
+      "val_eval_minutes": 0.061468035597494704
+    },
+    {
+      "label": "conv_gru",
+      "model": "cybermetaformer",
+      "model_args": {
+        "d": 64,
+        "layers": 3,
+        "temporal": [
+          "conv",
+          "gru"
+        ],
+        "host_mixer": "topo",
+        "topo_mask": false,
+        "heads": 4,
+        "state": 16,
+        "kernel": 4,
+        "window": null,
+        "mlp_ratio": 3,
+        "dropout": 0.1,
+        "age": true,
+        "pos": "learned",
+        "tokens": "host"
+      },
+      "params": 223097,
+      "step_s": 0.16013208398362622,
+      "epoch_minutes": 2.6688680663937703,
+      "val_eval_minutes": 0.04270831907081159
+    },
+    {
+      "label": "pencere32",
+      "model": "cybermetaformer",
+      "model_args": {
+        "d": 64,
+        "layers": 3,
+        "temporal": [
+          "conv",
+          "attn"
+        ],
+        "host_mixer": "topo",
+        "topo_mask": false,
+        "heads": 4,
+        "state": 16,
+        "kernel": 4,
+        "window": 32,
+        "mlp_ratio": 3,
+        "dropout": 0.1,
+        "age": true,
+        "pos": "learned",
+        "tokens": "host"
+      },
+      "params": 198137,
+      "step_s": 0.09361285401973873,
+      "epoch_minutes": 1.5602142336623122,
+      "val_eval_minutes": 0.06129663641691024
+    },
+    {
+      "label": "pool_mlp",
+      "model": "cybermetaformer",
+      "model_args": {
+        "d": 64,
+        "layers": 3,
+        "temporal": [
+          "pool",
+          "mlp"
+        ],
+        "host_mixer": "topo",
+        "topo_mask": false,
+        "heads": 4,
+        "state": 16,
+        "kernel": 4,
+        "window": null,
+        "mlp_ratio": 3,
+        "dropout": 0.1,
+        "age": true,
+        "pos": "learned",
+        "tokens": "host"
+      },
+      "params": 177860,
+      "step_s": 0.055160187534056604,
+      "epoch_minutes": 0.9193364589009434,
+      "val_eval_minutes": 0.03622168779184094
+    },
+    {
+      "label": "host_attn",
+      "model": "cybermetaformer",
+      "model_args": {
+        "d": 64,
+        "layers": 3,
+        "temporal": [
+          "conv",
+          "ssd"
+        ],
+        "host_mixer": "attn",
+        "topo_mask": false,
+        "heads": 4,
+        "state": 16,
+        "kernel": 4,
+        "window": null,
+        "mlp_ratio": 3,
+        "dropout": 0.1,
+        "age": true,
+        "pos": "learned",
+        "tokens": "host"
+      },
+      "params": 211385,
+      "step_s": 0.11491597897838801,
+      "epoch_minutes": 1.915266316306467,
+      "val_eval_minutes": 0.0745963734566312
+    },
+    {
+      "label": "host_gcn",
+      "model": "cybermetaformer",
+      "model_args": {
+        "d": 64,
+        "layers": 3,
+        "temporal": [
+          "conv",
+          "ssd"
+        ],
+        "host_mixer": "gcn",
+        "topo_mask": false,
+        "heads": 4,
+        "state": 16,
+        "kernel": 4,
+        "window": null,
+        "mlp_ratio": 3,
+        "dropout": 0.1,
+        "age": true,
+        "pos": "learned",
+        "tokens": "host"
+      },
+      "params": 173945,
+      "step_s": 0.09155522892251611,
+      "epoch_minutes": 1.5259204820419352,
+      "val_eval_minutes": 0.06678658264493684
+    },
+    {
+      "label": "host_yok",
+      "model": "cybermetaformer",
+      "model_args": {
+        "d": 64,
+        "layers": 3,
+        "temporal": [
+          "conv",
+          "ssd"
+        ],
+        "host_mixer": "none",
+        "topo_mask": false,
+        "heads": 4,
+        "state": 16,
+        "kernel": 4,
+        "window": null,
+        "mlp_ratio": 3,
+        "dropout": 0.1,
+        "age": true,
+        "pos": "learned",
+        "tokens": "host"
+      },
+      "params": 161081,
+      "step_s": 0.0949192505213432,
+      "epoch_minutes": 1.5819875086890534,
+      "val_eval_minutes": 0.0619854280531575
+    },
+    {
+      "label": "flat",
+      "model": "cybermetaformer",
+      "model_args": {
+        "d": 64,
+        "layers": 3,
+        "temporal": [
+          "conv",
+          "ssd"
+        ],
+        "host_mixer": "none",
+        "topo_mask": false,
+        "heads": 4,
+        "state": 16,
+        "kernel": 4,
+        "window": null,
+        "mlp_ratio": 3,
+        "dropout": 0.1,
+        "age": true,
+        "pos": "learned",
+        "tokens": "flat"
+      },
+      "params": 172954,
+      "step_s": 0.025742813013494015,
+      "epoch_minutes": 0.42904688355823356,
+      "val_eval_minutes": 0.005777457683310117
+    }
+  ]
+}

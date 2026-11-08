@@ -1,0 +1,14 @@
+# Aşama 1 MLP temel konfigürasyonu. HPO (hpo.py) model_args, lr, weight_decay ve class_weights'i
+# değiştirir; geri kalanı nihai protokoldür (en fazla 30 epoch, sabır 5, warmup + kosinüs).
+model: mlp
+model_args: {hidden: [512, 512], dropout: 0.1}
+scale: global
+optimizer: adamw
+lr: 0.001
+weight_decay: 0.01
+epochs: 30
+batch_size: 1024
+schedule: warmup_cosine
+warmup_frac: 0.05
+early_stopping: {patience: 5}
+loss: ce

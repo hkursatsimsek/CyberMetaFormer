@@ -1,0 +1,30 @@
+model: transformer
+model_args:
+  d_model: 256
+  heads: 4
+  layers: 1
+  ff: 1024
+  dropout: 0.054692963840578354
+  pos: learned
+  readout: last
+scale: global
+optimizer: adamw
+lr: 0.00023240574508001096
+weight_decay: 5.4833879581481836e-05
+epochs: 30
+batch_size: 1024
+schedule: warmup_cosine
+warmup_frac: 0.05
+early_stopping:
+  patience: 5
+loss: ce
+grad_clip: 1.0
+compile: true
+class_weights: null
+hpo:
+  study: transformer_k8
+  trial: 13
+  val_host_macro_f1: 0.9343306206464465
+k: 8
+seed: 2
+device: mps

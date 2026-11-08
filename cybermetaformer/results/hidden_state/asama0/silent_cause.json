@@ -1,0 +1,399 @@
+{
+  "veriyle_ayni": true,
+  "causes": [
+    "yok",
+    "kacak_5",
+    "green_maske",
+    "remove_maske",
+    "restore",
+    "bilinmiyor"
+  ],
+  "cause_text": {
+    "kacak_5": "İstismar %5 olasılıkla kaydedilmedi (SSH dışı istismar; minimal.py:1251)",
+    "green_maske": "Aynı adımda Green aynı hostu taradı, istismar görünmedi (minimal.py:1252)",
+    "remove_maske": "Blue 'remove' uyguladı; gözlem [1,0] 'kaldırıldı' gösterdi ama host hâlâ ele geçirilmiş (minimal.py:1308-1316)",
+    "restore": "Restore gözlemdeki bayrağı sildi ama host ele geçirilmiş kaldı",
+    "bilinmiyor": "Yukarıdakilerin hiçbiri"
+  },
+  "genel": {
+    "kacak_5": 0.30402464263444756,
+    "green_maske": 0.5159613265670344,
+    "remove_maske": 0.18001403079851797,
+    "restore": 0.0,
+    "bilinmiyor": 0.0,
+    "n_sessiz": 2513043
+  },
+  "split": {
+    "train": {
+      "kacak_5": 0.3090546873445817,
+      "green_maske": 0.5212369235491214,
+      "remove_maske": 0.16970838910629688,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 1759365
+    },
+    "val": {
+      "kacak_5": 0.3121822597432636,
+      "green_maske": 0.5166693650977218,
+      "remove_maske": 0.17114837515901468,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 216175
+    },
+    "test": {
+      "kacak_5": 0.3066860666528095,
+      "green_maske": 0.5257257673387377,
+      "remove_maske": 0.16758816600845286,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 216495
+    },
+    "ood_test": {
+      "kacak_5": 0.26916774659821563,
+      "green_maske": 0.47998492249414343,
+      "remove_maske": 0.25084733090764094,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 321008
+    }
+  },
+  "blue": {
+    "sleep": {
+      "kacak_5": 0.3867809773328031,
+      "green_maske": 0.6132190226671969,
+      "remove_maske": 0.0,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 170996
+    },
+    "react_restore": {
+      "kacak_5": 0.36617288143398224,
+      "green_maske": 0.6338271185660177,
+      "remove_maske": 0.0,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 694904
+    },
+    "restore_decoys": {
+      "kacak_5": 0.38090881701607354,
+      "green_maske": 0.6190911829839265,
+      "remove_maske": 0.0,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 454723
+    },
+    "random": {
+      "kacak_5": 0.033325558741613734,
+      "green_maske": 0.054009631347153815,
+      "remove_maske": 0.9126648099112324,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 364435
+    },
+    "react_restore_eps0.1": {
+      "kacak_5": 0.3386268016103295,
+      "green_maske": 0.5839495677318695,
+      "remove_maske": 0.07742363065780104,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 506977
+    },
+    "react_restore_eps0.3": {
+      "kacak_5": 0.26916774659821563,
+      "green_maske": 0.47998492249414343,
+      "remove_maske": 0.25084733090764094,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 321008
+    }
+  },
+  "red": {
+    "bline": {
+      "kacak_5": 0.29655334989580745,
+      "green_maske": 0.5163234969325855,
+      "remove_maske": 0.187123153171607,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 873863
+    },
+    "meander": {
+      "kacak_5": 0.3080076623677693,
+      "green_maske": 0.5157682499786479,
+      "remove_maske": 0.17622408765358288,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 1639180
+    }
+  },
+  "red_blue": {
+    "bline×sleep": {
+      "kacak_5": 0.40465534254299407,
+      "green_maske": 0.5953446574570059,
+      "remove_maske": 0.0,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 56752
+    },
+    "bline×react_restore": {
+      "kacak_5": 0.352573472140743,
+      "green_maske": 0.647426527859257,
+      "remove_maske": 0.0,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 301713
+    },
+    "bline×restore_decoys": {
+      "kacak_5": 0.37937669170480365,
+      "green_maske": 0.6206233082951964,
+      "remove_maske": 0.0,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 91993
+    },
+    "bline×random": {
+      "kacak_5": 0.030248806396252045,
+      "green_maske": 0.055243316225690745,
+      "remove_maske": 0.9145078773780572,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 122947
+    },
+    "bline×react_restore_eps0.1": {
+      "kacak_5": 0.3352124513778206,
+      "green_maske": 0.5792637615501699,
+      "remove_maske": 0.08552378707200951,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 195127
+    },
+    "bline×react_restore_eps0.3": {
+      "kacak_5": 0.24473326940786663,
+      "green_maske": 0.4287151930580741,
+      "remove_maske": 0.3265515375340593,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 105331
+    },
+    "meander×sleep": {
+      "kacak_5": 0.3779016841147019,
+      "green_maske": 0.6220983158852982,
+      "remove_maske": 0.0,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 114244
+    },
+    "meander×react_restore": {
+      "kacak_5": 0.37660831504281633,
+      "green_maske": 0.6233916849571837,
+      "remove_maske": 0.0,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 393191
+    },
+    "meander×restore_decoys": {
+      "kacak_5": 0.3812973837289444,
+      "green_maske": 0.6187026162710556,
+      "remove_maske": 0.0,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 362730
+    },
+    "meander×random": {
+      "kacak_5": 0.03489200291525873,
+      "green_maske": 0.05338153448618565,
+      "remove_maske": 0.9117264625985556,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 241488
+    },
+    "meander×react_restore_eps0.1": {
+      "kacak_5": 0.3407631874298541,
+      "green_maske": 0.5868815135481802,
+      "remove_maske": 0.07235529902196569,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 311850
+    },
+    "meander×react_restore_eps0.3": {
+      "kacak_5": 0.28110090552075556,
+      "green_maske": 0.5050237160197889,
+      "remove_maske": 0.21387537845945556,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 215677
+    }
+  },
+  "host": {
+    "def": {
+      "kacak_5": 0.0,
+      "green_maske": 0.0,
+      "remove_maske": 0.0,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 0
+    },
+    "ent0": {
+      "kacak_5": 0.0,
+      "green_maske": 0.8254602670082348,
+      "remove_maske": 0.1745397329917652,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 252951
+    },
+    "ent1": {
+      "kacak_5": 0.3602781752585399,
+      "green_maske": 0.5071299824979465,
+      "remove_maske": 0.13259184224351364,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 344531
+    },
+    "ent2": {
+      "kacak_5": 0.34873424011569526,
+      "green_maske": 0.4714274454165681,
+      "remove_maske": 0.17983831446773657,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 291801
+    },
+    "ophost0": {
+      "kacak_5": 0.0,
+      "green_maske": 0.0,
+      "remove_maske": 1.0,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 16776
+    },
+    "ophost1": {
+      "kacak_5": 0.0,
+      "green_maske": 0.0,
+      "remove_maske": 1.0,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 17145
+    },
+    "ophost2": {
+      "kacak_5": 0.0,
+      "green_maske": 0.0,
+      "remove_maske": 1.0,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 18759
+    },
+    "opserv": {
+      "kacak_5": 0.0,
+      "green_maske": 0.0,
+      "remove_maske": 1.0,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 80831
+    },
+    "user1": {
+      "kacak_5": 0.309711619215304,
+      "green_maske": 0.5671425755247644,
+      "remove_maske": 0.12314580525993157,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 370309
+    },
+    "user2": {
+      "kacak_5": 0.3786302878810346,
+      "green_maske": 0.5065959497532145,
+      "remove_maske": 0.11477376236575085,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 377656
+    },
+    "user3": {
+      "kacak_5": 0.37722975001071996,
+      "green_maske": 0.5039154624587282,
+      "remove_maske": 0.11885478753055187,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 373136
+    },
+    "user4": {
+      "kacak_5": 0.37843900007585035,
+      "green_maske": 0.5043532675241367,
+      "remove_maske": 0.117207732400013,
+      "restore": 0.0,
+      "bilinmiyor": 0.0,
+      "n_sessiz": 369148
+    }
+  },
+  "remove_maske_yeniden_bayraklama": {
+    "detection_false": 0.9950396013996989,
+    "ayni_hosta_red_aksiyonu": 0.0049581880839907775,
+    "aciklanamayan": 2.2105163102945954e-06,
+    "detection_yazari": {
+      "hic": 0.0,
+      "exploit_tespit": 2.2105163102945954e-06,
+      "exploit_kacak": 0.00025420937568387846,
+      "network": 0.0,
+      "escalate": 0.7436000026526196,
+      "impact": 0.17741382854793394,
+      "sleep_alias": 0.0,
+      "remote_alias": 0.07872974890745231
+    }
+  },
+  "kosular": {
+    "kacak_5": {
+      "kosu": 19149,
+      "ort_sure": 39.89905478092851,
+      "bolum_sonuna_kadar": 0.6457778474071753
+    },
+    "green_maske": {
+      "kosu": 33063,
+      "ort_sure": 39.217040195989476,
+      "bolum_sonuna_kadar": 0.6474306626742885
+    },
+    "remove_maske": {
+      "kosu": 20807,
+      "ort_sure": 21.741865718267892,
+      "bolum_sonuna_kadar": 0.3143653578122747
+    },
+    "restore": {
+      "kosu": 0,
+      "ort_sure": 0.0,
+      "bolum_sonuna_kadar": 0.0
+    },
+    "bilinmiyor": {
+      "kosu": 0,
+      "ort_sure": 0.0,
+      "bolum_sonuna_kadar": 0.0
+    }
+  },
+  "probe": {
+    "restore_vs_exploit": {
+      "deneme": 76000,
+      "restore_sonrasi_ele_gecirilmis": 0,
+      "yorum": "restore, Red güncellemesinden SONRA uygulanır (update_blue updated_state üzerinde çalışır)"
+    },
+    "remove_on_root": {
+      "deneme": 112000,
+      "root_kaldi": 112000,
+      "gozlem_[1,0]_gosterdi": 112000,
+      "blue_success_-1_iken": 112000,
+      "yorum": "remove root'a etkisiz (update_blue:741) ama _process_state remove'u logical_and(blue_success, remove) ile süzer; -1 doğru (truthy) sayıldığı için bayrak her durumda [1,0]"
+    },
+    "detection_overwrite": {
+      "escalate": {
+        "detection_True_iken": 20905,
+        "False_yapildi": 20905
+      },
+      "sleep (→ user1)": {
+        "detection_True_iken": 0,
+        "False_yapildi": 0
+      },
+      "remote_sub* (→ user2-4)": {
+        "detection_True_iken": 0,
+        "False_yapildi": 0
+      },
+      "network/impact": {
+        "detection_True_iken": 0,
+        "False_yapildi": 0
+      }
+    }
+  },
+  "sure_s": 29.3
+}

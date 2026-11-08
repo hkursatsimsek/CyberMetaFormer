@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this code or data, please cite it as below. The article reference will be added on publication."
+title: "CyberMetaFormer: host-structured temporal hidden-state estimation for autonomous cyber defence under silent compromise"
+type: software
+authors:
+  - family-names: "Şimşek"
+    given-names: "Hamza Kürşat"
+version: "0.1.0"
+date-released: "2026-11-08"
+license: MIT
+repository-code: "https://github.com/hkursatsimsek/CyberMetaFormer"
+keywords:
+  - autonomous cyber defence
+  - partial observability
+  - hidden-state estimation
+  - silent compromise
+  - MetaFormer
+  - state space models
+  - out-of-distribution generalization
+  - CAGE Challenge 2

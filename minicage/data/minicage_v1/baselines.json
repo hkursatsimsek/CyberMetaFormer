@@ -1,0 +1,198 @@
+[
+  {
+    "task": "tespit (host x 3 sınıf) [test]",
+    "split": "test",
+    "model": "MLP, k=1",
+    "metric": "ort. host makro-F1",
+    "value": 0.9095504742246565,
+    "reference": "çoğunluk sınıfı: 0.285"
+  },
+  {
+    "task": "tespit (ağda ihlal var mı) [test]",
+    "split": "test",
+    "model": "MLP, k=1",
+    "metric": "F1",
+    "value": 0.939538864428794,
+    "reference": "uyarı kuralı: 0.833"
+  },
+  {
+    "task": "tespit (host x 3 sınıf) [ood_test]",
+    "split": "ood_test",
+    "model": "MLP, k=1",
+    "metric": "ort. host makro-F1",
+    "value": 0.8078730745456806,
+    "reference": "çoğunluk sınıfı: 0.311"
+  },
+  {
+    "task": "tespit (ağda ihlal var mı) [ood_test]",
+    "split": "ood_test",
+    "model": "MLP, k=1",
+    "metric": "F1",
+    "value": 0.8889936517982266,
+    "reference": "uyarı kuralı: 0.802"
+  },
+  {
+    "task": "tespit (host x 3 sınıf) [test]",
+    "split": "test",
+    "model": "MLP, k=4",
+    "metric": "ort. host makro-F1",
+    "value": 0.9198684132855757,
+    "reference": "çoğunluk sınıfı: 0.285"
+  },
+  {
+    "task": "tespit (ağda ihlal var mı) [test]",
+    "split": "test",
+    "model": "MLP, k=4",
+    "metric": "F1",
+    "value": 0.9611225151733269,
+    "reference": "uyarı kuralı: 0.833"
+  },
+  {
+    "task": "tespit (host x 3 sınıf) [ood_test]",
+    "split": "ood_test",
+    "model": "MLP, k=4",
+    "metric": "ort. host makro-F1",
+    "value": 0.809504132678393,
+    "reference": "çoğunluk sınıfı: 0.311"
+  },
+  {
+    "task": "tespit (ağda ihlal var mı) [ood_test]",
+    "split": "ood_test",
+    "model": "MLP, k=4",
+    "metric": "F1",
+    "value": 0.9004874022123712,
+    "reference": "uyarı kuralı: 0.802"
+  },
+  {
+    "task": "tespit (host x 3 sınıf) [test]",
+    "split": "test",
+    "model": "MLP, k=8",
+    "metric": "ort. host makro-F1",
+    "value": 0.9291082043328135,
+    "reference": "çoğunluk sınıfı: 0.285"
+  },
+  {
+    "task": "tespit (ağda ihlal var mı) [test]",
+    "split": "test",
+    "model": "MLP, k=8",
+    "metric": "F1",
+    "value": 0.9693477381573471,
+    "reference": "uyarı kuralı: 0.833"
+  },
+  {
+    "task": "tespit (host x 3 sınıf) [ood_test]",
+    "split": "ood_test",
+    "model": "MLP, k=8",
+    "metric": "ort. host makro-F1",
+    "value": 0.8160814994038283,
+    "reference": "çoğunluk sınıfı: 0.311"
+  },
+  {
+    "task": "tespit (ağda ihlal var mı) [ood_test]",
+    "split": "ood_test",
+    "model": "MLP, k=8",
+    "metric": "F1",
+    "value": 0.8987053584403589,
+    "reference": "uyarı kuralı: 0.802"
+  },
+  {
+    "task": "OpServer erken uyarı (10 adım) [test]",
+    "split": "test",
+    "model": "MLP, k=4",
+    "metric": "F1 / AUC",
+    "value": 0.796371750097012,
+    "auc": 0.9825100730120525,
+    "pos_rate": 0.07756983791830596,
+    "reference": "uyarı kuralı F1: 0.360"
+  },
+  {
+    "task": "OpServer erken uyarı (10 adım) [ood_test]",
+    "split": "ood_test",
+    "model": "MLP, k=4",
+    "metric": "F1 / AUC",
+    "value": 0.19847870482730043,
+    "auc": 0.753465398422072,
+    "pos_rate": 0.13202145857819464,
+    "reference": "uyarı kuralı F1: 0.385"
+  },
+  {
+    "task": "saldırgan tanıma [test]",
+    "split": "test",
+    "model": "GRU, ilk 3 adım",
+    "metric": "doğruluk",
+    "value": 0.9975,
+    "reference": "şans: 0.500"
+  },
+  {
+    "task": "saldırgan tanıma [ood_test]",
+    "split": "ood_test",
+    "model": "GRU, ilk 3 adım",
+    "metric": "doğruluk",
+    "value": 0.995,
+    "reference": "şans: 0.500"
+  },
+  {
+    "task": "saldırgan tanıma [test]",
+    "split": "test",
+    "model": "GRU, ilk 5 adım",
+    "metric": "doğruluk",
+    "value": 1.0,
+    "reference": "şans: 0.500"
+  },
+  {
+    "task": "saldırgan tanıma [ood_test]",
+    "split": "ood_test",
+    "model": "GRU, ilk 5 adım",
+    "metric": "doğruluk",
+    "value": 0.9995,
+    "reference": "şans: 0.500"
+  },
+  {
+    "task": "saldırgan tanıma [test]",
+    "split": "test",
+    "model": "GRU, ilk 10 adım",
+    "metric": "doğruluk",
+    "value": 0.9995,
+    "reference": "şans: 0.500"
+  },
+  {
+    "task": "saldırgan tanıma [ood_test]",
+    "split": "ood_test",
+    "model": "GRU, ilk 10 adım",
+    "metric": "doğruluk",
+    "value": 0.99925,
+    "reference": "şans: 0.500"
+  },
+  {
+    "task": "Red aksiyon tipi tahmini [test]",
+    "split": "test",
+    "model": "MLP, k=4",
+    "metric": "doğruluk",
+    "value": 0.968535,
+    "reference": "çoğunluk: 0.326"
+  },
+  {
+    "task": "Red aksiyon tipi tahmini [ood_test]",
+    "split": "ood_test",
+    "model": "MLP, k=4",
+    "metric": "doğruluk",
+    "value": 0.9487675,
+    "reference": "çoğunluk: 0.417"
+  },
+  {
+    "task": "davranış klonlama (BC) [ortamda 500 bölüm]",
+    "split": "ortamda 500 bölüm",
+    "model": "MLP ← restore_decoys",
+    "metric": "bölüm ödülü vs bline",
+    "value": -56.36640000000004,
+    "reference": "öğretmen: -55.6"
+  },
+  {
+    "task": "davranış klonlama (BC) [ortamda 500 bölüm]",
+    "split": "ortamda 500 bölüm",
+    "model": "MLP ← restore_decoys",
+    "metric": "bölüm ödülü vs meander",
+    "value": -87.78880000000002,
+    "reference": "öğretmen: -85.0"
+  }
+]

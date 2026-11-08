@@ -1,0 +1,25 @@
+model: lstm
+model_args:
+  hidden: 128
+  layers: 1
+  dropout: 0.0
+scale: global
+optimizer: adamw
+lr: 0.002862181405468322
+weight_decay: 2.6108492995406778e-05
+epochs: 30
+batch_size: 1024
+schedule: warmup_cosine
+warmup_frac: 0.05
+early_stopping:
+  patience: 5
+loss: ce
+grad_clip: 1.0
+class_weights: null
+hpo:
+  study: lstm_k8
+  trial: 16
+  val_host_macro_f1: 0.9311725390429489
+k: 1
+seed: 3
+device: mps

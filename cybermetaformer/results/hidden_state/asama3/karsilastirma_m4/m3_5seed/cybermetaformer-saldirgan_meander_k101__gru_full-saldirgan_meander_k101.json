@@ -1,0 +1,57 @@
+{
+  "a": "asama3/cybermetaformer-saldirgan_meander_k101",
+  "b": "asama3/gru_full-saldirgan_meander_k101",
+  "seeds_a": [
+    0,
+    1,
+    2
+  ],
+  "seeds_b": [
+    0,
+    1,
+    2
+  ],
+  "n_boot": 100000,
+  "bootstrap_seed": 0,
+  "results": {
+    "test_shift_host_macro_f1": {
+      "a": 0.8409460030462567,
+      "b": 0.8497529775831528,
+      "diff": -0.008806974536896162,
+      "lo": -0.011808837203800835,
+      "hi": -0.005729799356496061,
+      "p": 1.999980000199998e-05,
+      "n_boot": 100000,
+      "better": 1,
+      "p_holm": 5.999940000599994e-05,
+      "a_better": false,
+      "b_better": true
+    },
+    "ood_test_shift_host_macro_f1": {
+      "a": 0.7376845968846291,
+      "b": 0.7254064457495336,
+      "diff": 0.01227815113509545,
+      "lo": 0.008382427473862277,
+      "hi": 0.016544331716116755,
+      "p": 1.999980000199998e-05,
+      "n_boot": 100000,
+      "better": 1,
+      "p_holm": 5.999940000599994e-05,
+      "a_better": true,
+      "b_better": false
+    },
+    "ood_test_shift_silent_recall": {
+      "a": 0.2965635314706338,
+      "b": 0.3690334912482238,
+      "diff": -0.07246995977759002,
+      "lo": -0.08602558543591729,
+      "hi": -0.059014158932194534,
+      "p": 1.999980000199998e-05,
+      "n_boot": 100000,
+      "better": 1,
+      "p_holm": 5.999940000599994e-05,
+      "a_better": false,
+      "b_better": true
+    }
+  }
+}

@@ -1,0 +1,29 @@
+model: itransformer
+model_args:
+  d_model: 64
+  heads: 2
+  layers: 3
+  ff: 256
+  dropout: 0.08818683158557936
+scale: global
+optimizer: adamw
+lr: 0.0024322921513949738
+weight_decay: 0.003499450042319799
+epochs: 30
+batch_size: 1024
+schedule: warmup_cosine
+warmup_frac: 0.05
+early_stopping:
+  patience: 5
+loss: ce
+grad_clip: 1.0
+compile: true
+eval_batch_size: 8192
+class_weights: null
+hpo:
+  study: itransformer_k8
+  trial: 10
+  val_host_macro_f1: 0.9390111855640367
+k: 4
+seed: 1
+device: mps

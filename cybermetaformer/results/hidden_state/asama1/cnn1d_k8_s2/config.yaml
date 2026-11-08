@@ -1,0 +1,25 @@
+model: cnn1d
+model_args:
+  channels: 256
+  layers: 3
+  kernel: 3
+  dropout: 0.21870830928372637
+scale: global
+optimizer: adamw
+lr: 0.0025692770057050476
+weight_decay: 0.02274539306341145
+epochs: 30
+batch_size: 1024
+schedule: warmup_cosine
+warmup_frac: 0.05
+early_stopping:
+  patience: 5
+loss: ce
+class_weights: null
+hpo:
+  study: cnn1d_k8
+  trial: 16
+  val_host_macro_f1: 0.9326080478417313
+k: 8
+seed: 2
+device: mps

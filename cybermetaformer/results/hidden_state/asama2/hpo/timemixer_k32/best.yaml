@@ -1,0 +1,39 @@
+model: timemixer
+k: 32
+value: 0.9399331470904445
+trial: 10
+params:
+  d_model: 32
+  ff_mult: 2
+  layers: 3
+  moving_avg: 9
+  dropout: 0.1610811200055902
+  lr: 0.002465385642066478
+  weight_decay: 0.0016975443105567412
+  class_weights: null
+overrides:
+  model_args:
+    d_model: 32
+    ff: 64
+    layers: 3
+    moving_avg: 9
+    dropout: 0.1610811200055902
+  lr: 0.002465385642066478
+  weight_decay: 0.0016975443105567412
+  class_weights: null
+protocol:
+  n_trials: 15
+  ks:
+  - 8
+  - 32
+  train_episodes: 4000
+  epochs: 10
+  patience: 3
+  seed: 0
+  sampler_seed: 0
+  pruner:
+    n_startup_trials: 5
+    n_warmup_steps: 2
+n_complete: 11
+n_pruned: 4
+hours: 2.340776068833139

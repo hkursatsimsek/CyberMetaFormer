@@ -1,0 +1,3270 @@
+{
+ "plan": "ood_test_shift_silent_recall",
+ "n_boot": 10000,
+ "bootstrap_seed": 0,
+ "n_rows": 116,
+ "rows": [
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama1/gru_full_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9800887079119346,
+   "b": 0.976775558998433,
+   "diff": 0.00331314891350154,
+   "lo": 0.002827927095220106,
+   "hi": 0.003813793705394263,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama1/gru_full_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.941698313321078,
+   "b": 0.926390652690821,
+   "diff": 0.015307660630257014,
+   "lo": 0.014454745586606421,
+   "hi": 0.016173655503865,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama1/gru_full_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "criterion": "ood_rel_drop",
+   "a": 0.03917032296172899,
+   "b": 0.051582994139981644,
+   "diff": -0.012412671178252656,
+   "lo": -0.013413826188603567,
+   "hi": -0.011399827575639331,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": -1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama1/gru_full_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7761416122547309,
+   "b": 0.7361492548472313,
+   "diff": 0.039992357407499624,
+   "lo": 0.0352428551452086,
+   "hi": 0.044885135692788077,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama1/gru_k32",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9800887079119346,
+   "b": 0.9657757309103235,
+   "diff": 0.014312977001611049,
+   "lo": 0.013254700503817416,
+   "hi": 0.015394057882449848,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama1/gru_k32",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.941698313321078,
+   "b": 0.8870890376622104,
+   "diff": 0.05460927565886764,
+   "lo": 0.05297070378119191,
+   "hi": 0.05625723175089141,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama1/gru_k32",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "criterion": "ood_rel_drop",
+   "a": 0.03917032296172899,
+   "b": 0.08147514567292376,
+   "diff": -0.04230482271119477,
+   "lo": -0.04426388035597978,
+   "hi": -0.040320035439439225,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": -1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama2/timemixer_k64",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9800887079119346,
+   "b": 0.9692313934247055,
+   "diff": 0.010857314487229042,
+   "lo": 0.009994934059300858,
+   "hi": 0.011764228326987198,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama2/timemixer_k64",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.941698313321078,
+   "b": 0.8930264271325391,
+   "diff": 0.048671886188538904,
+   "lo": 0.0466153981262003,
+   "hi": 0.05062051380453344,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama2/timemixer_k64",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_rel_drop",
+   "a": 0.03917032296172899,
+   "b": 0.07862838108962822,
+   "diff": -0.03945805812789923,
+   "lo": -0.04163445777029423,
+   "hi": -0.03718925884354102,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": -1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama2/timemixer_k64",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7761416122547309,
+   "b": 0.6713612537174566,
+   "diff": 0.1047803585372743,
+   "lo": 0.0987657869016341,
+   "hi": 0.11092534659703004,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama2/transformer_k64",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9800887079119346,
+   "b": 0.9714411752415271,
+   "diff": 0.00864753267040752,
+   "lo": 0.007909030409037242,
+   "hi": 0.009404484073219768,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama2/transformer_k64",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.941698313321078,
+   "b": 0.8918166685475485,
+   "diff": 0.04988164477352952,
+   "lo": 0.04803398553316175,
+   "hi": 0.051665387002898515,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama2/transformer_k64",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_rel_drop",
+   "a": 0.03917032296172899,
+   "b": 0.08196725938791527,
+   "diff": -0.04279693642618628,
+   "lo": -0.044760949616065325,
+   "hi": -0.04076735606903031,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": -1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama2/transformer_k64",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7761416122547309,
+   "b": 0.6367328332419545,
+   "diff": 0.13940877901277637,
+   "lo": 0.13297724576636544,
+   "hi": 0.146027949450856,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama2/patchtst_k32",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9800887079119346,
+   "b": 0.9545052649898534,
+   "diff": 0.025583442922081145,
+   "lo": 0.024176689073165163,
+   "hi": 0.027052441075275543,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama2/patchtst_k32",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.941698313321078,
+   "b": 0.8504632063611957,
+   "diff": 0.09123510695988235,
+   "lo": 0.08889219832428828,
+   "hi": 0.09352466905017182,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama2/patchtst_k32",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_rel_drop",
+   "a": 0.03917032296172899,
+   "b": 0.10900104719873067,
+   "diff": -0.06983072423700168,
+   "lo": -0.07257190256868125,
+   "hi": -0.067011295528203,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": -1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ3: ana model − çıtalar",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama2/patchtst_k32",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7761416122547309,
+   "b": 0.48766074365747897,
+   "diff": 0.2884808685972519,
+   "lo": 0.27928448683844903,
+   "hi": 0.2975424315072904,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-duz78_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9720346132465251,
+   "b": 0.9800887079119346,
+   "diff": -0.008054094665409517,
+   "lo": -0.009115480312751428,
+   "hi": -0.007075518296921807,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-duz78_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.8984030112213816,
+   "b": 0.941698313321078,
+   "diff": -0.04329530209969645,
+   "lo": -0.045085271602408765,
+   "hi": -0.04142021710171518,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-duz78_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7255281280632673,
+   "b": 0.7761416122547309,
+   "diff": -0.05061348419146361,
+   "lo": -0.05660994433547474,
+   "hi": -0.04475239661628371,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-host_yok_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.959758541805192,
+   "b": 0.9800887079119346,
+   "diff": -0.020330166106742542,
+   "lo": -0.02153432091959573,
+   "hi": -0.019180810136309574,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-host_yok_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.8992928708084857,
+   "b": 0.941698313321078,
+   "diff": -0.04240544251259226,
+   "lo": -0.04409700945273008,
+   "hi": -0.040792162370156315,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-host_yok_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.5907827842296766,
+   "b": 0.7761416122547309,
+   "diff": -0.18535882802505432,
+   "lo": -0.19460030244544205,
+   "hi": -0.1764241754223619,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-host_tam_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9799858492548653,
+   "b": 0.9800887079119346,
+   "diff": -0.00010285865706927133,
+   "lo": -0.0002850924367211044,
+   "hi": 7.956023077692603e-05,
+   "p": 0.27077292270772924,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.27077292270772924,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 1.0
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-host_tam_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.9411374488949802,
+   "b": 0.941698313321078,
+   "diff": -0.000560864426097818,
+   "lo": -0.0009606893859147508,
+   "hi": -0.00016971659185815728,
+   "p": 0.0051994800519948,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0155984401559844,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.1247875212478752
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-host_tam_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7738166442373191,
+   "b": 0.7761416122547309,
+   "diff": -0.002324968017411777,
+   "lo": -0.004577130630794313,
+   "hi": -3.460884880307228e-05,
+   "p": 0.0461953804619538,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0923907609239076,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 0.7853214678532147
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-host_gcn_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9770206143014293,
+   "b": 0.9800887079119346,
+   "diff": -0.003068093610505307,
+   "lo": -0.0035604094106884616,
+   "hi": -0.0025966625971298425,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-host_gcn_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.9282808125480312,
+   "b": 0.941698313321078,
+   "diff": -0.01341750077304682,
+   "lo": -0.014285008328605672,
+   "hi": -0.012564821656065987,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-host_gcn_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7303234394989119,
+   "b": 0.7761416122547309,
+   "diff": -0.04581817275581901,
+   "lo": -0.051238280106370986,
+   "hi": -0.040430714366203956,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-konv_dikkat_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.980101781082452,
+   "b": 0.9800887079119346,
+   "diff": 1.3073170517463595e-05,
+   "lo": -0.0002026288141548982,
+   "hi": 0.0002287129253229075,
+   "p": 0.9005099490050995,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.9005099490050995,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 1.0
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-konv_dikkat_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.9409961444235367,
+   "b": 0.941698313321078,
+   "diff": -0.0007021688975412665,
+   "lo": -0.001143074898536392,
+   "hi": -0.00026419108919412967,
+   "p": 0.0017998200179982,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0035996400359964,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.0485951404859514
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-konv_dikkat_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7860717905265081,
+   "b": 0.7761416122547309,
+   "diff": 0.009930178271777224,
+   "lo": 0.007226404403998516,
+   "hi": 0.01263998461457198,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-hafiza_yok_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9797541029754658,
+   "b": 0.9800887079119346,
+   "diff": -0.000334604936468752,
+   "lo": -0.0005708937960110544,
+   "hi": -0.00011180194536835334,
+   "p": 0.0033996600339966003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.006799320067993201,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.08499150084991501
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-hafiza_yok_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.938401982943236,
+   "b": 0.941698313321078,
+   "diff": -0.0032963303778420494,
+   "lo": -0.003834120490748613,
+   "hi": -0.002779721788689171,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-hafiza_yok_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7720908305504328,
+   "b": 0.7761416122547309,
+   "diff": -0.004050781704298068,
+   "lo": -0.007069388972996182,
+   "hi": -0.0009773624539460514,
+   "p": 0.008399160083991601,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.008399160083991601,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.19318068193180682
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-yalniz_yas_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9794937954832111,
+   "b": 0.9800887079119346,
+   "diff": -0.0005949124287234486,
+   "lo": -0.0008541175405023055,
+   "hi": -0.0003492191950787288,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-yalniz_yas_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.9390136947847898,
+   "b": 0.941698313321078,
+   "diff": -0.002684618536288208,
+   "lo": -0.003182758572875566,
+   "hi": -0.002198959654650198,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-yalniz_yas_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7890384870989715,
+   "b": 0.7761416122547309,
+   "diff": 0.012896874844240624,
+   "lo": 0.010028692119208909,
+   "hi": 0.0157999181343618,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-yalniz_ssd_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9800891511146195,
+   "b": 0.9800887079119346,
+   "diff": 4.4320268488551307e-07,
+   "lo": -0.00021788493928700246,
+   "hi": 0.0002121679615782662,
+   "p": 0.9867013298670133,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.9867013298670133,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 1.0
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-yalniz_ssd_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.9414173154356438,
+   "b": 0.941698313321078,
+   "diff": -0.000280997885434231,
+   "lo": -0.0007346124515189816,
+   "hi": 0.00015123307110458665,
+   "p": 0.20837916208379162,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.41675832416758324,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 1.0
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-yalniz_ssd_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7818559039027065,
+   "b": 0.7761416122547309,
+   "diff": 0.005714291647975656,
+   "lo": 0.0033717074577125665,
+   "hi": 0.008080544577656305,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-konum_yok_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9801822943489765,
+   "b": 0.9800887079119346,
+   "diff": 9.358643704193703e-05,
+   "lo": -0.00015446778397452398,
+   "hi": 0.0003177938823222231,
+   "p": 0.41915808419158085,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.41915808419158085,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 1.0
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-konum_yok_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.9424464338258859,
+   "b": 0.941698313321078,
+   "diff": 0.000748120504807881,
+   "lo": 0.0003582492759655276,
+   "hi": 0.0011356911780129957,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-konum_yok_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7654565202944058,
+   "b": 0.7761416122547309,
+   "diff": -0.010685091960325077,
+   "lo": -0.013074645841577148,
+   "hi": -0.008324830591077881,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-kol_konv_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9656227749685353,
+   "b": 0.9800887079119346,
+   "diff": -0.014465932943399262,
+   "lo": -0.01565281352331554,
+   "hi": -0.013331161286213925,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-kol_konv_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.884176163238104,
+   "b": 0.941698313321078,
+   "diff": -0.05752215008297401,
+   "lo": -0.059561784887949866,
+   "hi": -0.05547369071085628,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-kol_konv_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.5622642841715263,
+   "b": 0.7761416122547309,
+   "diff": -0.2138773280832046,
+   "lo": -0.22267040048078254,
+   "hi": -0.20497673737396593,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-kol_ssd_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9798665369799707,
+   "b": 0.9800887079119346,
+   "diff": -0.00022217093196386095,
+   "lo": -0.00047447389940285243,
+   "hi": 1.4071361170689573e-08,
+   "p": 0.05039496050394961,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.10078992100789921,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 0.8063193680631937
+  },
+  {
+   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-kol_ssd_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.9413887837874709,
+   "b": 0.941698313321078,
+   "diff": -0.000309529533607078,
+   "lo": -0.0007305399768399057,
+   "hi": 0.00013570554330551415,
+   "p": 0.16798320167983202,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.16798320167983202,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 1.0
+  },
+  {
+   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-kol_ssd_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7799992523550815,
+   "b": 0.7761416122547309,
+   "diff": 0.0038576401003506122,
+   "lo": 0.0014177482281266807,
+   "hi": 0.0063369327486460176,
+   "p": 0.0017998200179982,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0053994600539946005,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.0485951404859514
+  },
+  {
+   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-konv_gru_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9805519154738386,
+   "b": 0.9800887079119346,
+   "diff": 0.0004632075619039888,
+   "lo": 0.0002174387242497744,
+   "hi": 0.0006916944890678788,
+   "p": 0.00039996000399960006,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-konv_gru_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.9428143690532608,
+   "b": 0.941698313321078,
+   "diff": 0.0011160557321827635,
+   "lo": 0.0006511046742297244,
+   "hi": 0.0015818671643597598,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-konv_gru_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.777375226370267,
+   "b": 0.7761416122547309,
+   "diff": 0.0012336141155361302,
+   "lo": -0.001568863552786015,
+   "hi": 0.004029833816473734,
+   "p": 0.38876112388761125,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.38876112388761125,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 1.0
+  },
+  {
+   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-havuz_mlp_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9789758789801487,
+   "b": 0.9800887079119346,
+   "diff": -0.0011128289317858808,
+   "lo": -0.0014314255320604014,
+   "hi": -0.0008088939501410513,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-havuz_mlp_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.9353830477068198,
+   "b": 0.941698313321078,
+   "diff": -0.006315265614258214,
+   "lo": -0.0069325969826024595,
+   "hi": -0.005723810681295077,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "model_a": "asama3/cybermetaformer-havuz_mlp_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7514361012809649,
+   "b": 0.7761416122547309,
+   "diff": -0.024705510973765943,
+   "lo": -0.02825051460218492,
+   "hi": -0.02129145179940869,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ4 (H4): hiç uyarı görülmemiş dilim",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama3/cybermetaformer-host_yok_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_never_recall",
+   "a": 0.8870658310646617,
+   "b": 0.6795113068157596,
+   "diff": 0.2075545242489022,
+   "lo": 0.18702719291362796,
+   "hi": 0.2284942774032283,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.00039996000399960006,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ4 (H4): hiç uyarı görülmemiş dilim",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama3/cybermetaformer-host_yok_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_never_recall",
+   "a": 0.8297956871117744,
+   "b": 0.4537134921128454,
+   "diff": 0.37608219499892903,
+   "lo": 0.3574967069262476,
+   "hi": 0.3950614058971559,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.00039996000399960006,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ4 (H4): hiç uyarı görülmemiş dilim",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama3/cybermetaformer-duz78_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_never_recall",
+   "a": 0.8870658310646617,
+   "b": 0.8899465872479339,
+   "diff": -0.002880756183272104,
+   "lo": -0.013540673454680463,
+   "hi": 0.007918647646588539,
+   "p": 0.5953404659534046,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.5953404659534046,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 1.0
+  },
+  {
+   "family": "RQ4 (H4): hiç uyarı görülmemiş dilim",
+   "model_a": "asama3/cybermetaformer_k101",
+   "model_b": "asama3/cybermetaformer-duz78_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_never_recall",
+   "a": 0.8297956871117744,
+   "b": 0.7728686026988371,
+   "diff": 0.05692708441293737,
+   "lo": 0.04603037461990363,
+   "hi": 0.06818147270977297,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.00039996000399960006,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ4 (H4): hiç uyarı görülmemiş dilim",
+   "model_a": "asama3/cybermetaformer-host_tam_k101",
+   "model_b": "asama3/cybermetaformer-host_yok_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_never_recall",
+   "a": 0.8949285292308442,
+   "b": 0.6795113068157596,
+   "diff": 0.21541722241508465,
+   "lo": 0.1955206497009858,
+   "hi": 0.23617901271635847,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.00039996000399960006,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ4 (H4): hiç uyarı görülmemiş dilim",
+   "model_a": "asama3/cybermetaformer-host_tam_k101",
+   "model_b": "asama3/cybermetaformer-host_yok_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_never_recall",
+   "a": 0.8312743126809417,
+   "b": 0.4537134921128454,
+   "diff": 0.37756082056809626,
+   "lo": 0.3590120636350645,
+   "hi": 0.39669820576454756,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.00039996000399960006,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ4 (H4): hiç uyarı görülmemiş dilim",
+   "model_a": "asama3/cybermetaformer-host_gcn_k101",
+   "model_b": "asama3/cybermetaformer-host_yok_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_never_recall",
+   "a": 0.8856467693507032,
+   "b": 0.6795113068157596,
+   "diff": 0.20613546253494364,
+   "lo": 0.18611484173204432,
+   "hi": 0.22705272920520325,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.00039996000399960006,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "RQ4 (H4): hiç uyarı görülmemiş dilim",
+   "model_a": "asama3/cybermetaformer-host_gcn_k101",
+   "model_b": "asama3/cybermetaformer-host_yok_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_never_recall",
+   "a": 0.8091432954003691,
+   "b": 0.4537134921128454,
+   "diff": 0.3554298032875237,
+   "lo": 0.33674038552773966,
+   "hi": 0.37458479002122447,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.00039996000399960006,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-dg_groupdro_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9756229422139051,
+   "b": 0.9799476574089856,
+   "diff": -0.004324715195080486,
+   "lo": -0.004740849228774954,
+   "hi": -0.003927810856262918,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-dg_groupdro_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.929892403774451,
+   "b": 0.9413270456814122,
+   "diff": -0.011434641906961196,
+   "lo": -0.012162318026965995,
+   "hi": -0.01073125352194649,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-dg_groupdro_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_rel_drop",
+   "a": 0.04687228951350878,
+   "b": 0.03941087018442291,
+   "diff": 0.0074614193290858735,
+   "lo": 0.006652129376125029,
+   "hi": 0.008285776559360674,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": -1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-dg_groupdro_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7359505059063949,
+   "b": 0.7883697602551961,
+   "diff": -0.052419254348801236,
+   "lo": -0.05656741619980238,
+   "hi": -0.04845238028517827,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-dg_vrex_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9799500400982438,
+   "b": 0.9799476574089856,
+   "diff": 2.3826892582290427e-06,
+   "lo": -0.0002732403531969102,
+   "hi": 0.00023210374479957488,
+   "p": 0.9455054494550545,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.9455054494550545,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 1.0
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-dg_vrex_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.9408048305613708,
+   "b": 0.9413270456814122,
+   "diff": -0.0005222151200414693,
+   "lo": -0.0009249720278144303,
+   "hi": -0.00011701357960751946,
+   "p": 0.011198880111988802,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.033596640335966405,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.24637536246375363
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-dg_vrex_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_rel_drop",
+   "a": 0.03994611581438168,
+   "b": 0.03941087018442291,
+   "diff": 0.0005352456299587693,
+   "lo": 4.2258895907510215e-05,
+   "hi": 0.0010168137436242094,
+   "p": 0.0331966803319668,
+   "n_boot": 10000,
+   "better": -1,
+   "p_holm": 0.0663933606639336,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 0.6307369263073692
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-dg_vrex_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7643049394407616,
+   "b": 0.7883697602551961,
+   "diff": -0.024064820814434507,
+   "lo": -0.026519975851092784,
+   "hi": -0.02177272753184034,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-dg_coral_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9799703139900845,
+   "b": 0.9799476574089856,
+   "diff": 2.2656581098901007e-05,
+   "lo": -0.0002594905917334328,
+   "hi": 0.00027216555084599566,
+   "p": 0.8217178282171783,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.8217178282171783,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 1.0
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-dg_coral_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.9416231666085332,
+   "b": 0.9413270456814122,
+   "diff": 0.0002961209271209464,
+   "lo": -6.983084467230005e-05,
+   "hi": 0.0006624733785268204,
+   "p": 0.11358864113588642,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.34076592340765927,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 1.0
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-dg_coral_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_rel_drop",
+   "a": 0.03913092809240726,
+   "b": 0.03941087018442291,
+   "diff": -0.00027994209201565035,
+   "lo": -0.0007463918681388987,
+   "hi": 0.00017209294760497096,
+   "p": 0.22597740225977403,
+   "n_boot": 10000,
+   "better": -1,
+   "p_holm": 0.45195480451954806,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 1.0
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-dg_coral_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7820708518167772,
+   "b": 0.7883697602551961,
+   "diff": -0.00629890843841896,
+   "lo": -0.008519149940897901,
+   "hi": -0.004041255900614937,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-dg_dann_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9790772356156818,
+   "b": 0.9799476574089856,
+   "diff": -0.0008704217933037661,
+   "lo": -0.0011318111067233684,
+   "hi": -0.000626312333411791,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-dg_dann_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.9384029971035157,
+   "b": 0.9413270456814122,
+   "diff": -0.002924048577896521,
+   "lo": -0.0034742988488819294,
+   "hi": -0.002371183217725173,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-dg_dann_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_rel_drop",
+   "a": 0.041544277423358054,
+   "b": 0.03941087018442291,
+   "diff": 0.0021334072389351463,
+   "lo": 0.0015216527793914848,
+   "hi": 0.002759052358037641,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": -1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-dg_dann_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.777662861984748,
+   "b": 0.7883697602551961,
+   "diff": -0.010706898270448129,
+   "lo": -0.013544847172636673,
+   "hi": -0.007899436035296956,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-art_uyari_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9789304236074431,
+   "b": 0.9799476574089856,
+   "diff": -0.0010172338015425053,
+   "lo": -0.001358460930550423,
+   "hi": -0.0007064685418045672,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-art_uyari_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.9396269779053362,
+   "b": 0.9413270456814122,
+   "diff": -0.0017000677760760086,
+   "lo": -0.0023923877649485504,
+   "hi": -0.0010101812278400268,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-art_uyari_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_rel_drop",
+   "a": 0.040149355423711196,
+   "b": 0.03941087018442291,
+   "diff": 0.0007384852392882876,
+   "lo": -5.7081243762789065e-05,
+   "hi": 0.0015138856872880851,
+   "p": 0.06619338066193381,
+   "n_boot": 10000,
+   "better": -1,
+   "p_holm": 0.06619338066193381,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 0.9929007099290071
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-art_uyari_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7461267839638471,
+   "b": 0.7883697602551961,
+   "diff": -0.04224297629134899,
+   "lo": -0.046847559960585414,
+   "hi": -0.037778268083862566,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-art_zaman_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9801370806653779,
+   "b": 0.9799476574089856,
+   "diff": 0.00018942325639226265,
+   "lo": -4.506812369840794e-05,
+   "hi": 0.0004045895919321473,
+   "p": 0.10798920107989202,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.10798920107989202,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 1.0
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-art_zaman_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.9422952813784855,
+   "b": 0.9413270456814122,
+   "diff": 0.000968235697073272,
+   "lo": 0.0005647277545741597,
+   "hi": 0.0013735029718495411,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-art_zaman_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_rel_drop",
+   "a": 0.038608679522009526,
+   "b": 0.03941087018442291,
+   "diff": -0.0008021906624133823,
+   "lo": -0.001283502232370076,
+   "hi": -0.0003436519660964774,
+   "p": 0.0007999200079992001,
+   "n_boot": 10000,
+   "better": -1,
+   "p_holm": 0.0015998400159984002,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "model_a": "asama3/cybermetaformer-art_zaman_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7676755719483627,
+   "b": 0.7883697602551961,
+   "diff": -0.02069418830683345,
+   "lo": -0.022949614004948705,
+   "hi": -0.018403387988788843,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Aksiyon girdisi",
+   "model_a": "asama3/cybermetaformer-aksiyon_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9809636574735006,
+   "b": 0.9799476574089856,
+   "diff": 0.0010160000645149658,
+   "lo": 0.0006860858342486176,
+   "hi": 0.0013628118946101718,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Aksiyon girdisi",
+   "model_a": "asama3/cybermetaformer-aksiyon_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.9496950759961127,
+   "b": 0.9413270456814122,
+   "diff": 0.008368030314700459,
+   "lo": 0.007492155032762848,
+   "hi": 0.009261735868125395,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Aksiyon girdisi",
+   "model_a": "asama3/cybermetaformer-aksiyon_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7730627689444916,
+   "b": 0.7883697602551961,
+   "diff": -0.015306991310704565,
+   "lo": -0.018813706825937932,
+   "hi": -0.011843641123116356,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Aksiyon girdisi",
+   "model_a": "asama3/cybermetaformer-aksiyon_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_silent_recall",
+   "a": 0.9082673194915971,
+   "b": 0.9059901306419702,
+   "diff": 0.00227718884962691,
+   "lo": 0.0003805448501809833,
+   "hi": 0.004169946059555529,
+   "p": 0.0201979802019798,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0201979802019798,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.42415758424157585
+  },
+  {
+   "family": "Aksiyon girdisi",
+   "model_a": "asama3/gru_full-aksiyon_k101",
+   "model_b": "asama3/gru_full_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9782346591496455,
+   "b": 0.9766657653062657,
+   "diff": 0.0015688938433797706,
+   "lo": 0.0011030081847705265,
+   "hi": 0.0020580517072133738,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Aksiyon girdisi",
+   "model_a": "asama3/gru_full-aksiyon_k101",
+   "model_b": "asama3/gru_full_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.939410252360792,
+   "b": 0.9263684080110912,
+   "diff": 0.013041844349700793,
+   "lo": 0.011986941268277585,
+   "hi": 0.014119523096560782,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Aksiyon girdisi",
+   "model_a": "asama3/gru_full-aksiyon_k101",
+   "model_b": "asama3/gru_full_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7461465134825301,
+   "b": 0.7363980544617789,
+   "diff": 0.009748459020751277,
+   "lo": 0.0051246948764287455,
+   "hi": 0.014441711727210873,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Aksiyon girdisi",
+   "model_a": "asama3/gru_full-aksiyon_k101",
+   "model_b": "asama3/gru_full_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_silent_recall",
+   "a": 0.90804868472713,
+   "b": 0.9028230059200751,
+   "diff": 0.005225678807054823,
+   "lo": 0.002661560138761343,
+   "hi": 0.007759249742669562,
+   "p": 0.00039996000399960006,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0007999200079992001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ölçek ve makineler arası tekrar",
+   "model_a": "asama3/cybermetaformer-b2_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9787647545670491,
+   "b": 0.9799476574089856,
+   "diff": -0.0011829028419364507,
+   "lo": -0.001484122317185249,
+   "hi": -0.0008916826845637939,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ölçek ve makineler arası tekrar",
+   "model_a": "asama3/cybermetaformer-b2_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.9377806725283309,
+   "b": 0.9413270456814122,
+   "diff": -0.0035463731530813725,
+   "lo": -0.004071742236081535,
+   "hi": -0.0030144929945578407,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "Ölçek ve makineler arası tekrar",
+   "model_a": "asama3/cybermetaformer-b2_k101",
+   "model_b": "asama3/cybermetaformer-ana_m4_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7848984033627406,
+   "b": 0.7883697602551961,
+   "diff": -0.0034713568924554794,
+   "lo": -0.006534305867276821,
+   "hi": -0.00046037629022674875,
+   "p": 0.024797520247975203,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.024797520247975203,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.49595040495950404
+  },
+  {
+   "family": "Ölçek ve makineler arası tekrar",
+   "model_a": "asama3/cybermetaformer-ana_m4_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_host_macro_f1",
+   "a": 0.9799476574089856,
+   "b": 0.9800887079119346,
+   "diff": -0.00014105050294899169,
+   "lo": -0.00034301239503443384,
+   "hi": 6.569538454114785e-05,
+   "p": 0.18138186181381863,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.18138186181381863,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 1.0
+  },
+  {
+   "family": "Ölçek ve makineler arası tekrar",
+   "model_a": "asama3/cybermetaformer-ana_m4_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_host_macro_f1",
+   "a": 0.9413270456814122,
+   "b": 0.941698313321078,
+   "diff": -0.00037126763966577325,
+   "lo": -0.0007327636133494825,
+   "hi": -1.6968410474796386e-05,
+   "p": 0.0403959604039596,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0807919208079192,
+   "a_better": false,
+   "b_better": false,
+   "p_holm_plan": 0.7271272872712728
+  },
+  {
+   "family": "Ölçek ve makineler arası tekrar",
+   "model_a": "asama3/cybermetaformer-ana_m4_k101",
+   "model_b": "asama3/cybermetaformer_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_silent_recall",
+   "a": 0.7883697602551961,
+   "b": 0.7761416122547309,
+   "diff": 0.012228148000465233,
+   "lo": 0.01019038440631638,
+   "hi": 0.014320968121059074,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "(ii) saldırgan kayması: yalnız bline ile eğitim",
+   "model_a": "asama3/cybermetaformer-saldirgan_bline_k101",
+   "model_b": "asama3/gru_full-saldirgan_bline_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_shift_host_macro_f1",
+   "a": 0.8286398378788308,
+   "b": 0.5752862703743283,
+   "diff": 0.25335356750450244,
+   "lo": 0.2485336761113399,
+   "hi": 0.2582413520023624,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "(ii) saldırgan kayması: yalnız bline ile eğitim",
+   "model_a": "asama3/cybermetaformer-saldirgan_bline_k101",
+   "model_b": "asama3/gru_full-saldirgan_bline_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_test_shift_host_macro_f1",
+   "a": 0.7236541764963192,
+   "b": 0.5131810649059187,
+   "diff": 0.2104731115904005,
+   "lo": 0.2074158796470154,
+   "hi": 0.21338561728725586,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "(ii) saldırgan kayması: yalnız bline ile eğitim",
+   "model_a": "asama3/cybermetaformer-saldirgan_bline_k101",
+   "model_b": "asama3/gru_full-saldirgan_bline_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_test_shift_silent_recall",
+   "a": 0.20658824693098166,
+   "b": 0.061351001729438,
+   "diff": 0.14523724520154366,
+   "lo": 0.13637449406258295,
+   "hi": 0.15387331296817142,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "(ii) saldırgan kayması: yalnız bline ile eğitim",
+   "model_a": "asama3/cybermetaformer-saldirgan_bline_k101",
+   "model_b": "asama3/timemixer-saldirgan_bline_k64",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_shift_host_macro_f1",
+   "a": 0.8286398378788308,
+   "b": 0.5159022632520421,
+   "diff": 0.31273757462678864,
+   "lo": 0.307042516854837,
+   "hi": 0.3183609251650995,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "(ii) saldırgan kayması: yalnız bline ile eğitim",
+   "model_a": "asama3/cybermetaformer-saldirgan_bline_k101",
+   "model_b": "asama3/timemixer-saldirgan_bline_k64",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_test_shift_host_macro_f1",
+   "a": 0.7236541764963192,
+   "b": 0.46274629649283944,
+   "diff": 0.2609078800034798,
+   "lo": 0.2577409814543604,
+   "hi": 0.26402272783004055,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "(ii) saldırgan kayması: yalnız bline ile eğitim",
+   "model_a": "asama3/cybermetaformer-saldirgan_bline_k101",
+   "model_b": "asama3/timemixer-saldirgan_bline_k64",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_test_shift_silent_recall",
+   "a": 0.20658824693098166,
+   "b": 0.09760892445647891,
+   "diff": 0.10897932247450275,
+   "lo": 0.09959976798916276,
+   "hi": 0.11831901572352124,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "(ii) saldırgan kayması: yalnız meander ile eğitim",
+   "model_a": "asama3/cybermetaformer-saldirgan_meander_k101",
+   "model_b": "asama3/gru_full-saldirgan_meander_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_shift_host_macro_f1",
+   "a": 0.8409460030462567,
+   "b": 0.8497529775831528,
+   "diff": -0.008806974536896162,
+   "lo": -0.011803984083722824,
+   "hi": -0.005695015776031769,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "(ii) saldırgan kayması: yalnız meander ile eğitim",
+   "model_a": "asama3/cybermetaformer-saldirgan_meander_k101",
+   "model_b": "asama3/gru_full-saldirgan_meander_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_test_shift_host_macro_f1",
+   "a": 0.7376845968846291,
+   "b": 0.7254064457495336,
+   "diff": 0.01227815113509545,
+   "lo": 0.008372911265096959,
+   "hi": 0.016498147474386802,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "(ii) saldırgan kayması: yalnız meander ile eğitim",
+   "model_a": "asama3/cybermetaformer-saldirgan_meander_k101",
+   "model_b": "asama3/gru_full-saldirgan_meander_k101",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_test_shift_silent_recall",
+   "a": 0.2965635314706338,
+   "b": 0.3690334912482238,
+   "diff": -0.07246995977759002,
+   "lo": -0.08593785314649476,
+   "hi": -0.05886570323372214,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": false,
+   "b_better": true,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "(ii) saldırgan kayması: yalnız meander ile eğitim",
+   "model_a": "asama3/cybermetaformer-saldirgan_meander_k101",
+   "model_b": "asama3/timemixer-saldirgan_meander_k64",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "test_shift_host_macro_f1",
+   "a": 0.8409460030462567,
+   "b": 0.8153471518640775,
+   "diff": 0.025598851182179194,
+   "lo": 0.02299234593119287,
+   "hi": 0.028469949750438085,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "(ii) saldırgan kayması: yalnız meander ile eğitim",
+   "model_a": "asama3/cybermetaformer-saldirgan_meander_k101",
+   "model_b": "asama3/timemixer-saldirgan_meander_k64",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_test_shift_host_macro_f1",
+   "a": 0.7376845968846291,
+   "b": 0.6819758576932005,
+   "diff": 0.0557087391914286,
+   "lo": 0.052410141906385946,
+   "hi": 0.059141894071053226,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  },
+  {
+   "family": "(ii) saldırgan kayması: yalnız meander ile eğitim",
+   "model_a": "asama3/cybermetaformer-saldirgan_meander_k101",
+   "model_b": "asama3/timemixer-saldirgan_meander_k64",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "criterion": "ood_test_shift_silent_recall",
+   "a": 0.2965635314706338,
+   "b": 0.228343665840699,
+   "diff": 0.06821986562993479,
+   "lo": 0.056418284347053274,
+   "hi": 0.07991727658213335,
+   "p": 0.00019998000199980003,
+   "n_boot": 10000,
+   "better": 1,
+   "p_holm": 0.0005999400059994001,
+   "a_better": true,
+   "b_better": false,
+   "p_holm_plan": 0.023197680231976804
+  }
+ ]
+}

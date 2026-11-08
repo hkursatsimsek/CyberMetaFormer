@@ -1,0 +1,17 @@
+# GRU tam geçmiş varyantı (uzatma ızgarası): bölüm boyunca durumlu, her adımda tahmin.
+# Hiperparametreler gru k=32 HPO sonucundan gelir (run_grid.py). k=101 = tam geçmiş (obs[0..t]).
+model: gru_full
+mode: episode
+episodes_per_batch: 16
+k: 101
+model_args: {hidden: 128, layers: 1, dropout: 0.0}
+scale: global
+optimizer: adamw
+lr: 0.001
+weight_decay: 0.01
+epochs: 30
+schedule: warmup_cosine
+warmup_frac: 0.05
+early_stopping: {patience: 5}
+loss: ce
+grad_clip: 1.0

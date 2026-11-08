@@ -1,0 +1,29 @@
+{
+  "test": {
+    "max_abs_dlogit": 4.00543212890625e-05,
+    "mean_abs_dlogit": 5.130154442869954e-07,
+    "max_abs_dp": 3.6905961451338953e-06,
+    "argmax_flips": 0,
+    "n_host_steps": 2400000,
+    "n_episodes": 2000,
+    "floor_max_abs_dlogit_vs_cpu64": 7.44384698094791e-05,
+    "argmax_flips_vs_cpu64": 0
+  },
+  "ood": {
+    "max_abs_dlogit": 4.863739013671875e-05,
+    "mean_abs_dlogit": 5.914987919903878e-07,
+    "max_abs_dp": 4.840879132550491e-06,
+    "argmax_flips": 0,
+    "n_host_steps": 4800000,
+    "n_episodes": 4000,
+    "floor_max_abs_dlogit_vs_cpu64": 8.066807028761502e-05,
+    "argmax_flips_vs_cpu64": 0
+  },
+  "model": "cybermetaformer",
+  "seed": 3,
+  "setting": "mps32",
+  "temperature": 1.187292093066436,
+  "torch": "2.14.1",
+  "threads": 4,
+  "seconds": 32.4
+}

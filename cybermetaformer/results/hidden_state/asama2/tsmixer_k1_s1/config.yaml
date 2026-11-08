@@ -1,0 +1,26 @@
+model: tsmixer
+model_args:
+  d_model: 512
+  layers: 4
+  dropout: 0.08211956774926246
+scale: global
+optimizer: adamw
+lr: 0.001513102356778172
+weight_decay: 8.746321648990567e-05
+epochs: 30
+batch_size: 1024
+schedule: warmup_cosine
+warmup_frac: 0.05
+early_stopping:
+  patience: 5
+loss: ce
+grad_clip: 1.0
+compile: true
+class_weights: null
+hpo:
+  study: tsmixer_k8
+  trial: 14
+  val_host_macro_f1: 0.9341473540863202
+k: 1
+seed: 1
+device: mps

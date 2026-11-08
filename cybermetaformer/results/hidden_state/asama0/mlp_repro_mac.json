@@ -1,0 +1,109 @@
+{
+  "protocol": {
+    "model": "mlp",
+    "model_args": {},
+    "scale": "none",
+    "optimizer": "adam",
+    "lr": 0.001,
+    "epochs": 5,
+    "batch_size": 1024,
+    "schedule": "none",
+    "train_episodes": 4000,
+    "train_subsample_seed": 0,
+    "early_stopping": null,
+    "loss": "ce",
+    "device": "cpu",
+    "eval_batch_size": 65536
+  },
+  "tolerance": 0.005,
+  "chain": {
+    "1": {
+      "train_seconds": 2.9369451999664307,
+      "n_params": 95268,
+      "test": {
+        "host_macro_f1": 0.9095071092300571,
+        "breach_f1": 0.9393385788791414
+      },
+      "ood_test": {
+        "host_macro_f1": 0.8077270094267849,
+        "breach_f1": 0.8885398030574101
+      }
+    },
+    "4": {
+      "train_seconds": 3.1502468585968018,
+      "n_params": 155172,
+      "test": {
+        "host_macro_f1": 0.9198198099875604,
+        "breach_f1": 0.9603466994144553
+      },
+      "ood_test": {
+        "host_macro_f1": 0.8093298013103173,
+        "breach_f1": 0.8996200266803229
+      }
+    },
+    "8": {
+      "train_seconds": 3.8011021614074707,
+      "n_params": 235044,
+      "test": {
+        "host_macro_f1": 0.9296497040657808,
+        "breach_f1": 0.9704397432293131
+      },
+      "ood_test": {
+        "host_macro_f1": 0.8164984163596363,
+        "breach_f1": 0.9000790207873051
+      }
+    }
+  },
+  "independent": {
+    "1_0": {
+      "train_seconds": 2.548784017562866,
+      "n_params": 95268,
+      "test": {
+        "host_macro_f1": 0.9095071092300571,
+        "breach_f1": 0.9393385788791414
+      },
+      "ood_test": {
+        "host_macro_f1": 0.8077270094267849,
+        "breach_f1": 0.8885398030574101
+      }
+    },
+    "4_0": {
+      "train_seconds": 3.1683478355407715,
+      "n_params": 155172,
+      "test": {
+        "host_macro_f1": 0.922133750563694,
+        "breach_f1": 0.9682917475401294
+      },
+      "ood_test": {
+        "host_macro_f1": 0.8132936693886531,
+        "breach_f1": 0.9013425950574212
+      }
+    },
+    "8_0": {
+      "train_seconds": 3.813605785369873,
+      "n_params": 235044,
+      "test": {
+        "host_macro_f1": 0.9268306018694308,
+        "breach_f1": 0.9593393802820256
+      },
+      "ood_test": {
+        "host_macro_f1": 0.8138348187490604,
+        "breach_f1": 0.89364422005375
+      }
+    }
+  },
+  "reference": {
+    "1_test_host_macro_f1": 0.9095504742246565,
+    "1_test_breach_f1": 0.939538864428794,
+    "1_ood_test_host_macro_f1": 0.8078730745456806,
+    "1_ood_test_breach_f1": 0.8889936517982266,
+    "4_test_host_macro_f1": 0.9198684132855757,
+    "4_test_breach_f1": 0.9611225151733269,
+    "4_ood_test_host_macro_f1": 0.809504132678393,
+    "4_ood_test_breach_f1": 0.9004874022123712,
+    "8_test_host_macro_f1": 0.9291082043328135,
+    "8_test_breach_f1": 0.9693477381573471,
+    "8_ood_test_host_macro_f1": 0.8160814994038283,
+    "8_ood_test_breach_f1": 0.8987053584403589
+  }
+}

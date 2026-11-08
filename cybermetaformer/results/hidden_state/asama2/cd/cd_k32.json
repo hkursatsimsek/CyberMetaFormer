@@ -1,0 +1,228 @@
+{
+ "entries": [
+  [
+   "XGBoost",
+   "asama1",
+   "xgb_k32"
+  ],
+  [
+   "XGB-TF",
+   "asama1",
+   "xgb_tf_k32"
+  ],
+  [
+   "MLP",
+   "asama1",
+   "mlp_k32"
+  ],
+  [
+   "1D-CNN",
+   "asama1",
+   "cnn1d_k32"
+  ],
+  [
+   "LSTM",
+   "asama1",
+   "lstm_k32"
+  ],
+  [
+   "GRU",
+   "asama1",
+   "gru_k32"
+  ],
+  [
+   "Transformer",
+   "asama2",
+   "transformer_k32"
+  ],
+  [
+   "PatchTST",
+   "asama2",
+   "patchtst_k32"
+  ],
+  [
+   "iTransformer",
+   "asama2",
+   "itransformer_k32"
+  ],
+  [
+   "TSMixer",
+   "asama2",
+   "tsmixer_k32"
+  ],
+  [
+   "TimesNet",
+   "asama2",
+   "timesnet_k32"
+  ],
+  [
+   "TimeMixer",
+   "asama2",
+   "timemixer_k32"
+  ]
+ ],
+ "splits": {
+  "test": {
+   "n_blocks": 2000,
+   "pvalue": 0.0,
+   "cd": 0.37262028936031266,
+   "omnibus": "friedman",
+   "posthoc": "nemenyi",
+   "ranks": [
+    {
+     "model": "GRU",
+     "meanrank": 4.9445,
+     "mean": 0.931723510683614,
+     "median": 0.949536641138977
+    },
+    {
+     "model": "iTransformer",
+     "meanrank": 5.027,
+     "mean": 0.9321357779725248,
+     "median": 0.9492460890464235
+    },
+    {
+     "model": "LSTM",
+     "meanrank": 5.32525,
+     "mean": 0.9293057498984515,
+     "median": 0.9455950403065583
+    },
+    {
+     "model": "Transformer",
+     "meanrank": 5.5435,
+     "mean": 0.9289266505469439,
+     "median": 0.9459592966808597
+    },
+    {
+     "model": "XGBoost",
+     "meanrank": 5.79975,
+     "mean": 0.9284682782139393,
+     "median": 0.9497912165843854
+    },
+    {
+     "model": "1D-CNN",
+     "meanrank": 5.8785,
+     "mean": 0.9273285684818899,
+     "median": 0.943628953481807
+    },
+    {
+     "model": "TimeMixer",
+     "meanrank": 5.956,
+     "mean": 0.9252993818970747,
+     "median": 0.9410102855166181
+    },
+    {
+     "model": "TSMixer",
+     "meanrank": 6.30725,
+     "mean": 0.9252153132894811,
+     "median": 0.9413593835892708
+    },
+    {
+     "model": "MLP",
+     "meanrank": 7.13025,
+     "mean": 0.9204894031908802,
+     "median": 0.9330162689505697
+    },
+    {
+     "model": "PatchTST",
+     "meanrank": 8.06725,
+     "mean": 0.9125696376554852,
+     "median": 0.9232021789494225
+    },
+    {
+     "model": "XGB-TF",
+     "meanrank": 8.146,
+     "mean": 0.9104362967720273,
+     "median": 0.9281936475579742
+    },
+    {
+     "model": "TimesNet",
+     "meanrank": 9.87475,
+     "mean": 0.8571495901279761,
+     "median": 0.8657392236477786
+    }
+   ]
+  },
+  "ood_test": {
+   "n_blocks": 4000,
+   "pvalue": 0.0,
+   "cd": 0.2634823334143706,
+   "omnibus": "friedman",
+   "posthoc": "nemenyi",
+   "ranks": [
+    {
+     "model": "XGBoost",
+     "meanrank": 3.91325,
+     "mean": 0.8702280510105525,
+     "median": 0.8737994980329806
+    },
+    {
+     "model": "GRU",
+     "meanrank": 4.77425,
+     "mean": 0.8515794553199763,
+     "median": 0.8553315313333785
+    },
+    {
+     "model": "LSTM",
+     "meanrank": 5.2325,
+     "mean": 0.8484782478574902,
+     "median": 0.8530883164378611
+    },
+    {
+     "model": "iTransformer",
+     "meanrank": 5.53525,
+     "mean": 0.8474378883594654,
+     "median": 0.8498271893911057
+    },
+    {
+     "model": "Transformer",
+     "meanrank": 6.34975,
+     "mean": 0.8419985531835571,
+     "median": 0.8460326117455452
+    },
+    {
+     "model": "XGB-TF",
+     "meanrank": 6.68375,
+     "mean": 0.8399188212074629,
+     "median": 0.8474825160605578
+    },
+    {
+     "model": "1D-CNN",
+     "meanrank": 6.6965,
+     "mean": 0.8391741894375939,
+     "median": 0.842450649588091
+    },
+    {
+     "model": "TSMixer",
+     "meanrank": 6.82975,
+     "mean": 0.8374960252051394,
+     "median": 0.8408244315207754
+    },
+    {
+     "model": "TimeMixer",
+     "meanrank": 6.89975,
+     "mean": 0.8360116846354267,
+     "median": 0.840244445798094
+    },
+    {
+     "model": "PatchTST",
+     "meanrank": 7.45975,
+     "mean": 0.8303732653638008,
+     "median": 0.8366586392346183
+    },
+    {
+     "model": "MLP",
+     "meanrank": 8.03925,
+     "mean": 0.8300039612500277,
+     "median": 0.8341586610470078
+    },
+    {
+     "model": "TimesNet",
+     "meanrank": 9.58625,
+     "mean": 0.8106119643174762,
+     "median": 0.8128178680389375
+    }
+   ]
+  }
+ }
+}

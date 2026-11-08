@@ -1,0 +1,148 @@
+{
+  "device": "cpu",
+  "machine": "apple-m3-pro",
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "processor": "arm",
+  "torch": "2.14.1",
+  "threads": 6,
+  "grid": {
+    "k_values": [
+      1,
+      4,
+      8,
+      16,
+      32
+    ],
+    "seeds": 5,
+    "max_epochs": 30,
+    "expected_epochs": 15,
+    "hpo_trials": 25,
+    "hpo_k": [
+      8,
+      32
+    ],
+    "hpo_train_frac": 0.25,
+    "hpo_max_epochs": 10,
+    "hpo_expected_epochs": 6,
+    "m1_models": [
+      "mlp",
+      "cnn1d",
+      "lstm",
+      "gru"
+    ],
+    "m2_models": {
+      "transformer": 1.0,
+      "patchtst": 1.0,
+      "itransformer": 1.0,
+      "tsmixer": 0.5,
+      "timemixer": 1.5,
+      "timesnet": 4.0
+    }
+  },
+  "models": {
+    "mlp": {
+      "8": {
+        "params": 235044,
+        "train_s_per_sample": 2.100585930975285e-06,
+        "infer_s_per_sample": 7.406412763089065e-07,
+        "latency_ms_bs1": 0.018895487301051617,
+        "epoch_minutes": 0.0560156248260076,
+        "val_eval_minutes": 0.0024688042543630218
+      },
+      "32": {
+        "params": 714276,
+        "train_s_per_sample": 4.6534628665995115e-06,
+        "infer_s_per_sample": 2.137329102443649e-06,
+        "latency_ms_bs1": 0.02518750261515379,
+        "epoch_minutes": 0.12409234310932031,
+        "val_eval_minutes": 0.00712443034147883
+      }
+    },
+    "cnn1d": {
+      "8": {
+        "params": 162596,
+        "train_s_per_sample": 0.00029275128173367193,
+        "infer_s_per_sample": 0.00019677552286623268,
+        "latency_ms_bs1": 0.24941700394265354,
+        "epoch_minutes": 7.8067008462312515,
+        "val_eval_minutes": 0.655918409554109
+      },
+      "32": {
+        "params": 162596,
+        "train_s_per_sample": 0.0004316170453932955,
+        "infer_s_per_sample": 0.00027737573579855734,
+        "latency_ms_bs1": 0.25852100225165486,
+        "epoch_minutes": 11.509787877154546,
+        "val_eval_minutes": 0.9245857859951911
+      }
+    },
+    "lstm": {
+      "8": {
+        "params": 111140,
+        "train_s_per_sample": 1.3893086446614689e-05,
+        "infer_s_per_sample": 5.394585490610855e-06,
+        "latency_ms_bs1": 0.09343752753920853,
+        "epoch_minutes": 0.37048230524305836,
+        "val_eval_minutes": 0.017981951635369517
+      },
+      "32": {
+        "params": 111140,
+        "train_s_per_sample": 5.4827515157285234e-05,
+        "infer_s_per_sample": 2.118705578624258e-05,
+        "latency_ms_bs1": 0.2942704886663705,
+        "epoch_minutes": 1.4620670708609396,
+        "val_eval_minutes": 0.07062351928747528
+      }
+    },
+    "gru": {
+      "8": {
+        "params": 84516,
+        "train_s_per_sample": 1.1746988775485079e-05,
+        "infer_s_per_sample": 4.076975505048115e-06,
+        "latency_ms_bs1": 0.08408300345763564,
+        "epoch_minutes": 0.3132530340129354,
+        "val_eval_minutes": 0.013589918350160385
+      },
+      "32": {
+        "params": 84516,
+        "train_s_per_sample": 4.6606058589304666e-05,
+        "infer_s_per_sample": 1.5664471111639006e-05,
+        "latency_ms_bs1": 0.2665415231604129,
+        "epoch_minutes": 1.2428282290481245,
+        "val_eval_minutes": 0.052214903705463354
+      }
+    },
+    "transformer": {
+      "8": {
+        "params": 280996,
+        "train_s_per_sample": 7.758095313192825e-05,
+        "infer_s_per_sample": 1.7797129312195164e-05,
+        "latency_ms_bs1": 0.25437501608394086,
+        "epoch_minutes": 2.06882541685142,
+        "val_eval_minutes": 0.05932376437398388
+      },
+      "32": {
+        "params": 284068,
+        "train_s_per_sample": 0.00029853186035211365,
+        "infer_s_per_sample": 6.299962361566713e-05,
+        "latency_ms_bs1": 0.2815420157276094,
+        "epoch_minutes": 7.960849609389697,
+        "val_eval_minutes": 0.2099987453855571
+      }
+    }
+  },
+  "budget": {
+    "ust_sinir": {
+      "m1_final_saat": 146.23970250331712,
+      "m2_final_saat": 511.33824569760117,
+      "hpo_saat": 135.2353581359314,
+      "toplam_saat": 792.8133063368497
+    },
+    "beklenen": {
+      "m1_final_saat": 73.11985125165856,
+      "m2_final_saat": 255.66912284880058,
+      "hpo_saat": 81.14121488155884,
+      "toplam_saat": 409.93018898201797
+    }
+  }
+}

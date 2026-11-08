@@ -1,0 +1,37 @@
+model: cnn1d
+k: 8
+value: 0.9326080478417313
+trial: 16
+params:
+  channels: 256
+  layers: 3
+  kernel: 3
+  dropout: 0.21870830928372637
+  lr: 0.0025692770057050476
+  weight_decay: 0.02274539306341145
+  class_weights: null
+overrides:
+  model_args:
+    channels: 256
+    layers: 3
+    kernel: 3
+    dropout: 0.21870830928372637
+  lr: 0.0025692770057050476
+  weight_decay: 0.02274539306341145
+  class_weights: null
+protocol:
+  n_trials: 25
+  ks:
+  - 8
+  - 32
+  train_episodes: 4000
+  epochs: 10
+  patience: 3
+  seed: 0
+  sampler_seed: 0
+  pruner:
+    n_startup_trials: 5
+    n_warmup_steps: 2
+n_complete: 17
+n_pruned: 8
+hours: 0.5893356049723095

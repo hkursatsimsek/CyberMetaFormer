@@ -1,0 +1,33 @@
+model: timemixer
+model_args:
+  d_model: 32
+  ff: 64
+  layers: 3
+  moving_avg: 9
+  dropout: 0.1610811200055902
+scale: global
+optimizer: adamw
+lr: 0.002465385642066478
+weight_decay: 0.0016975443105567412
+epochs: 30
+batch_size: 1024
+schedule: warmup_cosine
+warmup_frac: 0.05
+early_stopping:
+  patience: 5
+loss: ce
+grad_clip: 1.0
+compile: true
+class_weights: null
+hpo:
+  study: timemixer_k32
+  trial: 10
+  val_host_macro_f1: 0.9399331470904445
+k: 64
+seed: 0
+train_red: meander
+variant:
+  name: saldirgan_meander
+  train:
+    train_red: meander
+device: mps

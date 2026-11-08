@@ -1,0 +1,30 @@
+model: patchtst
+model_args:
+  d_model: 32
+  heads: 4
+  layers: 2
+  ff: 128
+  dropout: 0.005025995623372165
+  patch_ratio: 0.5
+scale: global
+optimizer: adamw
+lr: 0.000849962827620267
+weight_decay: 5.125240643359895e-05
+epochs: 30
+batch_size: 1024
+schedule: warmup_cosine
+warmup_frac: 0.05
+early_stopping:
+  patience: 5
+loss: ce
+grad_clip: 1.0
+compile: true
+eval_batch_size: 4096
+class_weights: null
+hpo:
+  study: patchtst_k32
+  trial: 13
+  val_host_macro_f1: 0.9492571210213558
+k: 32
+seed: 0
+device: mps

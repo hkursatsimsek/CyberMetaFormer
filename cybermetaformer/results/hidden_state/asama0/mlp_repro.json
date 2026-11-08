@@ -1,0 +1,181 @@
+{
+  "protocol": {
+    "model": "mlp",
+    "model_args": {},
+    "scale": "none",
+    "optimizer": "adam",
+    "lr": 0.001,
+    "epochs": 5,
+    "batch_size": 1024,
+    "schedule": "none",
+    "train_episodes": 4000,
+    "train_subsample_seed": 0,
+    "early_stopping": null,
+    "loss": "ce",
+    "device": "cpu",
+    "eval_batch_size": 65536
+  },
+  "tolerance": 0.005,
+  "chain": {
+    "1": {
+      "train_seconds": 5.961929798126221,
+      "n_params": 95268,
+      "test": {
+        "host_macro_f1": 0.9095504742246565,
+        "breach_f1": 0.939538864428794
+      },
+      "ood_test": {
+        "host_macro_f1": 0.8078730745456806,
+        "breach_f1": 0.8889936517982266
+      }
+    },
+    "4": {
+      "train_seconds": 7.120571851730347,
+      "n_params": 155172,
+      "test": {
+        "host_macro_f1": 0.9198684132855757,
+        "breach_f1": 0.9611225151733269
+      },
+      "ood_test": {
+        "host_macro_f1": 0.809504132678393,
+        "breach_f1": 0.9004874022123712
+      }
+    },
+    "8": {
+      "train_seconds": 9.641449689865112,
+      "n_params": 235044,
+      "test": {
+        "host_macro_f1": 0.9291082043328135,
+        "breach_f1": 0.9693477381573471
+      },
+      "ood_test": {
+        "host_macro_f1": 0.8160814994038283,
+        "breach_f1": 0.8987053584403589
+      }
+    }
+  },
+  "independent": {
+    "1_0": {
+      "train_seconds": 5.198032855987549,
+      "n_params": 95268,
+      "test": {
+        "host_macro_f1": 0.9095504742246565,
+        "breach_f1": 0.939538864428794
+      },
+      "ood_test": {
+        "host_macro_f1": 0.8078730745456806,
+        "breach_f1": 0.8889936517982266
+      }
+    },
+    "1_1": {
+      "train_seconds": 5.117274045944214,
+      "n_params": 95268,
+      "test": {
+        "host_macro_f1": 0.9099032015722255,
+        "breach_f1": 0.9443153579086186
+      },
+      "ood_test": {
+        "host_macro_f1": 0.811876562857273,
+        "breach_f1": 0.8903037968182227
+      }
+    },
+    "1_2": {
+      "train_seconds": 5.310424089431763,
+      "n_params": 95268,
+      "test": {
+        "host_macro_f1": 0.9076290877747145,
+        "breach_f1": 0.9342724288009524
+      },
+      "ood_test": {
+        "host_macro_f1": 0.8047439644221474,
+        "breach_f1": 0.8785167518304098
+      }
+    },
+    "4_0": {
+      "train_seconds": 7.014477491378784,
+      "n_params": 155172,
+      "test": {
+        "host_macro_f1": 0.9222467522877879,
+        "breach_f1": 0.9687909644194757
+      },
+      "ood_test": {
+        "host_macro_f1": 0.8130720933046868,
+        "breach_f1": 0.9015903623509378
+      }
+    },
+    "4_1": {
+      "train_seconds": 6.994234323501587,
+      "n_params": 155172,
+      "test": {
+        "host_macro_f1": 0.923051408169655,
+        "breach_f1": 0.9698404241381419
+      },
+      "ood_test": {
+        "host_macro_f1": 0.8136054980577812,
+        "breach_f1": 0.9022739313387016
+      }
+    },
+    "4_2": {
+      "train_seconds": 6.774430751800537,
+      "n_params": 155172,
+      "test": {
+        "host_macro_f1": 0.9222697198613691,
+        "breach_f1": 0.961256023185932
+      },
+      "ood_test": {
+        "host_macro_f1": 0.8152561926455434,
+        "breach_f1": 0.8946668497976134
+      }
+    },
+    "8_0": {
+      "train_seconds": 9.172903537750244,
+      "n_params": 235044,
+      "test": {
+        "host_macro_f1": 0.9271762357271643,
+        "breach_f1": 0.9600340313123771
+      },
+      "ood_test": {
+        "host_macro_f1": 0.8136085761342173,
+        "breach_f1": 0.8938208014229299
+      }
+    },
+    "8_1": {
+      "train_seconds": 9.036006689071655,
+      "n_params": 235044,
+      "test": {
+        "host_macro_f1": 0.9295746048712129,
+        "breach_f1": 0.975087190477435
+      },
+      "ood_test": {
+        "host_macro_f1": 0.8165318766242418,
+        "breach_f1": 0.9073510125498919
+      }
+    },
+    "8_2": {
+      "train_seconds": 8.94081974029541,
+      "n_params": 235044,
+      "test": {
+        "host_macro_f1": 0.9283385576955314,
+        "breach_f1": 0.9674312858737363
+      },
+      "ood_test": {
+        "host_macro_f1": 0.8133054048981012,
+        "breach_f1": 0.9014796378504301
+      }
+    }
+  },
+  "reference": {
+    "1_test_host_macro_f1": 0.9095504742246565,
+    "1_test_breach_f1": 0.939538864428794,
+    "1_ood_test_host_macro_f1": 0.8078730745456806,
+    "1_ood_test_breach_f1": 0.8889936517982266,
+    "4_test_host_macro_f1": 0.9198684132855757,
+    "4_test_breach_f1": 0.9611225151733269,
+    "4_ood_test_host_macro_f1": 0.809504132678393,
+    "4_ood_test_breach_f1": 0.9004874022123712,
+    "8_test_host_macro_f1": 0.9291082043328135,
+    "8_test_breach_f1": 0.9693477381573471,
+    "8_ood_test_host_macro_f1": 0.8160814994038283,
+    "8_ood_test_breach_f1": 0.8987053584403589
+  }
+}

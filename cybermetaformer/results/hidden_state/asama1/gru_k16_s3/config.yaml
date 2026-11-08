@@ -1,0 +1,25 @@
+model: gru
+model_args:
+  hidden: 128
+  layers: 2
+  dropout: 0.12935995374381365
+scale: global
+optimizer: adamw
+lr: 0.001605704159312167
+weight_decay: 4.704368609514342e-05
+epochs: 30
+batch_size: 1024
+schedule: warmup_cosine
+warmup_frac: 0.05
+early_stopping:
+  patience: 5
+loss: ce
+grad_clip: 1.0
+class_weights: null
+hpo:
+  study: gru_k32
+  trial: 19
+  val_host_macro_f1: 0.9577089113844128
+k: 16
+seed: 3
+device: mps

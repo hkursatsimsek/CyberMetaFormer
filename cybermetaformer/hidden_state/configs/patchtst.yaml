@@ -1,0 +1,17 @@
+# Aşama 2 PatchTST (TSLib, kanal-bağımsız, örnek normalizasyonu yok). Yama k'dan (matris); HPO:
+# d_model, heads, layers, ff, dropout, yama oranı + ortak. Değerlendirme batch'i küçük: her örnek 78 ayrı dizi.
+model: patchtst
+model_args: {d_model: 128, heads: 8, layers: 2, ff: 256, dropout: 0.1, patch_ratio: 0.5}
+scale: global
+optimizer: adamw
+lr: 0.001
+weight_decay: 0.01
+epochs: 30
+batch_size: 1024
+schedule: warmup_cosine
+warmup_frac: 0.05
+early_stopping: {patience: 5}
+loss: ce
+grad_clip: 1.0
+compile: true
+eval_batch_size: 4096

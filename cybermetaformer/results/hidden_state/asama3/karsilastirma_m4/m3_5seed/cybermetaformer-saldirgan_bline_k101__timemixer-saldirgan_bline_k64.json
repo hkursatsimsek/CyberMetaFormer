@@ -1,0 +1,57 @@
+{
+  "a": "asama3/cybermetaformer-saldirgan_bline_k101",
+  "b": "asama3/timemixer-saldirgan_bline_k64",
+  "seeds_a": [
+    0,
+    1,
+    2
+  ],
+  "seeds_b": [
+    0,
+    1,
+    2
+  ],
+  "n_boot": 100000,
+  "bootstrap_seed": 0,
+  "results": {
+    "test_shift_host_macro_f1": {
+      "a": 0.8286398378788308,
+      "b": 0.5159022632520421,
+      "diff": 0.31273757462678864,
+      "lo": 0.30716318324689734,
+      "hi": 0.31840557209465875,
+      "p": 1.999980000199998e-05,
+      "n_boot": 100000,
+      "better": 1,
+      "p_holm": 5.999940000599994e-05,
+      "a_better": true,
+      "b_better": false
+    },
+    "ood_test_shift_host_macro_f1": {
+      "a": 0.7236541764963192,
+      "b": 0.46274629649283944,
+      "diff": 0.2609078800034798,
+      "lo": 0.2577474700798588,
+      "hi": 0.2640312349464134,
+      "p": 1.999980000199998e-05,
+      "n_boot": 100000,
+      "better": 1,
+      "p_holm": 5.999940000599994e-05,
+      "a_better": true,
+      "b_better": false
+    },
+    "ood_test_shift_silent_recall": {
+      "a": 0.20658824693098166,
+      "b": 0.09760892445647891,
+      "diff": 0.10897932247450275,
+      "lo": 0.09961453572489608,
+      "hi": 0.11843416668491265,
+      "p": 1.999980000199998e-05,
+      "n_boot": 100000,
+      "better": 1,
+      "p_holm": 5.999940000599994e-05,
+      "a_better": true,
+      "b_better": false
+    }
+  }
+}

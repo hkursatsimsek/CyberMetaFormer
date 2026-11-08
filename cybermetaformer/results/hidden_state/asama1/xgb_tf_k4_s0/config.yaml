@@ -1,0 +1,18 @@
+model: xgb_tf
+num_boost_round: 2000
+early_stopping_rounds: 50
+params:
+  max_depth: 9
+  eta: 0.022839375843806853
+  subsample: 0.8375182694560985
+  colsample_bytree: 0.45281109869860586
+  min_child_weight: 1.489863115838675
+  reg_lambda: 0.6625579794844035
+  max_bin: 256
+hpo:
+  study: xgb_tf_k8
+  trial: 13
+  val_host_macro_f1: 0.9349660819112221
+k: 4
+seed: 0
+nthread: 8

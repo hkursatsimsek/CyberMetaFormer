@@ -1,0 +1,234 @@
+{
+ "torch": "2.14.1",
+ "episode_models": [
+  {
+   "model": "gru_full",
+   "model_args": {
+    "hidden": 128,
+    "layers": 1,
+    "dropout": 0.0
+   },
+   "mps_eager": {
+    "out_max_abs": 8.940696716308594e-08,
+    "grad_rel": 4.7584285312041175e-07,
+    "grad_cos": 1.0000079870224
+   }
+  },
+  {
+   "model": "cybermetaformer",
+   "model_args": {
+    "d": 64,
+    "layers": 3,
+    "temporal": [
+     "conv",
+     "ssd"
+    ],
+    "host_mixer": "topo",
+    "topo_mask": false,
+    "heads": 4,
+    "state": 16,
+    "kernel": 4,
+    "window": null,
+    "mlp_ratio": 3,
+    "dropout": 0.1,
+    "age": true,
+    "pos": "learned",
+    "tokens": "host"
+   },
+   "mps_eager": {
+    "out_max_abs": 1.0728836059570312e-06,
+    "grad_rel": 2.0001086795673473e-06,
+    "grad_cos": 1.0000585317611694
+   }
+  },
+  {
+   "model": "cybermetaformer",
+   "model_args": {
+    "d": 64,
+    "layers": 3,
+    "temporal": [
+     "conv",
+     "attn"
+    ],
+    "host_mixer": "topo",
+    "topo_mask": false,
+    "heads": 4,
+    "state": 16,
+    "kernel": 4,
+    "window": null,
+    "mlp_ratio": 3,
+    "dropout": 0.1,
+    "age": true,
+    "pos": "learned",
+    "tokens": "host"
+   },
+   "mps_eager": {
+    "out_max_abs": 7.748603820800781e-07,
+    "grad_rel": 2.2014573914930224e-06,
+    "grad_cos": 1.000020980834961
+   }
+  },
+  {
+   "model": "cybermetaformer",
+   "model_args": {
+    "d": 64,
+    "layers": 3,
+    "temporal": [
+     "conv",
+     "attn"
+    ],
+    "host_mixer": "topo",
+    "topo_mask": false,
+    "heads": 4,
+    "state": 16,
+    "kernel": 4,
+    "window": 32,
+    "mlp_ratio": 3,
+    "dropout": 0.1,
+    "age": true,
+    "pos": "learned",
+    "tokens": "host"
+   },
+   "mps_eager": {
+    "out_max_abs": 7.748603820800781e-07,
+    "grad_rel": 1.9741955838981085e-06,
+    "grad_cos": 1.0000214576721191
+   }
+  },
+  {
+   "model": "cybermetaformer",
+   "model_args": {
+    "d": 64,
+    "layers": 3,
+    "temporal": [
+     "conv",
+     "gru"
+    ],
+    "host_mixer": "topo",
+    "topo_mask": false,
+    "heads": 4,
+    "state": 16,
+    "kernel": 4,
+    "window": null,
+    "mlp_ratio": 3,
+    "dropout": 0.1,
+    "age": true,
+    "pos": "learned",
+    "tokens": "host"
+   },
+   "mps_eager": {
+    "out_max_abs": 8.940696716308594e-07,
+    "grad_rel": 2.1083806132082827e-06,
+    "grad_cos": 1.0000462532043457
+   }
+  },
+  {
+   "model": "cybermetaformer",
+   "model_args": {
+    "d": 64,
+    "layers": 3,
+    "temporal": [
+     "pool",
+     "mlp"
+    ],
+    "host_mixer": "gcn",
+    "topo_mask": false,
+    "heads": 4,
+    "state": 16,
+    "kernel": 4,
+    "window": null,
+    "mlp_ratio": 3,
+    "dropout": 0.1,
+    "age": false,
+    "pos": "none",
+    "tokens": "host"
+   },
+   "mps_eager": {
+    "out_max_abs": 2.5779008865356445e-06,
+    "grad_rel": 2.0122631667618407e-06,
+    "grad_cos": 1.0000190734863281
+   }
+  },
+  {
+   "model": "cybermetaformer",
+   "model_args": {
+    "d": 64,
+    "layers": 3,
+    "temporal": [
+     "conv",
+     "ssd"
+    ],
+    "host_mixer": "attn",
+    "topo_mask": false,
+    "heads": 4,
+    "state": 16,
+    "kernel": 4,
+    "window": null,
+    "mlp_ratio": 3,
+    "dropout": 0.1,
+    "age": true,
+    "pos": "learned",
+    "tokens": "host"
+   },
+   "mps_eager": {
+    "out_max_abs": 1.0728836059570312e-06,
+    "grad_rel": 1.997593244595919e-06,
+    "grad_cos": 1.000058650970459
+   }
+  },
+  {
+   "model": "cybermetaformer",
+   "model_args": {
+    "d": 64,
+    "layers": 3,
+    "temporal": [
+     "conv",
+     "ssd"
+    ],
+    "host_mixer": "topo",
+    "topo_mask": true,
+    "heads": 4,
+    "state": 16,
+    "kernel": 4,
+    "window": null,
+    "mlp_ratio": 3,
+    "dropout": 0.1,
+    "age": true,
+    "pos": "learned",
+    "tokens": "host"
+   },
+   "mps_eager": {
+    "out_max_abs": 1.0728836059570312e-06,
+    "grad_rel": 2.1027515231253346e-06,
+    "grad_cos": 1.0000584125518799
+   }
+  },
+  {
+   "model": "cybermetaformer",
+   "model_args": {
+    "d": 64,
+    "layers": 3,
+    "temporal": [
+     "conv",
+     "ssd"
+    ],
+    "host_mixer": "none",
+    "topo_mask": false,
+    "heads": 4,
+    "state": 16,
+    "kernel": 4,
+    "window": null,
+    "mlp_ratio": 3,
+    "dropout": 0.1,
+    "age": true,
+    "pos": "learned",
+    "tokens": "flat"
+   },
+   "mps_eager": {
+    "out_max_abs": 1.3113021850585938e-06,
+    "grad_rel": 1.87292897635416e-07,
+    "grad_cos": 1.0000479221343994
+   }
+  }
+ ]
+}

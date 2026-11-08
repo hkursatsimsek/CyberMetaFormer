@@ -1,0 +1,36 @@
+model: mlp
+k: 32
+value: 0.9475206062626115
+trial: 9
+params:
+  layers: 2
+  width: 512
+  dropout: 0.05495740860213505
+  lr: 0.0007351072773753935
+  weight_decay: 1.2034559120184986e-05
+  class_weights: null
+overrides:
+  model_args:
+    hidden:
+    - 512
+    - 512
+    dropout: 0.05495740860213505
+  lr: 0.0007351072773753935
+  weight_decay: 1.2034559120184986e-05
+  class_weights: null
+protocol:
+  n_trials: 25
+  ks:
+  - 8
+  - 32
+  train_episodes: 4000
+  epochs: 10
+  patience: 3
+  seed: 0
+  sampler_seed: 0
+  pruner:
+    n_startup_trials: 5
+    n_warmup_steps: 2
+n_complete: 20
+n_pruned: 5
+hours: 0.23726826740635765

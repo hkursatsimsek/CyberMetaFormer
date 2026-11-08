@@ -1,0 +1,262 @@
+{
+ "entries": [
+  [
+   "XGBoost k=32",
+   "asama1",
+   "xgb_k32"
+  ],
+  [
+   "XGB-TF k=tam",
+   "asama1",
+   "xgb_tf_k101"
+  ],
+  [
+   "MLP k=32",
+   "asama1",
+   "mlp_k32"
+  ],
+  [
+   "1D-CNN k=32",
+   "asama1",
+   "cnn1d_k32"
+  ],
+  [
+   "LSTM k=32",
+   "asama1",
+   "lstm_k32"
+  ],
+  [
+   "GRU k=32",
+   "asama1",
+   "gru_k32"
+  ],
+  [
+   "LSTM (tam geçmiş)",
+   "asama1",
+   "lstm_full_k101"
+  ],
+  [
+   "GRU (tam geçmiş)",
+   "asama1",
+   "gru_full_k101"
+  ],
+  [
+   "Transformer k=64",
+   "asama2",
+   "transformer_k64"
+  ],
+  [
+   "PatchTST k=32",
+   "asama2",
+   "patchtst_k32"
+  ],
+  [
+   "iTransformer k=64",
+   "asama2",
+   "itransformer_k64"
+  ],
+  [
+   "TSMixer k=64",
+   "asama2",
+   "tsmixer_k64"
+  ],
+  [
+   "TimesNet k=8",
+   "asama2",
+   "timesnet_k8"
+  ],
+  [
+   "TimeMixer k=64",
+   "asama2",
+   "timemixer_k64"
+  ]
+ ],
+ "splits": {
+  "test": {
+   "n_blocks": 2000,
+   "pvalue": 0.0,
+   "cd": 0.4436599333864042,
+   "omnibus": "friedman",
+   "posthoc": "nemenyi",
+   "ranks": [
+    {
+     "model": "GRU (tam geçmiş)",
+     "meanrank": 4.87975,
+     "mean": 0.9511163618318028,
+     "median": 0.9766498109177504
+    },
+    {
+     "model": "LSTM (tam geçmiş)",
+     "meanrank": 5.0225,
+     "mean": 0.9500385525574576,
+     "median": 0.9761696197505753
+    },
+    {
+     "model": "Transformer k=64",
+     "meanrank": 6.039,
+     "mean": 0.9409209884435473,
+     "median": 0.9621090319044143
+    },
+    {
+     "model": "iTransformer k=64",
+     "meanrank": 6.2425,
+     "mean": 0.9400338878356934,
+     "median": 0.9585112836699905
+    },
+    {
+     "model": "TimeMixer k=64",
+     "meanrank": 6.41525,
+     "mean": 0.937770485384239,
+     "median": 0.9539023851430152
+    },
+    {
+     "model": "GRU k=32",
+     "meanrank": 6.89225,
+     "mean": 0.931723510683614,
+     "median": 0.949536641138977
+    },
+    {
+     "model": "LSTM k=32",
+     "meanrank": 7.345,
+     "mean": 0.9293057498984515,
+     "median": 0.9455950403065583
+    },
+    {
+     "model": "TSMixer k=64",
+     "meanrank": 7.404,
+     "mean": 0.9339112462768739,
+     "median": 0.9509887588217824
+    },
+    {
+     "model": "XGBoost k=32",
+     "meanrank": 7.5055,
+     "mean": 0.9284682782139393,
+     "median": 0.9497912165843854
+    },
+    {
+     "model": "1D-CNN k=32",
+     "meanrank": 7.8015,
+     "mean": 0.9273285684818899,
+     "median": 0.943628953481807
+    },
+    {
+     "model": "MLP k=32",
+     "meanrank": 8.954,
+     "mean": 0.9204894031908802,
+     "median": 0.9330162689505697
+    },
+    {
+     "model": "XGB-TF k=tam",
+     "meanrank": 9.68225,
+     "mean": 0.9170247574721522,
+     "median": 0.9353786984798264
+    },
+    {
+     "model": "PatchTST k=32",
+     "meanrank": 9.86325,
+     "mean": 0.9125696376554852,
+     "median": 0.9232021789494225
+    },
+    {
+     "model": "TimesNet k=8",
+     "meanrank": 10.95325,
+     "mean": 0.8977957866982611,
+     "median": 0.9061479541494377
+    }
+   ]
+  },
+  "ood_test": {
+   "n_blocks": 4000,
+   "pvalue": 0.0,
+   "cd": 0.31371494743829836,
+   "omnibus": "friedman",
+   "posthoc": "nemenyi",
+   "ranks": [
+    {
+     "model": "GRU (tam geçmiş)",
+     "meanrank": 2.845875,
+     "mean": 0.9248714359471504,
+     "median": 0.9294819142798145
+    },
+    {
+     "model": "LSTM (tam geçmiş)",
+     "meanrank": 3.066,
+     "mean": 0.9217436710798717,
+     "median": 0.9266331895433007
+    },
+    {
+     "model": "Transformer k=64",
+     "meanrank": 5.973875,
+     "mean": 0.8802036991753437,
+     "median": 0.8808568991748941
+    },
+    {
+     "model": "TimeMixer k=64",
+     "meanrank": 6.23275,
+     "mean": 0.8737058804542149,
+     "median": 0.8766740157366192
+    },
+    {
+     "model": "iTransformer k=64",
+     "meanrank": 6.498125,
+     "mean": 0.8781688625317611,
+     "median": 0.8798111716364686
+    },
+    {
+     "model": "XGBoost k=32",
+     "meanrank": 6.668125,
+     "mean": 0.8702280510105525,
+     "median": 0.8737994980329806
+    },
+    {
+     "model": "XGB-TF k=tam",
+     "meanrank": 6.90225,
+     "mean": 0.875760048517537,
+     "median": 0.8789689229713085
+    },
+    {
+     "model": "TSMixer k=64",
+     "meanrank": 7.446375,
+     "mean": 0.8653606761792838,
+     "median": 0.868712969299705
+    },
+    {
+     "model": "GRU k=32",
+     "meanrank": 7.78275,
+     "mean": 0.8515794553199763,
+     "median": 0.8553315313333785
+    },
+    {
+     "model": "LSTM k=32",
+     "meanrank": 8.18725,
+     "mean": 0.8484782478574902,
+     "median": 0.8530883164378611
+    },
+    {
+     "model": "1D-CNN k=32",
+     "meanrank": 9.61725,
+     "mean": 0.8391741894375939,
+     "median": 0.842450649588091
+    },
+    {
+     "model": "PatchTST k=32",
+     "meanrank": 10.044625,
+     "mean": 0.8303732653638008,
+     "median": 0.8366586392346183
+    },
+    {
+     "model": "MLP k=32",
+     "meanrank": 10.77775,
+     "mean": 0.8300039612500277,
+     "median": 0.8341586610470078
+    },
+    {
+     "model": "TimesNet k=8",
+     "meanrank": 12.957,
+     "mean": 0.7849549879610698,
+     "median": 0.7863861227188855
+    }
+   ]
+  }
+ }
+}

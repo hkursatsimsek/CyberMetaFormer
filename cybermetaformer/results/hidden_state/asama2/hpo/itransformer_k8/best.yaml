@@ -1,0 +1,39 @@
+model: itransformer
+k: 8
+value: 0.9390111855640367
+trial: 10
+params:
+  d_model: 64
+  heads: 2
+  layers: 3
+  ff_mult: 4
+  dropout: 0.08818683158557936
+  lr: 0.0024322921513949738
+  weight_decay: 0.003499450042319799
+  class_weights: null
+overrides:
+  model_args:
+    d_model: 64
+    heads: 2
+    layers: 3
+    ff: 256
+    dropout: 0.08818683158557936
+  lr: 0.0024322921513949738
+  weight_decay: 0.003499450042319799
+  class_weights: null
+protocol:
+  n_trials: 15
+  ks:
+  - 8
+  - 32
+  train_episodes: 4000
+  epochs: 10
+  patience: 3
+  seed: 0
+  sampler_seed: 0
+  pruner:
+    n_startup_trials: 5
+    n_warmup_steps: 2
+n_complete: 10
+n_pruned: 5
+hours: 2.599160235060586

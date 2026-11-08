@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv*/
+.DS_Store
+
+# Training outputs that are not tracked (weights, logits, per-episode slices, Optuna studies, logs).
+# Raw outputs of the paper's runs will be archived on Zenodo with v1.0-submission.
+/cybermetaformer/results/**/*.pt
+/cybermetaformer/results/**/*.ckpt
+/cybermetaformer/results/**/*.npz
+/cybermetaformer/results/**/*.npy
+/cybermetaformer/results/**/*.db
+/cybermetaformer/results/**/*.out
+/cybermetaformer/results/**/*.log
+/cybermetaformer/results/**/*_smoke/

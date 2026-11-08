@@ -1,0 +1,13 @@
+# Aşama 1 1D-CNN (nedensel, k ≥ 8'de dilate). HPO: channels, layers, kernel, dropout + ortak.
+model: cnn1d
+model_args: {channels: 128, layers: 3, kernel: 3, dropout: 0.1}
+scale: global
+optimizer: adamw
+lr: 0.001
+weight_decay: 0.01
+epochs: 30
+batch_size: 1024
+schedule: warmup_cosine
+warmup_frac: 0.05
+early_stopping: {patience: 5}
+loss: ce

@@ -1,0 +1,35 @@
+model: xgb_tf
+k: 8
+value: 0.9349660819112221
+trial: 13
+params:
+  max_depth: 9
+  eta: 0.022839375843806853
+  subsample: 0.8375182694560985
+  colsample_bytree: 0.45281109869860586
+  min_child_weight: 1.489863115838675
+  reg_lambda: 0.6625579794844035
+overrides:
+  params:
+    max_depth: 9
+    eta: 0.022839375843806853
+    subsample: 0.8375182694560985
+    colsample_bytree: 0.45281109869860586
+    min_child_weight: 1.489863115838675
+    reg_lambda: 0.6625579794844035
+protocol:
+  n_trials: 25
+  ks:
+  - 8
+  - 32
+  train_episodes: 4000
+  epochs: 10
+  patience: 3
+  seed: 0
+  sampler_seed: 0
+  pruner:
+    n_startup_trials: 5
+    n_warmup_steps: 2
+n_complete: 25
+n_pruned: 0
+hours: 1.701985851128896
