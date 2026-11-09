@@ -12,16 +12,23 @@ alert (*silent compromise*), and the out-of-distribution (OOD) test uses a defen
 The repository contains:
 
 - **`minicage/`**: the data generator (on top of CybORG++ MiniCAGE) and the `minicage_v1` dataset: 24,000 episodes,
-  2.4 M steps, episode-level splits, plus the derived OOD packages (simulator-bug shift, defender-policy shift).
+  2.4 M steps, episode-level splits, plus the derived OOD packages (simulator-bug shift, defender-policy shift,
+  rewired topology, corrected remove-flag observation).
 - **`cybermetaformer/hidden_state/`**: CyberMetaFormer (host tokens, causal convolution + selective state-space
   temporal mixer, topology-biased cross-host attention), the reference models (rules, XGBoost, MLP, 1D-CNN, LSTM/GRU,
   full-history recurrent models, Transformer, PatchTST, iTransformer, TSMixer, TimesNet, TimeMixer), the shared
   training and evaluation protocol, hyperparameter search, paired episode-level bootstrap, ablations, OOD suite,
-  explanations, latency measurement and the scripts that regenerate the paper's tables and figures.
+  host-permutation and topology shifts, interventions on other hosts' observations, failure analysis, the
+  corrected-observation evaluation, explanations, inference-cost measurement and the scripts that regenerate the
+  paper's tables and figures.
 - **`cybermetaformer/results/hidden_state/`**: per-run metrics, selected hyperparameters (`hpo/*/best.yaml`),
   summaries, and the paper's tables (`makale/tablolar/*.md`) and figures (`makale/sekiller/`).
 
-> **Status (v0.1.0, pre-release).** Code comments, docstrings and some module and result-folder names are still in
+> **Status (v0.2.0, pre-release).** This release adds the evaluation-only analyses of the second revision round:
+> host permutations and a rewired simulator topology, interventions on the observations of other hosts, a failure
+> analysis of the periodic-analyse and remove defenders, the evaluation on a copy of the data with the remove-flag
+> observation bug corrected, and a single inference-cost measurement of ten models. They reuse the stored five-seed
+> models and retrain nothing. Code comments, docstrings and some module and result-folder names are still in
 > Turkish; the [glossary](#glossary) maps them. An English pass, the raw model outputs (logits and per-episode
 > confusions, about 10 GB) and the trained weights will be published with `v1.0-submission` on Zenodo with a DOI.
 
@@ -53,6 +60,8 @@ python -m pytest cybermetaformer/hidden_state/tests -q
 | `minicage/data/minicage_v1_aux/` | Silent-compromise cause labels (`silent_cause.npz`) |
 | `minicage/data/minicage_v1_bugged/` | Same 12 attacker–defender pairs generated without the simulator bug fixes (evaluation only) |
 | `minicage/data/minicage_v1_shift/`, `_shift_aux/` | Unseen defender policies and mechanism changes (ε = 0.5, 0.7, periodic analyse, remove instead of restore) |
+| `minicage/data/minicage_v1_topo/` | Rewired topology: user1/2 → ent1 and user3/4 → ent0, with the same hosts, subnets and observation layout; defender policies ε = 0.1 and 0.3, 2 attackers × 2,000 episodes (evaluation only) |
+| `minicage/data/minicage_v1_fixedobs/`, `_shift_fixedobs/` | Paired copies of `minicage_v1` and `minicage_v1_shift`, re-simulated with the same seeds and the recorded defender actions with the remove-flag observation bug fixed: a failed remove no longer shows "removed". True states, attacker observations, actions and rewards are byte-identical (evaluation only) |
 
 Splits are stratified by attacker–defender pair at the episode level; `ood_test` is the defender policy
 `react_restore_eps0.3`, never seen in training. Verify the files and, optionally, regenerate the dataset
@@ -64,6 +73,10 @@ python -m minicage.dataset.generate --episodes-per-config 2000 --out /tmp/minica
 python -m minicage.dataset.generate --remove-bugs false --seed 1 --out /tmp/minicage_v1_bugged_regen
 python -m minicage.dataset.generate --blue react_restore_eps0.5 react_restore_eps0.7 react_restore_analyse react_remove \
     --seed 2 --out /tmp/minicage_v1_shift_regen
+python -m minicage.dataset.generate --topology rewired --blue react_restore_eps0.1 react_restore_eps0.3 \
+    --seed 3 --out /tmp/minicage_v1_topo_regen
+python -m minicage.dataset.resimulate --src minicage/data/minicage_v1 --out /tmp/minicage_v1_fixedobs_regen
+python -m minicage.dataset.resimulate --src minicage/data/minicage_v1_shift --out /tmp/minicage_v1_shift_fixedobs_regen
 python -m minicage.dataset.validate --data minicage/data/minicage_v1
 ```
 
@@ -91,6 +104,8 @@ python -m cybermetaformer.hidden_state.run_grid --stage asama3 --models cybermet
     --variants duz78 host_yok host_tam host_gcn kol_konv kol_ssd konv_dikkat konv_gru hafiza_yok b2 --seeds 0 1 2
 python -m cybermetaformer.hidden_state.run_grid --stage asama3 --models cybermetaformer \
     --variants gru_host_topo gru_host_attn --seeds 0 1 2 3 4                       # host-token GRU references
+python -m cybermetaformer.hidden_state.run_grid --stage asama3 --models cybermetaformer \
+    --variants host_tam --seeds 3 4               # five seeds of the no-topology-bias variant for the shift analyses
 python -m cybermetaformer.hidden_state.compare --plan m3        # ablations, RQ3, attacker transfer
 python -m cybermetaformer.hidden_state.compare --plan m4 --n-boot 100000
 ```
@@ -106,15 +121,35 @@ python -m cybermetaformer.hidden_state.run_grid --stage asama2 \
 python -m cybermetaformer.hidden_state.aggregate --stage asama2
 ```
 
-**Paper analyses, tables and figures:**
+**Paper analyses:**
 
 ```bash
 python -m cybermetaformer.hidden_state.ood_paketi collect && python -m cybermetaformer.hidden_state.ood_paketi analyze
 python -m cybermetaformer.hidden_state.hic_uyari           # no-alert subsets N_hist / N_ep
 python -m cybermetaformer.hidden_state.sinif_duzeyi        # class-level metrics, confusion, worst host
 python -m cybermetaformer.hidden_state.esdegerlik --settings cpu64 cpu32 mps32 --seeds 0 1 2 3 4   # step = episode mode
-python -m cybermetaformer.hidden_state.gecikme             # online CPU step latency
+python -m cybermetaformer.hidden_state.gecikme             # online CPU step latency (first measurement)
+python -m cybermetaformer.hidden_state.maliyet             # online inference cost of ten models (latency, memory)
 python -m cybermetaformer.hidden_state.rapor.boyut_tablosu # tensor shapes and parameter counts
+```
+
+**Shift, intervention and failure analyses (stored five-seed models, no retraining):**
+
+```bash
+python -m cybermetaformer.hidden_state.ood_permutasyon collect          # host permutations P1, P1s, P2, P2s, P3
+python -m cybermetaformer.hidden_state.ood_permutasyon analyze --n-boot 100000
+python -m cybermetaformer.hidden_state.ood_topoloji collect             # rewired simulator topology
+python -m cybermetaformer.hidden_state.ood_topoloji analyze --n-boot 100000
+python -m cybermetaformer.hidden_state.basarisizlik --n-boot 100000     # error types and slices per defender policy
+python -m cybermetaformer.hidden_state.mudahale collect                 # interventions on other hosts' observations
+python -m cybermetaformer.hidden_state.mudahale analyze --n-boot 100000
+python -m cybermetaformer.hidden_state.duzeltilmis_gozlem collect       # flawed vs corrected remove-flag observation
+python -m cybermetaformer.hidden_state.duzeltilmis_gozlem analyze --n-boot 10000
+```
+
+**Paper tables and figures:**
+
+```bash
 python -m cybermetaformer.hidden_state.rapor.makale_tablolar --basis m4   # five-seed main pair, as in the paper
 python -m cybermetaformer.hidden_state.rapor.makale_sekiller
 ```
@@ -122,10 +157,12 @@ python -m cybermetaformer.hidden_state.rapor.makale_sekiller
 `makale_tablolar` reads the per-episode outputs of the runs (`episode_slices.npz`) and, for parameter counts, the
 trained weights (`model.pt`). Both are produced by the commands above; until the Zenodo archive is published, the
 stored tables in `makale/tablolar/` are the reference (regenerating them from the original runs reproduces these
-files byte for byte).
+files byte for byte). The tables of the shift, intervention and failure analyses are built from the stored analysis
+summaries (`makale/<analysis>/ozet.json`), which are included.
 
 Hardware: training on Apple M3 Pro (MPS); some ablations and the host-token GRU references on Apple M4 Pro, always
-compared with a copy of the main model trained on the same machine (`ana_m4`). Latency on the M3 Pro CPU, batch size 1.
+compared with a copy of the main model trained on the same machine (`ana_m4`). The shift, intervention and failure
+analyses ran on the M3 Pro (MPS); latency and cost on the M3 Pro CPU, batch size 1.
 
 ## Glossary
 
@@ -136,6 +173,9 @@ compared with a copy of the main model trained on the same machine (`ana_m4`). L
 | `ozet`, `karsilastirma`, `verimlilik`, `aciklama`, `belirsizlik` | summary, comparison, efficiency, explanations, uncertainty |
 | `ood_paketi.py` | extended OOD suite (unseen defender, severity curve, mechanism changes) |
 | `hic_uyari.py`, `sinif_duzeyi.py`, `esdegerlik.py`, `gecikme.py` | no-alert subsets, class-level report, step/episode equivalence, latency |
+| `ood_permutasyon.py`, `ood_topoloji.py` | host-permutation shift; rewired simulator topology (optionally with the relation matrix rebuilt from the new links) |
+| `basarisizlik.py`, `mudahale.py` | failure analysis by error type, attacker, subnet and alert age; interventions on other hosts' observations |
+| `duzeltilmis_gozlem.py`, `maliyet.py` | flawed vs corrected observation; online inference cost (latency, state and working memory) |
 | `rapor/makale_tablolar.py`, `rapor/makale_sekiller.py`, `rapor/boyut_tablosu.py` | paper tables, paper figures, shape table |
 | `duz78`, `host_yok`, `host_tam`, `host_gcn` | no host tokens (one 78-d token); no host mixer; full attention, no topology bias; GCN-like host mixer |
 | `kol_konv`, `kol_ssd`, `konv_dikkat`, `konv_gru` | short convolution only; SSD branch only; causal attention instead of SSD; GRU instead of SSD |

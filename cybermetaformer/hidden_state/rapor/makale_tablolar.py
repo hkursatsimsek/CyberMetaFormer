@@ -16,6 +16,16 @@ Taslaktan gelen tablolar (Faz 0; md'de `::: {#tbl:… .tablo include=…}` ile):
 - tA1_ablations_all.md     bütün ablasyonlar (plan)
 - tB1_hyperparameters.md   B1 ayarları (asama3/hpo/cybermetaformer_k101/best.yaml)
 Madde 4 ve 5 (Faz 1'de metne girer): a4_reference.md, a4_pairs.md, a5_seeds.md, a5_two_sources.md.
+Madde 6–8 ve 10 (Faz 2; sonuçlar makale/<analiz>/ozet.json, seed 0–4, yeniden eğitimsiz):
+- t_shift_types.md         değerlendirilen kayma türleri ve bölüm sayıları (§3.2)
+- t_host_shift.md          host permütasyonu ve yeniden bağlanmış topoloji, OOD (ood_permutasyon, ood_topoloji)
+- t_failure.md             dört politikada hata türleri (basarisizlik)
+- t_intervention.md        diğer hostların gözlemine müdahale (mudahale)
+- t_corrected.md           kusurlu ve düzeltilmiş gözlem, CMF − GRU (duzeltilmis_gozlem)
+- t_cost.md                gecikme, bellek ve OOD F1 (maliyet; t11_efficiency ile gecikme/table.md'nin yerine)
+- tE_*.md                  Ek E: kayma farkları, analyse/remove dilimleri, analyse'da temsil türü, müdahalenin bütün
+                           ölçütleri ve model farkları, düzeltilmiş − kusurlu farkları
+t11_efficiency eski ölçümdür; yalnız iç sayı denetimi (temel m3) için üretilir, makalede yoktur.
 
 Temel (--basis): `m3` taslağın sayılarını üretir (CMF seed 0–2; M3 kaydı, `compare --plan m3`, 10.000 örnek);
 `m4` 5 seed'li ana çifti kullanır (CMF seed 0–4; `compare --plan m3_5seed`, 100.000 örnek). Ablasyonlar ve 3 seed'li
@@ -41,7 +51,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 RESULTS = os.path.join(ROOT, 'results', 'hidden_state')
 CONFIGS = os.path.join(ROOT, 'hidden_state', 'configs')
 CMP = os.path.join(RESULTS, 'asama3', 'karsilastirma_m4')
-LATENCY = os.path.join(RESULTS, 'makale', 'gecikme', 'olcum.json')
+LATENCY = os.path.join(RESULTS, 'makale', 'maliyet', 'olcum.json')   # madde 10 ölçümü (maliyet.py; gecikme.py'nin yerine)
 OUT = os.path.join(RESULTS, 'makale', 'tablolar')
 LAT_THREADS = '1'                                         # A4 sütunu: tek iş parçacığı (varsayılan ayar gecikme tablosunda)
 PLAN_FILE = {'m3': os.path.join(RESULTS, 'asama3', 'karsilastirma', 'ozet.json'),
@@ -78,6 +88,7 @@ ABLATIONS = {
     'havuz_mlp': 'Pooling and MLP MetaFormer mixers',
     'b2': 'B2 scale',
 }
+ABL_SEEDS = [0, 1, 2]
 SELECTED = ['duz78', 'host_yok', 'host_tam', 'host_gcn', 'kol_konv', 'kol_ssd', 'konv_dikkat', 'konv_gru',
             'hafiza_yok', 'b2']                                    # Tablo 8, taslağın sırası
 CRIT = {'test_host_macro_f1': 'Test host macro-F1', 'ood_host_macro_f1': 'OOD host macro-F1',
@@ -228,10 +239,12 @@ def subset(run, seeds):
 
 
 def load_ablations():
+    """Ablasyonlar protokol gereği seed 0–2'dir. Sonradan seed eklenen varyantların (host_tam s3–s4, host permütasyonu
+    için) ek seed'leri burada sayılmaz; o seed'ler RUNS üzerinden kendi tablolarına girer."""
     out = {}
     for v in ABLATIONS:
         prefix = f'cybermetaformer-{v}_k101'
-        rows = [seed_metrics('asama3', prefix, s) for s in run_seeds('asama3', prefix)]
+        rows = [seed_metrics('asama3', prefix, s) for s in run_seeds('asama3', prefix) if s in ABL_SEEDS]
         out[v] = {'prefix': prefix, 'seeds': [r['seed'] for r in rows], 'per_seed': rows, **stats_of(rows)}
     return out
 
@@ -994,7 +1007,7 @@ def a4_reference(runs, lat):
             'as the host-token GRU references, which are compared with it (Table @tbl:hostgru_cift). The host-token '
             'GRU variants keep every CyberMetaFormer component except the temporal mixer, which is a per-host GRU over '
             'the same host tokens. The full-history GRU takes the flat 78-d observation. Online CPU step latency and '
-            'carried state of these models are given in Table @tbl:gecikme.')
+            'carried state of these models are given in Table @tbl:maliyet.')
     return '\n'.join(L) + '\n\n' + note + '\n'
 
 
@@ -1111,6 +1124,558 @@ def a5_two_sources(runs, diffs, m35):
     return '\n'.join(L) + '\n\n' + note + '\n'
 
 
+# ── madde 6–8 ve 10 (Faz 2): kayma türleri, host düzeni ve topoloji, başarısızlık, müdahale, düzeltilmiş gözlem,
+#    maliyet. Kaynak: makale/<analiz>/ozet.json; hepsi seed 0–4 ve yeniden eğitimsizdir. ─────────────────────────
+
+F2_LABEL = {'cybermetaformer': 'CMF', 'cybermetaformer-host_tam': 'CMF, no topology bias',
+            'cybermetaformer-gru_host_topo': 'Host-token GRU, topology bias',
+            'cybermetaformer-gru_host_attn': 'Host-token GRU, no topology bias', 'gru_full': 'Full-history GRU'}
+F2_RUN = {'cybermetaformer': 'cmf', 'cybermetaformer-host_tam': 'host_tam', 'cybermetaformer-gru_host_topo': 'gru_host_topo',
+          'cybermetaformer-gru_host_attn': 'gru_host_attn', 'gru_full': 'gru_full'}
+TOPO_BIASED = ('cybermetaformer', 'cybermetaformer-gru_host_topo')
+F2_CRIT = [('host_macro_f1', 'OOD host macro-F1', 'ood_f1'), ('silent_recall', 'OOD silent recall', 'ood_silent'),
+           ('never_recall', 'OOD N_hist recall', 'ood_hist')]
+F2_SEEDS = [0, 1, 2, 3, 4]
+
+
+def analysis(name):
+    with open(os.path.join(RESULTS, 'makale', name, 'ozet.json')) as f:
+        A = json.load(f)
+    assert A['seeds'] == F2_SEEDS, name
+    return A
+
+
+def get_row(A, **kw):
+    rows = [r for r in A['rows'] if all(r.get(k) == v for k, v in kw.items())]
+    assert len(rows) == 1, (kw, len(rows))
+    return rows[0]
+
+
+def check_main(value, runs, model, metric, tol=1e-4):
+    """Analizin kayıtlı logitlerden hesapladığı değer, ana tabloların 5 seed ortalamasıyla (metrics.json ve
+    episode_slices.npz) tutmalı; logitler float16 saklandığı için tolerans 1e-4 (ood_paketi denetimiyle aynı)."""
+    key = F2_RUN[model]
+    assert runs[key]['seeds'] == F2_SEEDS, key
+    assert abs(value - runs[key][metric]['mean']) < tol, (model, metric, value, runs[key][metric]['mean'])
+
+
+def dpm(d, k=3):
+    """Δ ortalama ± sd hücresi."""
+    return Cell(minus(f"{d['mean']:+.{k}f}") + f" {PM}{d['sd']:.{k}f}", (d['mean'], d['sd']))
+
+
+def holm_note(A):
+    n, m = A['n_boot'], len(A['rows'])
+    return (f"paired episode bootstrap of the seed mean ({n:,} resamples, Algorithm 2), Holm over all m = {m} rows of "
+            f"this analysis (smallest attainable adjusted p = {min(1.0, m * 2 / (n + 1)):.4f})")
+
+
+def t_shift_types():
+    """§3.2: değerlendirilen dağılım kaymalarının türleri ve bölüm sayıları."""
+    P = json.load(open(os.path.join(RESULTS, 'asama3', 'ood_paketi', 'ozet_5seed.json')))['sets']
+    perm, topo, corr = analysis('ood_permutasyon'), analysis('ood_topoloji'), analysis('duzeltilmis_gozlem')
+    att = {}
+    for tr in ['bline', 'meander']:
+        rep = json.load(open(os.path.join(RESULTS, 'asama3', f'cybermetaformer-saldirgan_{tr}_k101_s0',
+                                          'metrics.json')))['reports']
+        att[tr] = (rep['test_shift']['n_episodes'], rep['ood_test_shift']['n_episodes'])
+    assert att['bline'] == att['meander']
+    assert P['eps0.5']['n_episodes'] == P['eps0.7']['n_episodes']
+    assert perm['sets']['test']['n_episodes'] == corr['sets']['test']['n_episodes']
+    assert len({corr['sets'][s]['n_episodes'] for s in ['ood', 'eps0.5', 'eps0.7', 'remove']}) == 1
+    assert topo['sets']['eps0.1']['rewired']['n_episodes'] == topo['sets']['ood']['rewired']['n_episodes']
+    T = Table('t_shift_types', [('type', 'Shift type', 'l'), ('cond', 'Condition', 'l'), ('change', 'What changes', 'l'),
+                                ('n', 'Episodes', 'r'), ('retrain', 'Retraining', 'l'), ('where', 'Results', 'l')],
+              group=('type',))
+    rows = [
+        ('Policy parameter', 'ε = 0.3 (main OOD test)',
+         'Random-action probability of the restore-based defender raised from 0.1 to 0.3',
+         intc(P['ood']['n_episodes']), 'No', 'Tables @tbl:ana, @tbl:politika'),
+        ('Policy parameter', 'ε = 0.5 and 0.7', 'Same parameter, larger values',
+         txt(f"{P['eps0.5']['n_episodes']:,} each", P['eps0.5']['n_episodes']), 'No', 'Table @tbl:politika'),
+        ('Observation mechanism', 'Periodic analyse on idle steps',
+         'Idle steps are used to analyse hosts, which re-emits the root flag of compromised hosts (alert refresh)',
+         intc(P['analyse']['n_episodes']), 'No', 'Tables @tbl:politika, @tbl:basarisizlik'),
+        ('Observation mechanism', 'Remove instead of restore',
+         'Removal replaces restore; a failed remove keeps root access but shows the "removed" flag',
+         intc(P['remove']['n_episodes']), 'No', 'Tables @tbl:politika, @tbl:basarisizlik'),
+        ('Observation mechanism', 'Corrected remove flag',
+         'Same episodes and defender actions re-simulated; a failed remove no longer shows "removed"',
+         txt(f"test {corr['sets']['test']['n_episodes']:,}; four shift sets "
+             f"{corr['sets']['ood']['n_episodes']:,} each"), 'No', 'Table @tbl:duzeltilmis'),
+        ('Simulator version', 'Earlier simulator version',
+         'Documented simulator bugs left in place; OOD policy', intc(P['bug_ood']['n_episodes']), 'No',
+         'Table @tbl:politika'),
+        ('Attacker', 'B-line ↔ Meander transfer', 'Model trained on one attacker and tested on the other',
+         txt(f"test {att['bline'][0]:,}; OOD {att['bline'][1]:,}"), 'Yes: one model per training attacker',
+         'Table @tbl:saldirgan'),
+        ('Host identity', 'Host permutations P1, P1s, P2, P2s, P3',
+         'Observation columns and labels of hosts permuted within or across attack-graph roles; P3 permutes only '
+         'the host embeddings', txt(f"test {perm['sets']['test']['n_episodes']:,}; OOD "
+                                    f"{perm['sets']['ood']['n_episodes']:,}"), 'No', 'Table @tbl:host_kayma'),
+        ('Topology', 'Rewired user → enterprise links',
+         'Simulator links user1/2 → ent1 and user3/4 → ent0; host count, subnets and observation layout unchanged',
+         txt(f"{topo['sets']['ood']['rewired']['n_episodes']:,} per policy (ε = 0.1, 0.3)"),
+         'No; relation matrix rebuilt in one condition', 'Table @tbl:host_kayma'),
+    ]
+    for i, (typ, cond, change, n, retrain, where) in enumerate(rows):
+        T.add(f'r{i}', type=txt(typ), cond=txt(cond), change=txt(change), n=n, retrain=txt(retrain), where=txt(where))
+    T.note = ('Note. Shifts relative to the training data, which contain the five training defender policies '
+              '(Table @tbl:politikalar), both attackers and the original MiniCAGE topology. Policy and mechanism shifts '
+              'and the earlier simulator version use new episodes of both attackers; the corrected copy re-simulates '
+              'the episodes of the test, OOD and shift sets with the recorded defender actions. Not evaluated: the full '
+              'CybORG engine and networks with a different number of hosts (Section 5.3).')
+    return T
+
+
+PERM_COND = [('id', 'Identity'), ('P1', 'P1'), ('P1s', 'P1s'), ('P2', 'P2'), ('P2s', 'P2s'), ('P3', 'P3')]
+
+
+def t_host_shift(runs):
+    """§4.8: host permütasyonu ve yeniden bağlanmış topoloji, OOD (ε = 0.3); seed ortalaması."""
+    P, TP = analysis('ood_permutasyon'), analysis('ood_topoloji')
+    T = Table('t_host_shift', [('crit', 'Criterion', 'l'), ('model', 'Model', 'l')] +
+              [(k, h, 'r') for k, h in PERM_COND] +
+              [('rew', 'Rewired simulator', 'r'), ('upd', 'Rewired, bias updated', 'r')], group=('crit',))
+    max_sd = {}
+    for crit, clab, metric in F2_CRIT:
+        sds = []
+        for m, lab in F2_LABEL.items():
+            pm, tm = P['models'][m]['ood'], TP['models'][m]['ood']
+            # özgün topoloji = permütasyonsuz değerlendirme: aynı bölümler, aynı logitler
+            assert abs(tm['original'][crit]['mean'] - pm['id'][crit]['mean']) < 1e-9, (m, crit)
+            check_main(pm['id'][crit]['mean'], runs, m, metric)
+            cells = {}
+            for k, _ in PERM_COND:
+                if k in pm:
+                    cells[k] = num(pm[k][crit]['mean'], 3)
+                    sds.append(pm[k][crit]['sd'])
+                else:
+                    cells[k] = txt('—')
+            cells['rew'] = num(tm['rewired'][crit]['mean'], 3)
+            sds.append(tm['rewired'][crit]['sd'])
+            if 'rewired_prior' in tm:
+                assert m in TOPO_BIASED
+                cells['upd'] = num(tm['rewired_prior'][crit]['mean'], 3)
+                sds.append(tm['rewired_prior'][crit]['sd'])
+            else:
+                cells['upd'] = txt('—')
+            T.add(f'{crit}__{m}', crit=txt(clab), model=txt(lab), **cells)
+        max_sd[crit] = max(sds)
+    S, R = P['sets']['ood'], TP['sets']['ood']['rewired']
+    T.note = ('Note. OOD test policy (ε = 0.3), mean over seeds 0–4; the largest seed SD in the table is '
+              f"{max_sd['host_macro_f1']:.3f} (F1), {max_sd['silent_recall']:.3f} (silent recall) and "
+              f"{max_sd['never_recall']:.3f} (N_hist recall). All models are trained on the original host order and "
+              'topology and evaluated without retraining. P1: permutation within attack-graph roles (ophost0 ← ophost1 '
+              '← ophost2 ← ophost0, user1 ↔ user2, user3 ↔ user4; edges and subnets preserved). P2: across roles (user1 ↔ '
+              'user3, user2 ↔ user4; subnets preserved, user → enterprise edges misaligned). Observation columns and '
+              'labels move together; in P1 and P2 the decoy-count column also moves, so the host-specific decoy capacity '
+              '(user1/2: 4, user3: 2, user4: 1) travels with the host as an identity cue, while P1s and P2s keep the '
+              'decoy-count columns in their slot. P3: only the host-embedding rows E_host are permuted as in P2, the data '
+              'are unchanged (host-token models only); without topology bias P3 equals P2, because permuting the data is '
+              'equivalent to permuting E_host and the relation matrix together. Original episodes: '
+              f"n = {S['n_host_steps']:,} host-steps, {S['n_silent']:,} silent, {S['n_never']:,} N_hist. Rewired "
+              f"simulator: new episodes of the same policy with user1/2 → ent1 and user3/4 → ent0 ({R['n_episodes']:,} "
+              f"episodes; {R['n_silent']:,} silent, {R['n_never']:,} N_hist host-steps); in the simulator the decoy "
+              'capacity stays with the host slot, as in P2s. Bias updated: the relation matrix of the two '
+              'topology-biased models is rebuilt from the rewired links, weights unchanged. Paired differences with '
+              '95% CIs: Table @tbl:host_kayma_fark.')
+    return T
+
+
+def tE_host_shift_diffs():
+    """Ek E: permütasyon ve yeniden bağlama farkları (aynı model) ve aynı koşulda model farkları, OOD."""
+    P, TP = analysis('ood_permutasyon'), analysis('ood_topoloji')
+    T = Table('tE_host_shift_diffs', [('model', 'Model', 'l'), ('comp', 'Comparison', 'l'),
+                                      ('f1', 'Δ host macro-F1 [95% CI]', 'r'), ('s', 'Δ silent recall [95% CI]', 'r'),
+                                      ('h', 'Δ N_hist recall [95% CI]', 'r'), ('p', 'p (Holm), silent recall', 'r')],
+              group=('model',))
+
+    def add(key, mlab, clab, A, kw):
+        cells = {}
+        for col, crit, k in [('f1', 'host_macro_f1', 4), ('s', 'silent_recall', 3), ('h', 'never_recall', 3)]:
+            r = get_row(A, criterion=crit, set='ood', **kw)
+            cells[col] = dci(r['diff'], r['lo'], r['hi'], k)
+            if col == 's':
+                cells['p'] = txt(pfmt(r['p_holm']), r['p_holm'])
+        T.add(key, model=txt(mlab), comp=txt(clab), **cells)
+
+    for m, lab in F2_LABEL.items():
+        for c in ['P1', 'P1s', 'P2', 'P2s', 'P3']:
+            if c in P['models'][m]['ood']:
+                add(f'{m}__{c}', lab, f'{c} − identity', P, dict(kind='perm_minus_id', model=m, condition=c))
+        add(f'{m}__rew', lab, 'Rewired − original', TP, dict(kind='rewired_minus_original', model=m))
+        if m in TOPO_BIASED:
+            add(f'{m}__upd', lab, 'Rewired, bias updated − original', TP, dict(kind='prior_minus_original', model=m))
+    for a, b in [('cybermetaformer', 'gru_full'), ('cybermetaformer', 'cybermetaformer-host_tam'),
+                 ('cybermetaformer-gru_host_topo', 'cybermetaformer-gru_host_attn')]:
+        mlab = f'{F2_LABEL[a]} − {F2_LABEL[b]}'
+        for cond, clab, kind in [('original', 'Original topology', 'pair'), ('P2s', 'P2s', 'pair'),
+                                 ('rewired', 'Rewired simulator', 'pair'),
+                                 ('rewired_prior', 'Rewired, bias of A updated', 'pair_prior')]:
+            add(f'{a}__{b}__{cond}', mlab, clab, TP, dict(kind=kind, a=a, b=b, condition=cond))
+    T.note = ('Note. OOD test policy (ε = 0.3), seeds 0–4, no retraining; conditions as in Table @tbl:host_kayma. '
+              'Permutations reuse the original episodes (paired bootstrap); the rewired simulator has its own episodes, '
+              'so rewired − original differences use a two-sample bootstrap with both sets resampled independently. '
+              f"Permutation rows: {holm_note(P)}. Topology rows (rewired, bias updated and model pairs): "
+              f"{holm_note(TP)}; both analyses also cover the test set (permutations) and the training policy ε = 0.1 "
+              '(topology), which are counted in m but not shown.')
+    return T
+
+
+FAIL_SETS = [('eps0.1', 'ε = 0.1 (training policy)'), ('ood', 'ε = 0.3 (main OOD)'),
+             ('analyse', 'Periodic analyse on idle steps'), ('remove', 'Remove instead of restore')]
+FAIL_MODELS = ['cybermetaformer', 'cybermetaformer-gru_host_topo', 'cybermetaformer-gru_host_attn', 'gru_full']
+
+
+def t_failure(runs):
+    """§4.7: hata türleri, dört politika × dört model (basarisizlik.py)."""
+    B = analysis('basarisizlik')
+    T = Table('t_failure', [('set', 'Policy', 'l'), ('n', 'Silent host-steps, user / root', 'r'),
+                            ('model', 'Model', 'l'), ('f1', 'Host macro-F1', 'r'), ('s', 'Silent recall', 'r'),
+                            ('src', 'Silent root → clean', 'r'), ('suc', 'Silent user → clean', 'r'),
+                            ('arc', 'Root → clean, all root steps', 'r')], group=('set', 'n'))
+    sd_err = []
+    for s, slab in FAIL_SETS:
+        S = B['sets'][s]
+        for m in FAIL_MODELS:
+            M = B['models'][m][s]
+            if s == 'ood':
+                check_main(M['host_macro_f1']['mean'], runs, m, 'ood_f1')
+                check_main(M['silent']['recall']['mean'], runs, m, 'ood_silent')
+            sd_err += [M['silent']['root_to_clean']['sd'], M['silent']['user_to_clean']['sd'],
+                       M['all_errors']['root_to_clean']['sd']]
+            T.add(f'{s}__{m}', set=txt(slab),
+                  n=txt(f"{S['silent_by_class']['user']:,} / {S['silent_by_class']['root']:,}"), model=txt(F2_LABEL[m]),
+                  f1=pm_cell(M['host_macro_f1']['mean'], M['host_macro_f1']['sd'], 3),
+                  s=pm_cell(M['silent']['recall']['mean'], M['silent']['recall']['sd'], 3),
+                  src=num(M['silent']['root_to_clean']['mean'], 3), suc=num(M['silent']['user_to_clean']['mean'], 3),
+                  arc=num(M['all_errors']['root_to_clean']['mean'], 3))
+    T.note = ('Note. Seed mean (± SD for F1 and silent recall) over seeds 0–4, from the stored logits (argmax), no '
+              f"retraining; the error-rate columns have seed SD ≤ {max(sd_err):.3f}. Error rates are within the true "
+              'class: silent root → clean is the share of silent root host-steps predicted clean; the last column uses '
+              'all root host-steps. ε = 0.1: the test episodes of the training policy '
+              f"({B['sets']['eps0.1']['n_episodes']:,}); the other policies: {B['sets']['ood']['n_episodes']:,} episodes "
+              'each, both attackers. Slices by attacker, subnet and alert age: Table @tbl:analyse_dilim.')
+    return T
+
+
+SLICE_GROUP = {'attacker_group': 'Attacker × subnet', 'age': 'Alert age', 'last_alert': 'Last alert'}
+
+
+def tE_failure_slices():
+    """Ek E: analyse ve remove'da sessiz dilimler (saldırgan × alt ağ, uyarı yaşı, son uyarı)."""
+    B = analysis('basarisizlik')
+    T = Table('tE_failure_slices', [('set', 'Policy', 'l'), ('slice', 'Silent slice', 'l'), ('n', 'n', 'r'),
+                                    ('root', 'Root share', 'r'), ('cmf', 'CMF', 'r'),
+                                    ('ht', 'Host-token GRU, topology bias', 'r'), ('gru', 'Full-history GRU', 'r'),
+                                    ('d', 'CMF − GRU [95% CI]', 'r'), ('p', 'p (Holm)', 'r')], group=('set',))
+    for s, slab in [('analyse', 'Periodic analyse'), ('remove', 'Remove instead of restore')]:
+        for key, sl in B['slices'][s].items():
+            kind = key.split('|', 1)[0]
+            if kind not in SLICE_GROUP or key == 'last_alert|no alert so far':     # bu dilim N_hist ile aynı
+                continue
+            if s == 'remove' and kind != 'attacker_group' and key != 'age|never alerted (N_hist)':
+                continue                                                         # öteki remove dilimlerinde recall ≈ 1
+            M = sl['models']
+            rows = [r for r in B['rows'] if r['set'] == s and r['slice'] == key and r['b'] == 'gru_full']
+            assert len(rows) <= 1 and all(r['a'] == 'cybermetaformer' for r in rows), key
+            d = dci(rows[0]['diff'], rows[0]['lo'], rows[0]['hi'], 3) if rows else txt('—')
+            p = txt(pfmt(rows[0]['p_holm']), rows[0]['p_holm']) if rows else txt('—')
+            T.add(f'{s}__{key}', set=txt(slab), slice=txt(f"{SLICE_GROUP[kind]}: {sl['name']}"), n=intc(sl['n']),
+                  root=num(sl['root_share'], 2), cmf=num(M['cybermetaformer']['recall']['mean'], 3),
+                  ht=num(M['cybermetaformer-gru_host_topo']['recall']['mean'], 3),
+                  gru=num(M['gru_full']['recall']['mean'], 3), d=d, p=p)
+    T.note = ('Note. Silent recall within each slice, seed mean over seeds 0–4. n: silent host-steps of the slice; root '
+              'share: share of true root among them. Subnets: enterprise = ent0–2 (and def, never compromised), user = '
+              'user1–4, operational = ophost0–2 and opserv. Alert age: steps since the last alert on the host; never '
+              'alerted = N_hist. Last alert: type of the last alert (exploit activity or a root flag without activity, '
+              'the form re-emitted by analyse) and whether the host was restored after it. In the remove policy only the '
+              'attacker × subnet and never-alerted slices are shown; the other slices have recall ≥ 0.99 for all models. '
+              f"CMF − GRU: {holm_note(B)}; slices with fewer than {B['min_boot']:,} host-steps are not tested (—).")
+    return T
+
+
+ANALYSE_REPR = [('cybermetaformer', 'CyberMetaFormer (main)'), ('cybermetaformer-host_tam', None),
+                ('cybermetaformer-host_gcn', None), ('cybermetaformer-host_yok', None),
+                ('cybermetaformer-hafiza_yok', None), ('cybermetaformer-yalniz_yas', None),
+                ('cybermetaformer-kol_konv', None), ('cybermetaformer-kol_ssd', None),
+                ('cybermetaformer-konum_yok', None), ('cybermetaformer-duz78', None), ('gru_full', 'Full-history GRU')]
+
+
+def tE_analyse_repr():
+    """Ek E: analyse politikasında sessiz recall, temsil türüne göre (seed 0–2; asama3/aciklama, explain_m3.py)."""
+    with open(os.path.join(RESULTS, 'asama3', 'aciklama', 'ozet.json')) as f:
+        A = json.load(f)['ablasyon']
+    B = analysis('basarisizlik')
+    T = Table('tE_analyse_repr', [('model', 'Model', 'l'), ('tok', 'Input', 'l'),
+                                  ('e1', 'Silent recall, ε = 0.1', 'r'), ('ood', 'Silent recall, OOD', 'r'),
+                                  ('an', 'Silent recall, periodic analyse', 'r'), ('ratio', 'Analyse / ε = 0.1', 'r'),
+                                  ('f1', 'Host macro-F1, periodic analyse', 'r')])
+    for m, lab in ANALYSE_REPR:
+        r = A[m]
+        v = {s: np.asarray(r[s]['silent_recall']) for s in ['eps0.1', 'ood', 'analyse']}
+        assert all(len(x) == 3 for x in v.values()), m
+        if m in B['models']:      # seed 0–2 değerleri 5 seed'li başarısızlık analizinin ilk üç seed'iyle tutmalı
+            assert abs(np.mean(B['models'][m]['analyse']['silent']['recall']['seeds'][:3]) - v['analyse'].mean()) < 1e-4
+        f1 = np.asarray(r['analyse']['host_macro_f1'])
+        T.add(m, model=txt(lab or ABLATIONS[m.split('-', 1)[1]]),
+              tok=txt('Flat 78-d' if m in ('gru_full', 'cybermetaformer-duz78') else 'Host tokens'),
+              **{k: pm_cell(v[s].mean(), v[s].std(ddof=1), 3) for k, s in [('e1', 'eps0.1'), ('ood', 'ood'),
+                                                                            ('an', 'analyse')]},
+              ratio=num(v['analyse'].mean() / v['eps0.1'].mean(), 2), f1=pm_cell(f1.mean(), f1.std(ddof=1), 3))
+    T.note = ('Note. Seed mean ± SD over seeds 0–2 (the ablation seeds), from the stored logits (argmax). ε = 0.1: test '
+              'episodes of the training policy; OOD: ε = 0.3; periodic analyse: react_restore_analyse. With seeds 0–4 '
+              'the periodic-analyse silent recall is 0.625 for CyberMetaFormer and 0.703 for the full-history GRU '
+              '(Table @tbl:basarisizlik).')
+    T.values = {m: float(np.mean(A[m]['analyse']['silent_recall'])) for m, _ in ANALYSE_REPR}
+    return T
+
+
+IV = [('empty', 'Empty (t = 0 observation)'), ('swap', 'Swap (other episode, same policies)'),
+      ('shuffle', 'Shuffle (in time)')]
+IV_HOSTS = [('related', 'Related hosts'), ('random', 'Random unrelated hosts')]
+IV_MODELS = [('cybermetaformer', 'cmf', 'CMF'), ('cybermetaformer-host_tam', 'tam', 'CMF, no topology bias'),
+             ('gru_full', 'gru', 'Full-history GRU')]
+
+
+def iv_note_common(M):
+    n_sil = sum(t['silent'] for t in M['targets'].values())
+    n_hist = sum(t['never'] for t in M['targets'].values())
+    return (f"Test episodes of the training policies ({M['n_episodes']:,}). The target host's own observation columns "
+            'are kept; the columns of a host set S are replaced at every step. Empty: S\'s own t = 0 observation; swap: '
+            'S\'s columns from a random other episode with the same Red and Blue policy (keeps the marginal and the alert '
+            'count, breaks the joint distribution); shuffle: S\'s columns permuted in time within the episode (t ≥ 1). '
+            'S = related hosts (attack-graph neighbours and same subnet in the training topology) or three random '
+            f"equal-size sets of unrelated hosts (pooled). Targets: the {len(M['targets'])} label hosts "
+            f"{', '.join(M['targets'])}; host-steps pooled over targets ({n_sil:,} silent, {n_hist:,} N_hist). Silent "
+            'and N_hist are defined by the target\'s own observation and are unchanged by the intervention.')
+
+
+def t_intervention():
+    """§4.6: diğer hostların gözlemine müdahale (mudahale.py)."""
+    M = analysis('mudahale')
+    sh = M['shift']
+    T = Table('t_intervention', [('iv', 'Intervention on S', 'l'), ('hosts', 'Host set S', 'l'),
+                                 ('novel', 'Novel observation rows', 'r'), ('trans', 'Novel per-host transitions', 'r')] +
+              [(k, lab, 'r') for _, k, lab in IV_MODELS], group=('iv',))
+    T.add('base', iv=txt('None (silent recall)'), hosts=txt('—'), novel=num(sh['original']['novel_rows'], 3),
+          trans=num(sh['original']['novel_transitions'], 3),
+          **{k: pm_cell(M['models'][m]['base']['silent']['mean'], M['models'][m]['base']['silent']['sd'], 3)
+             for m, k, _ in IV_MODELS})
+    ps = []
+    for iv, lab in IV:
+        for hs, hlab in IV_HOSTS:
+            key = f'{iv}|{hs}'
+            T.add(key, iv=txt(lab), hosts=txt(hlab), novel=num(sh[key]['novel_rows'], 3),
+                  trans=num(sh[key]['novel_transitions'], 3),
+                  **{k: dpm(M['models'][m][key]['silent']) for m, k, _ in IV_MODELS})
+        cells = {}
+        for m, k, _ in IV_MODELS:
+            r = get_row(M, kind='related_minus_random', intervention=iv, model=m, criterion='silent')
+            cells[k] = dci(r['diff'], r['lo'], r['hi'], 3)
+            ps.append(r['p_holm'])
+        T.add(f'{iv}|diff', iv=txt(lab), hosts=txt('Related − random [95% CI]'), novel=txt('—'), trans=txt('—'),
+              **cells)
+    T.note = (f"Note. {iv_note_common(M)} First row: silent recall of the original episodes; intervention rows: Δ silent "
+              'recall = intervened − original, mean ± SD over seeds 0–4; related − random rows: '
+              f"{holm_note(M)}; all p (Holm) ≤ {max(ps):.4f}. Novel observation rows: share of the 78-d observations "
+              'never seen in the training split (original test episodes: '
+              f"{sh['original']['novel_rows']:.3f}); novel transitions: share of consecutive per-host token pairs of "
+              'the intervened hosts never seen in training. The interventions act on observations, not on the '
+              'simulator; they measure how much the estimate depends on other hosts\' observations and are not causal '
+              'effects in the network. N_hist recall, decision changes, alerted breaches and false alarms: '
+              'Table @tbl:mudahale_tum; differences between models: Table @tbl:mudahale_cift.')
+    return T
+
+
+def tE_intervention():
+    M = analysis('mudahale')
+    T = Table('tE_intervention', [('iv', 'Intervention', 'l'), ('hosts', 'Host set S', 'l'), ('model', 'Model', 'l'),
+                                  ('s', 'Δ silent recall', 'r'), ('h', 'Δ N_hist recall', 'r'),
+                                  ('dec', 'Decision change, silent', 'r'), ('al', 'Δ recall, alerted breaches', 'r'),
+                                  ('fa', 'Δ false alarm, clean', 'r')], group=('iv', 'hosts'))
+    for iv, lab in IV:
+        for hs, hlab in IV_HOSTS:
+            for m, _, mlab in IV_MODELS:
+                d = M['models'][m][f'{iv}|{hs}']
+                T.add(f'{iv}|{hs}|{m}', iv=txt(lab), hosts=txt(hlab), model=txt(mlab), s=dpm(d['silent']),
+                      h=dpm(d['never']), dec=pm_cell(d['decision_change_silent']['mean'],
+                                                     d['decision_change_silent']['sd'], 3),
+                      al=dpm(d['alerted']), fa=dpm(d['clean_fa']))
+    base = {m: M['models'][m]['base'] for m, _, _ in IV_MODELS}
+    T.note = (f"Note. {iv_note_common(M)} Δ = intervened − original, mean ± SD over seeds 0–4. Decision change: share "
+              'of the silent target host-steps whose predicted class changes. Alerted breaches: compromised target '
+              'host-steps with an alert in the current observation (original recall '
+              + ', '.join(f"{lab} {base[m]['alerted']['mean']:.3f}" for m, _, lab in IV_MODELS)
+              + '); false alarm: P(ŷ ≠ clean | y = clean) on the targets (original '
+              + ', '.join(f"{lab} {base[m]['clean_fa']['mean']:.3f}" for m, _, lab in IV_MODELS) + ').')
+    return T
+
+
+def tE_intervention_pairs():
+    M = analysis('mudahale')
+    T = Table('tE_intervention_pairs', [('iv', 'Intervention', 'l'), ('hosts', 'Host set S', 'l'),
+                                        ('comp', 'Δ_A − Δ_B', 'l'), ('crit', 'Criterion', 'l'),
+                                        ('d', 'Difference [95% CI]', 'r'), ('p', 'p (Holm)', 'r')],
+              group=('iv', 'hosts'))
+    lab = {m: l for m, _, l in IV_MODELS}
+    crit = {'silent': 'Silent recall', 'never': 'N_hist recall'}
+    for iv, ilab in IV:
+        for hs, hlab in IV_HOSTS:
+            for r in [r for r in M['rows'] if r['kind'] == 'pair_delta' and r['intervention'] == iv
+                      and r['set_kind'] == hs]:
+                T.add(f"{iv}|{hs}|{r['b']}|{r['criterion']}", iv=txt(ilab), hosts=txt(hlab),
+                      comp=txt(f"{lab[r['a']]} − {lab[r['b']]}"), crit=txt(crit[r['criterion']]),
+                      d=dci(r['diff'], r['lo'], r['hi'], 3), p=txt(pfmt(r['p_holm']), r['p_holm']))
+    assert len(T.rows) == sum(r['kind'] == 'pair_delta' for r in M['rows'])
+    T.note = ('Note. Difference between two models of the intervention effect Δ = intervened − original (Table '
+              '@tbl:mudahale); a positive value means that A loses less than B. ' + holm_note(M)[0].upper()
+              + holm_note(M)[1:] + '.')
+    return T
+
+
+CORR_SETS = [('test', 'Test (training policies)'), ('ood', 'ε = 0.3 (main OOD)'), ('eps0.5', 'ε = 0.5'),
+             ('eps0.7', 'ε = 0.7'), ('remove', 'Remove instead of restore')]
+CORR_COPY = [('flawed', 'Flawed (as in training)'), ('corrected', 'Corrected')]
+
+
+def t_corrected(runs):
+    """§4.9: kusurlu ve düzeltilmiş gözlemli eşli kopyalar (duzeltilmis_gozlem.py)."""
+    D = analysis('duzeltilmis_gozlem')
+    T = Table('t_corrected', [('set', 'Set', 'l'), ('copy', 'Observation', 'l'), ('cf', 'CMF host macro-F1', 'r'),
+                              ('gf', 'GRU host macro-F1', 'r'), ('cs', 'CMF silent recall', 'r'),
+                              ('gs', 'GRU silent recall', 'r'), ('d', 'CMF − GRU silent recall [95% CI]', 'r'),
+                              ('ch', 'CMF N_hist recall', 'r'), ('gh', 'GRU N_hist recall', 'r')], group=('set',))
+    for s, slab in CORR_SETS:
+        for v, vlab in CORR_COPY:
+            c, g = D['models']['cybermetaformer'][s][v], D['models']['gru_full'][s][v]
+            if v == 'flawed' and s in ('test', 'ood'):
+                for m, x in [('cybermetaformer', c), ('gru_full', g)]:
+                    check_main(x['host_macro_f1']['mean'], runs, m, f'{s}_f1')
+                    check_main(x['silent_recall']['mean'], runs, m, f'{s}_silent')
+                    if s == 'ood':
+                        check_main(x['never_recall']['mean'], runs, m, 'ood_hist')
+            r = get_row(D, kind='cmf_minus_gru', set=s, version=v, criterion='silent_recall')
+            T.add(f'{s}__{v}', set=txt(slab), copy=txt(vlab), cf=num(c['host_macro_f1']['mean'], 4),
+                  gf=num(g['host_macro_f1']['mean'], 4), cs=num(c['silent_recall']['mean'], 3),
+                  gs=num(g['silent_recall']['mean'], 3), d=dci(r['diff'], r['lo'], r['hi'], 3),
+                  ch=num(c['never_recall']['mean'], 3), gh=num(g['never_recall']['mean'], 3))
+    T.note = ('Note. Both models are trained on the flawed data (seeds 0–4) and evaluated without retraining on two '
+              'copies of the same episodes: the flawed observation of the training data and a copy re-simulated with the '
+              'same seeds and the recorded defender actions in which a failed remove no longer shows the "removed" '
+              'flag (and an invalid restore of user0 no longer clears its flags); true states, attacker observations, '
+              'actions and rewards are byte-identical. Silent and N_hist host-steps are defined on the flawed '
+              'observation, so both copies are scored on the same host-steps. Mean over seeds 0–4, each with its own '
+              f"validation temperature; CMF − GRU: {holm_note(D)}. Per-model corrected − flawed differences, the "
+              'remove-mask slice and the share of host-steps that the correction turns into alerted ones: '
+              'Table @tbl:duzeltilmis_fark.')
+    return T
+
+
+def tE_corrected_diffs():
+    D = analysis('duzeltilmis_gozlem')
+    T = Table('tE_corrected_diffs', [('set', 'Set', 'l'), ('chg', 'Episodes changed', 'r'),
+                                     ('rma', 'Remove-mask steps alerted when corrected', 'r'), ('model', 'Model', 'l'),
+                                     ('f1', 'Δ host macro-F1', 'r'), ('s', 'Δ silent recall', 'r'),
+                                     ('h', 'Δ N_hist recall', 'r'), ('rm', 'Δ remove-mask recall', 'r'),
+                                     ('own', 'Δ silent recall, own definition', 'r')], group=('set', 'chg', 'rma'))
+    for s, slab in CORR_SETS:
+        S = D['sets'][s]
+        for m, mlab in [('cybermetaformer', 'CMF'), ('gru_full', 'Full-history GRU')]:
+            cells = {}
+            for col, crit, k in [('f1', 'host_macro_f1', 4), ('s', 'silent_recall', 3), ('h', 'never_recall', 3),
+                                 ('rm', 'remove_mask_recall', 3), ('own', 'silent_recall_own', 3)]:
+                r = get_row(D, kind='corrected_minus_flawed', set=s, model=m, criterion=crit)
+                cells[col] = dci(r['diff'], r['lo'], r['hi'], k)
+            T.add(f'{s}__{m}', set=txt(slab),
+                  chg=txt(f"{S['n_episodes_changed']:,} / {S['n_episodes']:,}", S['n_episodes_changed']),
+                  rma=Cell(f"{S['remove_mask_alerted_when_corrected']:.3f} of {S['n_remove_mask']:,}",
+                           (S['remove_mask_alerted_when_corrected'],)), model=txt(mlab), **cells)
+    T.note = ('Note. Δ = corrected − flawed for the same model, seed mean over seeds 0–4, 95% CI from the '
+              f"{holm_note(D)}. Episodes changed: episodes whose defender observation differs between the copies. "
+              'Remove-mask host-steps: silent host-steps whose root access is masked by a failed remove in the flawed '
+              'observation; in the corrected copy the given share of them carries an alert (the root flag), so it is '
+              'no longer silent. Own definition: silent host-steps recomputed from each copy\'s own observation, which '
+              'removes those host-steps from the silent set of the corrected copy.')
+    return T
+
+
+COST_MODELS = [('cybermetaformer', 'CyberMetaFormer (B1)', 'run', 'cmf'),
+               ('cybermetaformer-b2', 'CyberMetaFormer (B2)', 'abl', 'b2'),
+               ('cybermetaformer-host_tam', 'CMF, no topology bias', 'run', 'host_tam'),
+               ('cybermetaformer-konv_gru', 'CMF, GRU instead of SSD', 'run', 'konv_gru'),
+               ('cybermetaformer-host_yok', 'CMF, no host mixer', 'run', 'host_yok'),
+               ('cybermetaformer-gru_host_topo', 'Host-token GRU, topology bias', 'run', 'gru_host_topo'),
+               ('cybermetaformer-gru_host_attn', 'Host-token GRU, no topology bias', 'run', 'gru_host_attn'),
+               ('gru_full', 'Full-history GRU', 'run', 'gru_full'),
+               ('transformer_k64', 'Transformer (k = 64)', 's2', 'transformer_k64'),
+               ('timemixer_k64', 'TimeMixer (k = 64)', 's2', 'timemixer_k64')]
+
+
+def t_cost(runs, abl):
+    """§4.11: çevrimiçi adım gecikmesi, bellek ve OOD F1 (maliyet.py; önceki iki gecikme tablosunun yerine)."""
+    with open(LATENCY) as f:
+        L = json.load(f)
+    E, Pr = L['environment'], L['protocol']
+    th = [str(t) for t in Pr['threads']]
+    assert th == ['1', str(E['torch_default_threads'])], th
+    s2 = stage_summary('asama2')
+    T = Table('t_cost', [('model', 'Model', 'l'), ('params', 'Trainable params', 'r'), ('w', 'Weights (KiB)', 'r'),
+                         ('state', 'Online state (bytes)', 'r'), ('wm', 'Working memory (MiB)', 'r'),
+                         ('t1', '1 thread: median / p95 (ms)', 'r'),
+                         ('tn', f'{th[1]} threads: median / p95 (ms)', 'r'), ('ood', 'OOD host macro-F1', 'r')])
+    three = []
+    for name, lab, src, key in COST_MODELS:
+        m = L['models'][name]
+        if src == 'run':
+            r = runs[key]
+            assert m['params'] == r['params'], name
+            ood, n = r['ood_f1']['mean'], len(r['seeds'])
+        elif src == 'abl':
+            ood, n = abl[key]['ood_f1']['mean'], len(abl[key]['seeds'])
+        else:
+            ood, n = gmean(s2[key], 'ood_host_macro_f1'), s2[key]['ood_host_macro_f1']['n']
+        assert n in (3, 5), (name, n)
+        if n == 3:
+            three.append(lab)
+        lat = {t: m['latency'][t] for t in th}
+        assert all(lat[t]['n_steps'] == Pr['rounds'] * Pr['steps_per_round'] for t in th)
+        T.add(name, model=txt(lab + ('†' if n == 3 else '')), params=intc(m['params']),
+              w=intc(round(m['param_bytes'] / 1024)), state=intc(m['state_bytes']),
+              wm=num(m['memory']['working_memory_bytes'] / 2 ** 20, 1),
+              t1=Cell(f"{lat['1']['median_ms']:.3f} / {lat['1']['p95_ms']:.3f}", (lat['1']['median_ms'], lat['1']['p95_ms'])),
+              tn=Cell(f"{lat[th[1]]['median_ms']:.3f} / {lat[th[1]]['p95_ms']:.3f}",
+                      (lat[th[1]]['median_ms'], lat[th[1]]['p95_ms'])), ood=num(ood, 3))
+    mem = float(E['memory_bytes']) / 2 ** 30
+    dtype = {'float32': 'FP32'}[Pr['dtype']]
+    T.note = (f"Note. One online step for one network (batch size {Pr['batch_size']}, {dtype}, PyTorch "
+              f"{E['torch']} eager, NumPy {E['numpy']}, Python {E['python']}) on the CPU of an {E['cpu']} "
+              f"({E['performance_cores']} performance + {E['efficiency_cores']} efficiency cores, {mem:.0f} GiB), macOS "
+              f"{E['macos']}; the PyTorch default is {E['torch_default_threads']} threads. Each model was warmed up for "
+              f"{Pr['warmup_steps']} steps and then timed for {Pr['rounds']} rounds × {Pr['steps_per_round']} steps, "
+              'models interleaved within each round; the online state is reset at every episode start and the reset is '
+              'not timed. CyberMetaFormer variants use the step mode (Algorithm 1); the GRU models carry their hidden '
+              'state; window models shift a k-observation buffer and rerun the network at every step. Before timing, '
+              'the step mode of every model was checked against its evaluation mode (largest absolute logit difference '
+              f"{max(L['models'][n]['step_check_max_abs'] for n, *_ in COST_MODELS):.1e}). Online state: tensors carried "
+              'between steps. Working memory: increase of the peak resident set size of a separate process after loading '
+              'the model and running the warm-up and one timed round with one thread (includes allocator caches; for '
+              'comparison between models). Latency excludes observation encoding and I/O. Only one network size per '
+              'architecture was measured, so no scaling claim is made. OOD F1: seed mean over seeds 0–4; † seeds 0–2. '
+              'Load average before / after: ' + ', '.join(f'{x:.2f}' for x in E['load_average_before']) + ' / '
+              + ', '.join(f'{x:.2f}' for x in E['load_average_after']) + '.')
+    return T
+
+
+def build_faz2(runs, abl):
+    """Faz 2'de eklenen tablolar (madde 6–8, 10): {ad: Table}."""
+    tables = [t_shift_types(), t_host_shift(runs), tE_host_shift_diffs(), t_failure(runs), tE_failure_slices(),
+              tE_analyse_repr(), t_intervention(), tE_intervention(), tE_intervention_pairs(), t_corrected(runs),
+              tE_corrected_diffs(), t_cost(runs, abl)]
+    return {t.name: t for t in tables}
+
+
 # ── toplu üretim ─────────────────────────────────────────────────────────
 
 def build(basis='m3', runs=None, abl=None):
@@ -1145,6 +1710,7 @@ def main():
     diffs = seed_diffs(runs)
     texts = {name: t.md() for name, t in build(args.basis, runs, abl).items()}
     texts |= {name: t.md() for name, t in build_faz1(runs, m4).items()}
+    texts |= {name: t.md() for name, t in build_faz2(runs, abl).items()}
     texts |= {'a4_reference': a4_reference(runs, lat), 'a4_pairs': a4_pairs(runs, m4, m35),
               'a5_seeds': a5_seeds(runs, diffs), 'a5_two_sources': a5_two_sources(runs, diffs, m35)}
     os.makedirs(OUT, exist_ok=True)

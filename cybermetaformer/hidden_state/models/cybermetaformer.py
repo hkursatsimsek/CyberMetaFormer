@@ -53,12 +53,13 @@ AGE_EVENTS = 4
 TOKEN_FEATS = 6
 
 
-def host_relations():
-    """(13, 13) ilişki türü: kendisi, saldırı grafı kenarı (simetrik), aynı alt ağ, diğer."""
+def host_relations(connected=None):
+    """(13, 13) ilişki türü: kendisi, saldırı grafı kenarı (simetrik), aynı alt ağ, diğer. connected: HOSTS sırasında
+    bağlantı tablosu (varsayılan MiniCAGE'in `CONNECTED_HOSTS`'u; topoloji OOD'sinde güncellenmiş önsel için)."""
     rel = torch.full((NUM_HOSTS, NUM_HOSTS), REL_OTHER, dtype=torch.long)
     same = torch.tensor(SUBNET)[:, None] == torch.tensor(SUBNET)[None]
     rel[same] = REL_SUBNET
-    for i, target in enumerate(CONNECTED_HOSTS):
+    for i, target in enumerate(CONNECTED_HOSTS if connected is None else connected):
         if target is not None:
             j = HOSTS.index(target)
             rel[i, j] = rel[j, i] = REL_EDGE

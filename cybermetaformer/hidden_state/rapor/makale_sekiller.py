@@ -21,7 +21,9 @@ tabloların kullandığı kayıtlardan gelir; tablo hücreleriyle aynı değerle
 - fig_ablation (Şekil 8): Tablo 15'in farkları ve %95 GA'ları.
 - fig_attention (Şekil 9): asama3/aciklama/dikkat.json (explain_m3.fig_attention'ın verisi; seed 0, ε = 0.1 testi).
 - fig_severity (Şekil 10): asama3/ood_paketi/ozet_5seed.json (Tablo 16 ile aynı; ortalama ± seed SD).
-- fig_pareto (Şekil 11): Tablo 18'in hücreleri (önceki gecikme ölçümü).
+- fig_intervention: müdahale deneyi (madde 7), makale/mudahale/ozet.json; mudahale.py çiziminin makale etiketli sürümü.
+- fig_pareto (Şekil 11): maliyet tablosunun (t_cost, madde 10 ölçümü) tek iş parçacıklı gecikmesi, parametre sayısı ve
+  OOD F1'i; önceki ölçümün yerine.
 """
 import os
 
@@ -556,33 +558,79 @@ def fig_severity():
     _save(fig, 'fig_severity')
 
 
-def fig_pareto(T11):
-    """Şekil 11: Tablo 18'in hücreleri: OOD host makro-F1'e karşı CPU gecikmesi (sol) ve parametre sayısı (sağ)."""
-    name = {'b1': 'CyberMetaFormer (B1)', 'b2': 'CyberMetaFormer (B2)', 'gru_full': 'Full-history GRU',
-            'timemixer': 'TimeMixer (k = 64)', 'transformer': 'Transformer (k = 64)'}
-    rows = [(k, name[k], T11.cell(k, 'lat').values[0], T11.cell(k, 'params').values[0], T11.cell(k, 'ood').values[0])
-            for k, _ in T11.rows]
-    color = {'b1': CMF_C, 'gru_full': GRU_C}
+def fig_pareto(TC):
+    """Şekil 11: maliyet tablosunun (t_cost) hücreleri: OOD host makro-F1'e karşı tek iş parçacıklı CPU adım gecikmesi
+    (sol, medyan) ve parametre sayısı (sağ)."""
+    show = {'cybermetaformer': 'CyberMetaFormer (B1)', 'cybermetaformer-b2': 'CyberMetaFormer (B2)',
+            'cybermetaformer-gru_host_topo': 'Host-token GRU', 'gru_full': 'Full-history GRU',
+            'timemixer_k64': 'TimeMixer (k = 64)', 'transformer_k64': 'Transformer (k = 64)'}
+    keys = [k for k, _ in TC.rows if k in show]
+    assert len(keys) == len(show)
+    rows = [(k, show[k], TC.cell(k, 't1').values[0], TC.cell(k, 'params').values[0], TC.cell(k, 'ood').values[0])
+            for k in keys]
+    color = {'cybermetaformer': CMF_C, 'gru_full': GRU_C}
     fig, axes = plt.subplots(1, 2, figsize=(WIDTH_IN, 2.6), sharey=True)
     fig.subplots_adjust(left=0.09, right=0.98, bottom=0.17, top=0.96, wspace=0.08)
-    offs = [{'b1': (6, 4), 'b2': (-6, -13), 'gru_full': (6, 4), 'timemixer': (-6, 5), 'transformer': (-6, -14)},
-            {'b1': (6, 4), 'b2': (-6, 5), 'gru_full': (6, 4), 'timemixer': (6, -10), 'transformer': (-6, 5)}]
-    for ax, xi, xlabel in ((axes[0], 2, 'CPU latency (ms per step)'), (axes[1], 3, 'Parameters (millions)')):
+    # etiket yerleşimi (dx, dy nokta; yatay hizalama): yakın noktaların (iki k = 64 modeli, sağ panelde üst üste düşen
+    # küçük modeller) etiketleri karışmasın diye elle verilir; dy = 0 ise etiket dikeyde ortalanır
+    offs = [{'cybermetaformer': (6, 4, 'left'), 'cybermetaformer-b2': (-8, 0, 'right'),
+             'cybermetaformer-gru_host_topo': (-6, 4, 'right'), 'gru_full': (6, 4, 'left'),
+             'timemixer_k64': (4, -13, 'right'), 'transformer_k64': (-6, 6, 'right')},
+            {'cybermetaformer': (7, 4, 'left'), 'cybermetaformer-b2': (-6, -12, 'right'),
+             'cybermetaformer-gru_host_topo': (7, -9, 'left'), 'gru_full': (7, 0, 'left'),
+             'timemixer_k64': (7, 0, 'left'), 'transformer_k64': (0, 7, 'center')}]
+    for ax, xi, xlabel in ((axes[0], 2, 'CPU latency, 1 thread (ms per step)'), (axes[1], 3, 'Parameters (millions)')):
         for r in rows:
             k, label, x = r[0], r[1], r[xi] / (1e6 if xi == 3 else 1)
-            ax.plot([x], [r[4]], 'D' if k == 'b1' else 'o', ms=6, color=color.get(k, OTHER_C), mec=WHITE, mew=0.6,
-                    zorder=3)
-            dx, dy = offs[xi - 2][k]
+            ax.plot([x], [r[4]], 'D' if k == 'cybermetaformer' else 'o', ms=6, color=color.get(k, OTHER_C), mec=WHITE,
+                    mew=0.6, zorder=4 if k == 'cybermetaformer' else 3)
+            dx, dy, ha = offs[xi - 2][k]
             ax.annotate(label, (x, r[4]), xytext=(dx, dy), textcoords='offset points', fontsize=FS, color=INK2,
-                        ha='left' if dx > 0 else 'right')
+                        ha=ha, va='center' if dy == 0 else 'baseline')
         ax.set_xlabel(xlabel)
         _ygrid(ax)
         _ygrid(ax, 'x')
     axes[0].set_ylabel('OOD host macro-F1')
-    axes[0].set_xlim(-0.05, 1.6)
+    axes[0].set_xlim(-0.05, 1.12)
     axes[1].set_xlim(0, 3.1)
     axes[0].set_ylim(0.879, 0.948)
     _save(fig, 'fig_pareto')
+
+
+def fig_intervention(MT):
+    """Müdahale şekli (madde 7): hedef hostun sessiz recall değişimi (müdahale − özgün), makale/mudahale/ozet.json'dan.
+    Çubuk seed 0–4 ortalaması, çizgi seed ortalamasının eşli bölüm bootstrap'ıyla %95 GA'sı (Tablo mudahale ile aynı
+    satırlar), noktalar tek tek seed'ler. mudahale.py'nin kendi çiziminin makale etiketli sürümüdür."""
+    import numpy as np
+    A = MT.analysis('mudahale')
+    color = {'cybermetaformer': CMF_C, 'cybermetaformer-host_tam': OTHER_C, 'gru_full': GRU_C}
+    title = {'empty': 'Empty (t = 0 observation)', 'swap': 'Swap (other episode)', 'shuffle': 'Shuffle (in time)'}
+    fig, axes = plt.subplots(1, len(MT.IV), figsize=(WIDTH_IN, 2.5), sharey=True)
+    fig.subplots_adjust(left=0.1, right=0.99, bottom=0.12, top=0.9, wspace=0.08)
+    w = 0.8 / len(MT.IV_MODELS)
+    for ax, (kind, _) in zip(axes, MT.IV):
+        for i, (nm, _, label) in enumerate(MT.IV_MODELS):
+            xs = np.arange(len(MT.IV_HOSTS)) + (i - (len(MT.IV_MODELS) - 1) / 2) * w
+            rows = [MT.get_row(A, kind='iv_minus_base', intervention=kind, set_kind=sk, model=nm, criterion='silent')
+                    for sk, _ in MT.IV_HOSTS]
+            seeds = [A['models'][nm][f'{kind}|{sk}']['silent'] for sk, _ in MT.IV_HOSTS]
+            for r, sd in zip(rows, seeds):
+                assert abs(r['diff'] - sd['mean']) < 1e-9, (kind, nm)
+            vals = [r['diff'] for r in rows]
+            err = np.array([[v - r['lo'] for v, r in zip(vals, rows)], [r['hi'] - v for v, r in zip(vals, rows)]])
+            ax.bar(xs, vals, w * 0.9, color=color[nm], label=label, yerr=err, capsize=2,
+                   error_kw={'elinewidth': 0.8, 'capthick': 0.8, 'ecolor': INK})
+            for x, sd in zip(xs, seeds):
+                ax.scatter([x] * len(sd['seeds']), sd['seeds'], s=5, color=INK, zorder=3, linewidths=0)
+        ax.axhline(0, color=INK2, lw=0.8)
+        ax.set_xticks(range(len(MT.IV_HOSTS)))
+        ax.set_xticklabels(['Related hosts', 'Random hosts'])
+        ax.tick_params(axis='x', length=0)
+        ax.set_title(title[kind], fontsize=FS)
+        _ygrid(ax)
+    axes[0].set_ylabel('Δ silent recall of the target host')
+    axes[-1].legend(frameon=False, loc='lower right', fontsize=FS)
+    _save(fig, 'fig_intervention')
 
 
 def main():
@@ -596,11 +644,13 @@ def main():
     n1 = _memory_curve('asama1', 'fig_memory_stage1')
     n2 = _memory_curve('asama2', 'fig_memory_stage2')
     fig_selected()
-    T = MT.build('m4')
+    runs, abl = MT.load_all(), MT.load_ablations()
+    T = MT.build('m4', runs, abl)
     fig_ablation(T['t08_ablations'])
     fig_attention()
     fig_severity()
-    fig_pareto(T['t11_efficiency'])
+    fig_pareto(MT.t_cost(runs, abl))
+    fig_intervention(MT)
     print(f'şekiller → {OUT_DIR} (aşama 1: {n1} seed, aşama 2: {n2} seed)')
 
 

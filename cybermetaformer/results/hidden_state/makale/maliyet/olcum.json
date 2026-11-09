@@ -1,0 +1,531 @@
+{
+ "environment": {
+  "cpu": "Apple M3 Pro",
+  "performance_cores": "6",
+  "efficiency_cores": "6",
+  "logical_cpus": "12",
+  "memory_bytes": "38654705664",
+  "macos": "27.2",
+  "platform": "macOS-27.2-arm64-arm-64bit",
+  "python": "3.12.15",
+  "torch": "2.14.1",
+  "numpy": "2.5.4",
+  "torch_default_threads": 6,
+  "load_average_before": [
+   2.29541015625,
+   1.84765625,
+   1.27587890625
+  ],
+  "busy_python_processes_before": [],
+  "load_average_after": [
+   1.84814453125,
+   1.7783203125,
+   1.28955078125
+  ],
+  "busy_python_processes_after": []
+ },
+ "protocol": {
+  "warmup_steps": 202,
+  "rounds": 5,
+  "steps_per_round": 1010,
+  "batch_size": 1,
+  "dtype": "float32",
+  "threads": [
+   1,
+   6
+  ],
+  "memory": "peak RSS increase in a separate process (1 thread, warm-up + one round)"
+ },
+ "models": {
+  "cybermetaformer": {
+   "params": 186665,
+   "params_total": 186665,
+   "param_bytes": 746660,
+   "state_bytes": 190112,
+   "window": 101,
+   "step_check_max_abs": 5.7220458984375e-06,
+   "memory": {
+    "baseline_peak_rss_bytes": 234405888,
+    "peak_rss_bytes": 241811456,
+    "working_memory_bytes": 7405568
+   },
+   "label": "CyberMetaFormer (conv + SSD, topology bias)",
+   "run": "cybermetaformer_k101_s0",
+   "latency": {
+    "1": {
+     "n_steps": 5050,
+     "median_ms": 0.5186664999999999,
+     "p95_ms": 0.527708,
+     "p99_ms": 0.53589591,
+     "mean_ms": 0.5199988514851486,
+     "sd_ms": 0.006455888564740824,
+     "round_medians_ms": [
+      0.5192915,
+      0.518709,
+      0.517125,
+      0.5171665000000001,
+      0.521667
+     ],
+     "round_median_sd_ms": 0.0018670265999711868
+    },
+    "6": {
+     "n_steps": 5050,
+     "median_ms": 0.831833,
+     "p95_ms": 0.857458,
+     "p99_ms": 0.8803355,
+     "mean_ms": 0.8332482528712872,
+     "sd_ms": 0.01568451056768076,
+     "round_medians_ms": [
+      0.831417,
+      0.832375,
+      0.83125,
+      0.830584,
+      0.8334790000000001
+     ],
+     "round_median_sd_ms": 0.001126421990197307
+    }
+   }
+  },
+  "cybermetaformer-b2": {
+   "params": 2828473,
+   "params_total": 2828473,
+   "param_bytes": 11313892,
+   "state_bytes": 806624,
+   "window": 101,
+   "step_check_max_abs": 6.580352783203125e-05,
+   "memory": {
+    "baseline_peak_rss_bytes": 234094592,
+    "peak_rss_bytes": 263700480,
+    "working_memory_bytes": 29605888
+   },
+   "label": "CyberMetaFormer B2 (larger width budget)",
+   "run": "cybermetaformer-b2_k101_s0",
+   "latency": {
+    "1": {
+     "n_steps": 5050,
+     "median_ms": 0.971334,
+     "p95_ms": 0.98671265,
+     "p99_ms": 1.0145485,
+     "mean_ms": 0.9733905932673267,
+     "sd_ms": 0.011885794613424365,
+     "round_medians_ms": [
+      0.9701664999999999,
+      0.9710205000000001,
+      0.9690620000000001,
+      0.970375,
+      0.9752289999999999
+     ],
+     "round_median_sd_ms": 0.0023759487946922887
+    },
+    "6": {
+     "n_steps": 5050,
+     "median_ms": 1.424833,
+     "p95_ms": 1.4549391,
+     "p99_ms": 1.4839484200000002,
+     "mean_ms": 1.426376945148515,
+     "sd_ms": 0.02010226489368237,
+     "round_medians_ms": [
+      1.426625,
+      1.4283335,
+      1.4228125,
+      1.4228125,
+      1.423375
+     ],
+     "round_median_sd_ms": 0.0025370672192513506
+    }
+   }
+  },
+  "cybermetaformer-host_tam": {
+   "params": 186617,
+   "params_total": 186617,
+   "param_bytes": 746468,
+   "state_bytes": 190112,
+   "window": 101,
+   "step_check_max_abs": 5.7220458984375e-06,
+   "memory": {
+    "baseline_peak_rss_bytes": 234323968,
+    "peak_rss_bytes": 241991680,
+    "working_memory_bytes": 7667712
+   },
+   "label": "CMF, no topology bias",
+   "run": "cybermetaformer-host_tam_k101_s0",
+   "latency": {
+    "1": {
+     "n_steps": 5050,
+     "median_ms": 0.503084,
+     "p95_ms": 0.511625,
+     "p99_ms": 0.51866651,
+     "mean_ms": 0.5044793485148515,
+     "sd_ms": 0.003908260340789389,
+     "round_medians_ms": [
+      0.503208,
+      0.503125,
+      0.502375,
+      0.502792,
+      0.5065
+     ],
+     "round_median_sd_ms": 0.0016539935005917957
+    },
+    "6": {
+     "n_steps": 5050,
+     "median_ms": 0.812916,
+     "p95_ms": 0.83325,
+     "p99_ms": 0.8484215100000001,
+     "mean_ms": 0.8131374394059407,
+     "sd_ms": 0.012537371128937257,
+     "round_medians_ms": [
+      0.8158335,
+      0.8135835,
+      0.813208,
+      0.8107709999999999,
+      0.811583
+     ],
+     "round_median_sd_ms": 0.0019614216973919854
+    }
+   }
+  },
+  "cybermetaformer-konv_gru": {
+   "params": 198329,
+   "params_total": 198329,
+   "param_bytes": 793316,
+   "state_bytes": 40352,
+   "window": 101,
+   "step_check_max_abs": 2.86102294921875e-06,
+   "memory": {
+    "baseline_peak_rss_bytes": 234323968,
+    "peak_rss_bytes": 241418240,
+    "working_memory_bytes": 7094272
+   },
+   "label": "CMF, GRU instead of SSD",
+   "run": "cybermetaformer-konv_gru_k101_s0",
+   "latency": {
+    "1": {
+     "n_steps": 5050,
+     "median_ms": 0.461166,
+     "p95_ms": 0.467,
+     "p99_ms": 0.47254151,
+     "mean_ms": 0.46167590712871287,
+     "sd_ms": 0.0035872661637932164,
+     "round_medians_ms": [
+      0.461333,
+      0.461417,
+      0.460791,
+      0.461042,
+      0.460583
+     ],
+     "round_median_sd_ms": 0.00035305835211760374
+    },
+    "6": {
+     "n_steps": 5050,
+     "median_ms": 0.766166,
+     "p95_ms": 0.78761075,
+     "p99_ms": 0.80504233,
+     "mean_ms": 0.767132565940594,
+     "sd_ms": 0.012089704768753916,
+     "round_medians_ms": [
+      0.7694375,
+      0.7666459999999999,
+      0.765417,
+      0.7648125,
+      0.7648539999999999
+     ],
+     "round_median_sd_ms": 0.0019380857630662337
+    }
+   }
+  },
+  "cybermetaformer-gru_host_topo": {
+   "params": 184499,
+   "params_total": 184499,
+   "param_bytes": 737996,
+   "state_bytes": 10400,
+   "window": 101,
+   "step_check_max_abs": 3.814697265625e-06,
+   "memory": {
+    "baseline_peak_rss_bytes": 234209280,
+    "peak_rss_bytes": 240893952,
+    "working_memory_bytes": 6684672
+   },
+   "label": "Host-token GRU, topology bias",
+   "run": "cybermetaformer-gru_host_topo_k101_s0",
+   "latency": {
+    "1": {
+     "n_steps": 5050,
+     "median_ms": 0.337583,
+     "p95_ms": 0.34504565,
+     "p99_ms": 0.34993742,
+     "mean_ms": 0.33870203485148515,
+     "sd_ms": 0.0032181922054278665,
+     "round_medians_ms": [
+      0.337583,
+      0.337291,
+      0.337333,
+      0.337792,
+      0.339875
+     ],
+     "round_median_sd_ms": 0.0010813386148658432
+    },
+    "6": {
+     "n_steps": 5050,
+     "median_ms": 0.583625,
+     "p95_ms": 0.599625,
+     "p99_ms": 0.61489759,
+     "mean_ms": 0.5844791724752476,
+     "sd_ms": 0.010694984579605825,
+     "round_medians_ms": [
+      0.585417,
+      0.5830204999999999,
+      0.583875,
+      0.58175,
+      0.5845205
+     ],
+     "round_median_sd_ms": 0.0014066606467090785
+    }
+   }
+  },
+  "cybermetaformer-gru_host_attn": {
+   "params": 184451,
+   "params_total": 184451,
+   "param_bytes": 737804,
+   "state_bytes": 10400,
+   "window": 101,
+   "step_check_max_abs": 3.814697265625e-06,
+   "memory": {
+    "baseline_peak_rss_bytes": 234340352,
+    "peak_rss_bytes": 241156096,
+    "working_memory_bytes": 6815744
+   },
+   "label": "Host-token GRU, no topology bias",
+   "run": "cybermetaformer-gru_host_attn_k101_s0",
+   "latency": {
+    "1": {
+     "n_steps": 5050,
+     "median_ms": 0.323667,
+     "p95_ms": 0.330916,
+     "p99_ms": 0.33625,
+     "mean_ms": 0.324902442970297,
+     "sd_ms": 0.0032330848862923093,
+     "round_medians_ms": [
+      0.323833,
+      0.3235,
+      0.323625,
+      0.323625,
+      0.3256875
+     ],
+     "round_median_sd_ms": 0.0009208910358994793
+    },
+    "6": {
+     "n_steps": 5050,
+     "median_ms": 0.560167,
+     "p95_ms": 0.576125,
+     "p99_ms": 0.5919384200000001,
+     "mean_ms": 0.561683728118812,
+     "sd_ms": 0.008315218143140617,
+     "round_medians_ms": [
+      0.5609375,
+      0.5605205,
+      0.5605,
+      0.5594795,
+      0.559541
+     ],
+     "round_median_sd_ms": 0.0006499875575732169
+    }
+   }
+  },
+  "cybermetaformer-host_yok": {
+   "params": 201001,
+   "params_total": 201001,
+   "param_bytes": 804004,
+   "state_bytes": 237536,
+   "window": 101,
+   "step_check_max_abs": 4.76837158203125e-06,
+   "memory": {
+    "baseline_peak_rss_bytes": 234356736,
+    "peak_rss_bytes": 241483776,
+    "working_memory_bytes": 7127040
+   },
+   "label": "CMF, no host mixer",
+   "run": "cybermetaformer-host_yok_k101_s0",
+   "latency": {
+    "1": {
+     "n_steps": 5050,
+     "median_ms": 0.445,
+     "p95_ms": 0.449833,
+     "p99_ms": 0.455041,
+     "mean_ms": 0.44438914950495056,
+     "sd_ms": 0.0054196098319039595,
+     "round_medians_ms": [
+      0.445625,
+      0.444792,
+      0.444833,
+      0.445208,
+      0.442333
+     ],
+     "round_median_sd_ms": 0.0012886033912729005
+    },
+    "6": {
+     "n_steps": 5050,
+     "median_ms": 0.631209,
+     "p95_ms": 0.65127255,
+     "p99_ms": 0.66694008,
+     "mean_ms": 0.6312231415841584,
+     "sd_ms": 0.013335905295504201,
+     "round_medians_ms": [
+      0.631354,
+      0.631625,
+      0.6312085000000001,
+      0.630291,
+      0.631604
+     ],
+     "round_median_sd_ms": 0.0005460194593601821
+    }
+   }
+  },
+  "gru_full": {
+   "params": 183588,
+   "params_total": 183588,
+   "param_bytes": 734352,
+   "state_bytes": 1024,
+   "window": 101,
+   "step_check_max_abs": 8.58306884765625e-06,
+   "memory": {
+    "baseline_peak_rss_bytes": 234487808,
+    "peak_rss_bytes": 238501888,
+    "working_memory_bytes": 4014080
+   },
+   "label": "Full-history GRU (flat 78-d input)",
+   "run": "gru_full_k101_s0",
+   "latency": {
+    "1": {
+     "n_steps": 5050,
+     "median_ms": 0.043875,
+     "p95_ms": 0.04525,
+     "p99_ms": 0.04791651,
+     "mean_ms": 0.044008976831683165,
+     "sd_ms": 0.0013937879034500852,
+     "round_medians_ms": [
+      0.043958,
+      0.043916,
+      0.043833,
+      0.043917,
+      0.04375
+     ],
+     "round_median_sd_ms": 8.325082582172984e-05
+    },
+    "6": {
+     "n_steps": 5050,
+     "median_ms": 0.044166,
+     "p95_ms": 0.04558355,
+     "p99_ms": 0.04752142000000001,
+     "mean_ms": 0.04415132831683168,
+     "sd_ms": 0.0016843343114763577,
+     "round_medians_ms": [
+      0.044166,
+      0.044125,
+      0.044083,
+      0.04425,
+      0.044333
+     ],
+     "round_median_sd_ms": 0.00010036084894021184
+    }
+   }
+  },
+  "transformer_k64": {
+   "params": 2399268,
+   "params_total": 2399268,
+   "param_bytes": 9597072,
+   "state_bytes": 20032,
+   "window": 64,
+   "step_check_max_abs": 0.0,
+   "memory": {
+    "baseline_peak_rss_bytes": 234602496,
+    "peak_rss_bytes": 258080768,
+    "working_memory_bytes": 23478272
+   },
+   "label": "Transformer, window k = 64",
+   "run": "transformer_k64_s0",
+   "latency": {
+    "1": {
+     "n_steps": 5050,
+     "median_ms": 0.8445,
+     "p95_ms": 0.89994375,
+     "p99_ms": 0.91341817,
+     "mean_ms": 0.82506281980198,
+     "sd_ms": 0.07138005575389805,
+     "round_medians_ms": [
+      0.8465834999999999,
+      0.8448960000000001,
+      0.8429375,
+      0.8429375,
+      0.844708
+     ],
+     "round_median_sd_ms": 0.0015317949846503423
+    },
+    "6": {
+     "n_steps": 5050,
+     "median_ms": 0.909958,
+     "p95_ms": 0.93250365,
+     "p99_ms": 0.9597516600000001,
+     "mean_ms": 0.9093068829702969,
+     "sd_ms": 0.01907326240564472,
+     "round_medians_ms": [
+      0.9096875,
+      0.91075,
+      0.910104,
+      0.909625,
+      0.909666
+     ],
+     "round_median_sd_ms": 0.0004789420633020082
+    }
+   }
+  },
+  "timemixer_k64": {
+   "params": 144516,
+   "params_total": 146948,
+   "param_bytes": 587792,
+   "state_bytes": 20032,
+   "window": 64,
+   "step_check_max_abs": 2.288818359375e-05,
+   "memory": {
+    "baseline_peak_rss_bytes": 234061824,
+    "peak_rss_bytes": 241500160,
+    "working_memory_bytes": 7438336
+   },
+   "label": "TimeMixer, window k = 64",
+   "run": "timemixer_k64_s0",
+   "latency": {
+    "1": {
+     "n_steps": 5050,
+     "median_ms": 1.028,
+     "p95_ms": 1.0437311,
+     "p99_ms": 1.053917,
+     "mean_ms": 1.0269131841584158,
+     "sd_ms": 0.029012784612297095,
+     "round_medians_ms": [
+      1.0239165,
+      1.022166,
+      1.022562,
+      1.03425,
+      1.0318545000000001
+     ],
+     "round_median_sd_ms": 0.005672024380677532
+    },
+    "6": {
+     "n_steps": 5050,
+     "median_ms": 1.435625,
+     "p95_ms": 1.468583,
+     "p99_ms": 1.49982125,
+     "mean_ms": 1.4380600184158416,
+     "sd_ms": 0.02233551686789115,
+     "round_medians_ms": [
+      1.441541,
+      1.433625,
+      1.4334585,
+      1.4354580000000001,
+      1.4339165
+     ],
+     "round_median_sd_ms": 0.0034145447829835164
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,582 @@
+{
+ "original": {
+  "novel_rows": 0.25753960396039605,
+  "novel_transitions": 2.2692307692307694e-05
+ },
+ "ent0__related__empty": {
+  "novel_rows": 0.8373564356435643,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 70.8315,
+  "alerts_per_episode_after": 0.0
+ },
+ "ent0__related__swap": {
+  "novel_rows": 0.4238366336633663,
+  "novel_transitions": 3.3e-05,
+  "alerts_per_episode_before": 70.8315,
+  "alerts_per_episode_after": 70.8315
+ },
+ "ent0__related__shuffle": {
+  "novel_rows": 0.3929059405940594,
+  "novel_transitions": 0.173959,
+  "alerts_per_episode_before": 70.8315,
+  "alerts_per_episode_after": 70.8315
+ },
+ "ent0__random0__empty": {
+  "novel_rows": 0.7008613861386138,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 57.13,
+  "alerts_per_episode_after": 0.0
+ },
+ "ent0__random0__swap": {
+  "novel_rows": 0.37403465346534653,
+  "novel_transitions": 3e-06,
+  "alerts_per_episode_before": 57.13,
+  "alerts_per_episode_after": 57.13
+ },
+ "ent0__random0__shuffle": {
+  "novel_rows": 0.3835940594059406,
+  "novel_transitions": 0.123611,
+  "alerts_per_episode_before": 57.13,
+  "alerts_per_episode_after": 57.13
+ },
+ "ent0__random1__empty": {
+  "novel_rows": 0.7483316831683169,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 70.784,
+  "alerts_per_episode_after": 0.0
+ },
+ "ent0__random1__swap": {
+  "novel_rows": 0.41517326732673265,
+  "novel_transitions": 1.3e-05,
+  "alerts_per_episode_before": 70.784,
+  "alerts_per_episode_after": 70.784
+ },
+ "ent0__random1__shuffle": {
+  "novel_rows": 0.38745544554455447,
+  "novel_transitions": 0.13473,
+  "alerts_per_episode_before": 70.784,
+  "alerts_per_episode_after": 70.784
+ },
+ "ent0__random2__empty": {
+  "novel_rows": 0.7452227722772278,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 70.5295,
+  "alerts_per_episode_after": 0.0
+ },
+ "ent0__random2__swap": {
+  "novel_rows": 0.41416336633663364,
+  "novel_transitions": 1.2e-05,
+  "alerts_per_episode_before": 70.5295,
+  "alerts_per_episode_after": 70.5295
+ },
+ "ent0__random2__shuffle": {
+  "novel_rows": 0.388009900990099,
+  "novel_transitions": 0.134957,
+  "alerts_per_episode_before": 70.5295,
+  "alerts_per_episode_after": 70.5295
+ },
+ "ent1__related__empty": {
+  "novel_rows": 0.8628564356435644,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 73.3565,
+  "alerts_per_episode_after": 0.0
+ },
+ "ent1__related__swap": {
+  "novel_rows": 0.42715346534653464,
+  "novel_transitions": 3e-05,
+  "alerts_per_episode_before": 73.3565,
+  "alerts_per_episode_after": 73.3565
+ },
+ "ent1__related__shuffle": {
+  "novel_rows": 0.40591089108910894,
+  "novel_transitions": 0.177921,
+  "alerts_per_episode_before": 73.3565,
+  "alerts_per_episode_after": 73.3565
+ },
+ "ent1__random0__empty": {
+  "novel_rows": 0.6953019801980198,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 56.5385,
+  "alerts_per_episode_after": 0.0
+ },
+ "ent1__random0__swap": {
+  "novel_rows": 0.37173762376237623,
+  "novel_transitions": 1.6e-05,
+  "alerts_per_episode_before": 56.5385,
+  "alerts_per_episode_after": 56.5385
+ },
+ "ent1__random0__shuffle": {
+  "novel_rows": 0.3818118811881188,
+  "novel_transitions": 0.126287,
+  "alerts_per_episode_before": 56.5385,
+  "alerts_per_episode_after": 56.5385
+ },
+ "ent1__random1__empty": {
+  "novel_rows": 0.6428811881188119,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 38.1495,
+  "alerts_per_episode_after": 0.0
+ },
+ "ent1__random1__swap": {
+  "novel_rows": 0.3689950495049505,
+  "novel_transitions": 2.6e-05,
+  "alerts_per_episode_before": 38.1495,
+  "alerts_per_episode_after": 38.1495
+ },
+ "ent1__random1__shuffle": {
+  "novel_rows": 0.3128267326732673,
+  "novel_transitions": 0.075385,
+  "alerts_per_episode_before": 38.1495,
+  "alerts_per_episode_after": 38.1495
+ },
+ "ent1__random2__empty": {
+  "novel_rows": 0.7024356435643564,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 56.9655,
+  "alerts_per_episode_after": 0.0
+ },
+ "ent1__random2__swap": {
+  "novel_rows": 0.37746039603960396,
+  "novel_transitions": 1.2e-05,
+  "alerts_per_episode_before": 56.9655,
+  "alerts_per_episode_after": 56.9655
+ },
+ "ent1__random2__shuffle": {
+  "novel_rows": 0.3848069306930693,
+  "novel_transitions": 0.125251,
+  "alerts_per_episode_before": 56.9655,
+  "alerts_per_episode_after": 56.9655
+ },
+ "ent2__related__empty": {
+  "novel_rows": 0.5427079207920792,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 67.2075,
+  "alerts_per_episode_after": 0.0
+ },
+ "ent2__related__swap": {
+  "novel_rows": 0.42326237623762375,
+  "novel_transitions": 1.875e-05,
+  "alerts_per_episode_before": 67.2075,
+  "alerts_per_episode_after": 67.2075
+ },
+ "ent2__related__shuffle": {
+  "novel_rows": 0.4056633663366337,
+  "novel_transitions": 0.231405,
+  "alerts_per_episode_before": 67.2075,
+  "alerts_per_episode_after": 67.2075
+ },
+ "ent2__random0__empty": {
+  "novel_rows": 0.7063811881188119,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 48.9315,
+  "alerts_per_episode_after": 0.0
+ },
+ "ent2__random0__swap": {
+  "novel_rows": 0.40043564356435646,
+  "novel_transitions": 3.375e-05,
+  "alerts_per_episode_before": 48.9315,
+  "alerts_per_episode_after": 48.9315
+ },
+ "ent2__random0__shuffle": {
+  "novel_rows": 0.32313366336633664,
+  "novel_transitions": 0.09415875,
+  "alerts_per_episode_before": 48.9315,
+  "alerts_per_episode_after": 48.9315
+ },
+ "ent2__random1__empty": {
+  "novel_rows": 0.6256831683168317,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 39.258,
+  "alerts_per_episode_after": 0.0
+ },
+ "ent2__random1__swap": {
+  "novel_rows": 0.3927920792079208,
+  "novel_transitions": 2.25e-05,
+  "alerts_per_episode_before": 39.258,
+  "alerts_per_episode_after": 39.258
+ },
+ "ent2__random1__shuffle": {
+  "novel_rows": 0.31374257425742574,
+  "novel_transitions": 0.08345,
+  "alerts_per_episode_before": 39.258,
+  "alerts_per_episode_after": 39.258
+ },
+ "ent2__random2__empty": {
+  "novel_rows": 0.6256831683168317,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 39.258,
+  "alerts_per_episode_after": 0.0
+ },
+ "ent2__random2__swap": {
+  "novel_rows": 0.39394554455445546,
+  "novel_transitions": 2.25e-05,
+  "alerts_per_episode_before": 39.258,
+  "alerts_per_episode_after": 39.258
+ },
+ "ent2__random2__shuffle": {
+  "novel_rows": 0.3130148514851485,
+  "novel_transitions": 0.08346125,
+  "alerts_per_episode_before": 39.258,
+  "alerts_per_episode_after": 39.258
+ },
+ "opserv__related__empty": {
+  "novel_rows": 0.6705891089108911,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 30.154,
+  "alerts_per_episode_after": 0.0
+ },
+ "opserv__related__swap": {
+  "novel_rows": 0.31324752475247525,
+  "novel_transitions": 8.75e-06,
+  "alerts_per_episode_before": 30.154,
+  "alerts_per_episode_after": 30.154
+ },
+ "opserv__related__shuffle": {
+  "novel_rows": 0.37295544554455445,
+  "novel_transitions": 0.11257125,
+  "alerts_per_episode_before": 30.154,
+  "alerts_per_episode_after": 30.154
+ },
+ "opserv__random0__empty": {
+  "novel_rows": 0.6679257425742574,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 46.9055,
+  "alerts_per_episode_after": 0.0
+ },
+ "opserv__random0__swap": {
+  "novel_rows": 0.4251188118811881,
+  "novel_transitions": 3.25e-05,
+  "alerts_per_episode_before": 46.9055,
+  "alerts_per_episode_after": 46.9055
+ },
+ "opserv__random0__shuffle": {
+  "novel_rows": 0.35937128712871286,
+  "novel_transitions": 0.118415,
+  "alerts_per_episode_before": 46.9055,
+  "alerts_per_episode_after": 46.9055
+ },
+ "opserv__random1__empty": {
+  "novel_rows": 0.7439356435643565,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 65.762,
+  "alerts_per_episode_after": 0.0
+ },
+ "opserv__random1__swap": {
+  "novel_rows": 0.40370297029702973,
+  "novel_transitions": 6e-05,
+  "alerts_per_episode_before": 65.762,
+  "alerts_per_episode_after": 65.762
+ },
+ "opserv__random1__shuffle": {
+  "novel_rows": 0.3588069306930693,
+  "novel_transitions": 0.14001375,
+  "alerts_per_episode_before": 65.762,
+  "alerts_per_episode_after": 65.762
+ },
+ "opserv__random2__empty": {
+  "novel_rows": 0.7965643564356436,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 67.97,
+  "alerts_per_episode_after": 0.0
+ },
+ "opserv__random2__swap": {
+  "novel_rows": 0.40184653465346537,
+  "novel_transitions": 4.375e-05,
+  "alerts_per_episode_before": 67.97,
+  "alerts_per_episode_after": 67.97
+ },
+ "opserv__random2__shuffle": {
+  "novel_rows": 0.3740148514851485,
+  "novel_transitions": 0.1609875,
+  "alerts_per_episode_before": 67.97,
+  "alerts_per_episode_after": 67.97
+ },
+ "user1__related__empty": {
+  "novel_rows": 0.8007524752475248,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 71.848,
+  "alerts_per_episode_after": 0.0
+ },
+ "user1__related__swap": {
+  "novel_rows": 0.39513366336633665,
+  "novel_transitions": 3.5e-05,
+  "alerts_per_episode_before": 71.848,
+  "alerts_per_episode_after": 71.848
+ },
+ "user1__related__shuffle": {
+  "novel_rows": 0.3667079207920792,
+  "novel_transitions": 0.122528,
+  "alerts_per_episode_before": 71.848,
+  "alerts_per_episode_after": 71.848
+ },
+ "user1__random0__empty": {
+  "novel_rows": 0.6815148514851486,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 44.958,
+  "alerts_per_episode_after": 0.0
+ },
+ "user1__random0__swap": {
+  "novel_rows": 0.3712128712871287,
+  "novel_transitions": 8e-06,
+  "alerts_per_episode_before": 44.958,
+  "alerts_per_episode_after": 44.958
+ },
+ "user1__random0__shuffle": {
+  "novel_rows": 0.37705445544554456,
+  "novel_transitions": 0.149063,
+  "alerts_per_episode_before": 44.958,
+  "alerts_per_episode_after": 44.958
+ },
+ "user1__random1__empty": {
+  "novel_rows": 0.4449752475247525,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 58.474,
+  "alerts_per_episode_after": 0.0
+ },
+ "user1__random1__swap": {
+  "novel_rows": 0.28278217821782176,
+  "novel_transitions": 7e-06,
+  "alerts_per_episode_before": 58.474,
+  "alerts_per_episode_after": 58.474
+ },
+ "user1__random1__shuffle": {
+  "novel_rows": 0.36406435643564355,
+  "novel_transitions": 0.178963,
+  "alerts_per_episode_before": 58.474,
+  "alerts_per_episode_after": 58.474
+ },
+ "user1__random2__empty": {
+  "novel_rows": 0.7314455445544554,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 47.618,
+  "alerts_per_episode_after": 0.0
+ },
+ "user1__random2__swap": {
+  "novel_rows": 0.38484653465346536,
+  "novel_transitions": 9e-06,
+  "alerts_per_episode_before": 47.618,
+  "alerts_per_episode_after": 47.618
+ },
+ "user1__random2__shuffle": {
+  "novel_rows": 0.3969752475247525,
+  "novel_transitions": 0.129537,
+  "alerts_per_episode_before": 47.618,
+  "alerts_per_episode_after": 47.618
+ },
+ "user2__related__empty": {
+  "novel_rows": 0.7980198019801981,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 71.6785,
+  "alerts_per_episode_after": 0.0
+ },
+ "user2__related__swap": {
+  "novel_rows": 0.40210396039603963,
+  "novel_transitions": 4e-05,
+  "alerts_per_episode_before": 71.6785,
+  "alerts_per_episode_after": 71.6785
+ },
+ "user2__related__shuffle": {
+  "novel_rows": 0.36727722772277227,
+  "novel_transitions": 0.124036,
+  "alerts_per_episode_before": 71.6785,
+  "alerts_per_episode_after": 71.6785
+ },
+ "user2__random0__empty": {
+  "novel_rows": 0.5000445544554455,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 38.1905,
+  "alerts_per_episode_after": 0.0
+ },
+ "user2__random0__swap": {
+  "novel_rows": 0.31334653465346535,
+  "novel_transitions": 1e-06,
+  "alerts_per_episode_before": 38.1905,
+  "alerts_per_episode_after": 38.1905
+ },
+ "user2__random0__shuffle": {
+  "novel_rows": 0.40131683168316834,
+  "novel_transitions": 0.130357,
+  "alerts_per_episode_before": 38.1905,
+  "alerts_per_episode_after": 38.1905
+ },
+ "user2__random1__empty": {
+  "novel_rows": 0.44473762376237624,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 58.471,
+  "alerts_per_episode_after": 0.0
+ },
+ "user2__random1__swap": {
+  "novel_rows": 0.2825049504950495,
+  "novel_transitions": 7e-06,
+  "alerts_per_episode_before": 58.471,
+  "alerts_per_episode_after": 58.471
+ },
+ "user2__random1__shuffle": {
+  "novel_rows": 0.3639158415841584,
+  "novel_transitions": 0.179741,
+  "alerts_per_episode_before": 58.471,
+  "alerts_per_episode_after": 58.471
+ },
+ "user2__random2__empty": {
+  "novel_rows": 0.5111831683168316,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 75.6805,
+  "alerts_per_episode_after": 0.0
+ },
+ "user2__random2__swap": {
+  "novel_rows": 0.37852970297029703,
+  "novel_transitions": 8e-06,
+  "alerts_per_episode_before": 75.6805,
+  "alerts_per_episode_after": 75.6805
+ },
+ "user2__random2__shuffle": {
+  "novel_rows": 0.38772772277227724,
+  "novel_transitions": 0.188792,
+  "alerts_per_episode_before": 75.6805,
+  "alerts_per_episode_after": 75.6805
+ },
+ "user3__related__empty": {
+  "novel_rows": 0.7980346534653465,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 69.4875,
+  "alerts_per_episode_after": 0.0
+ },
+ "user3__related__swap": {
+  "novel_rows": 0.4021485148514852,
+  "novel_transitions": 2.9e-05,
+  "alerts_per_episode_before": 69.4875,
+  "alerts_per_episode_after": 69.4875
+ },
+ "user3__related__shuffle": {
+  "novel_rows": 0.3491980198019802,
+  "novel_transitions": 0.117866,
+  "alerts_per_episode_before": 69.4875,
+  "alerts_per_episode_after": 69.4875
+ },
+ "user3__random0__empty": {
+  "novel_rows": 0.6815792079207921,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 46.515,
+  "alerts_per_episode_after": 0.0
+ },
+ "user3__random0__swap": {
+  "novel_rows": 0.37852475247524753,
+  "novel_transitions": 1.9e-05,
+  "alerts_per_episode_before": 46.515,
+  "alerts_per_episode_after": 46.515
+ },
+ "user3__random0__shuffle": {
+  "novel_rows": 0.39523267326732675,
+  "novel_transitions": 0.156228,
+  "alerts_per_episode_before": 46.515,
+  "alerts_per_episode_after": 46.515
+ },
+ "user3__random1__empty": {
+  "novel_rows": 0.40363861386138616,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 77.2375,
+  "alerts_per_episode_after": 0.0
+ },
+ "user3__random1__swap": {
+  "novel_rows": 0.3770792079207921,
+  "novel_transitions": 1.9e-05,
+  "alerts_per_episode_before": 77.2375,
+  "alerts_per_episode_after": 77.2375
+ },
+ "user3__random1__shuffle": {
+  "novel_rows": 0.3705940594059406,
+  "novel_transitions": 0.195342,
+  "alerts_per_episode_before": 77.2375,
+  "alerts_per_episode_after": 77.2375
+ },
+ "user3__random2__empty": {
+  "novel_rows": 0.5527425742574258,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 54.809,
+  "alerts_per_episode_after": 0.0
+ },
+ "user3__random2__swap": {
+  "novel_rows": 0.3953663366336634,
+  "novel_transitions": 1.4e-05,
+  "alerts_per_episode_before": 54.809,
+  "alerts_per_episode_after": 54.809
+ },
+ "user3__random2__shuffle": {
+  "novel_rows": 0.4027821782178218,
+  "novel_transitions": 0.166013,
+  "alerts_per_episode_before": 54.809,
+  "alerts_per_episode_after": 54.809
+ },
+ "user4__related__empty": {
+  "novel_rows": 0.7918415841584159,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 69.957,
+  "alerts_per_episode_after": 0.0
+ },
+ "user4__related__swap": {
+  "novel_rows": 0.41306930693069305,
+  "novel_transitions": 3.8e-05,
+  "alerts_per_episode_before": 69.957,
+  "alerts_per_episode_after": 69.957
+ },
+ "user4__related__shuffle": {
+  "novel_rows": 0.3489009900990099,
+  "novel_transitions": 0.118398,
+  "alerts_per_episode_before": 69.957,
+  "alerts_per_episode_after": 69.957
+ },
+ "user4__random0__empty": {
+  "novel_rows": 0.5000445544554455,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 38.1905,
+  "alerts_per_episode_after": 0.0
+ },
+ "user4__random0__swap": {
+  "novel_rows": 0.31463861386138614,
+  "novel_transitions": 1e-06,
+  "alerts_per_episode_before": 38.1905,
+  "alerts_per_episode_after": 38.1905
+ },
+ "user4__random0__shuffle": {
+  "novel_rows": 0.40063366336633666,
+  "novel_transitions": 0.130741,
+  "alerts_per_episode_before": 38.1905,
+  "alerts_per_episode_after": 38.1905
+ },
+ "user4__random1__empty": {
+  "novel_rows": 0.5000445544554455,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 38.1905,
+  "alerts_per_episode_after": 0.0
+ },
+ "user4__random1__swap": {
+  "novel_rows": 0.3123811881188119,
+  "novel_transitions": 1e-06,
+  "alerts_per_episode_before": 38.1905,
+  "alerts_per_episode_after": 38.1905
+ },
+ "user4__random1__shuffle": {
+  "novel_rows": 0.4000792079207921,
+  "novel_transitions": 0.130683,
+  "alerts_per_episode_before": 38.1905,
+  "alerts_per_episode_after": 38.1905
+ },
+ "user4__random2__empty": {
+  "novel_rows": 0.4086287128712871,
+  "novel_transitions": 0.0,
+  "alerts_per_episode_before": 77.495,
+  "alerts_per_episode_after": 0.0
+ },
+ "user4__random2__swap": {
+  "novel_rows": 0.3817178217821782,
+  "novel_transitions": 2e-05,
+  "alerts_per_episode_before": 77.495,
+  "alerts_per_episode_after": 77.495
+ },
+ "user4__random2__shuffle": {
+  "novel_rows": 0.3705841584158416,
+  "novel_transitions": 0.194816,
+  "alerts_per_episode_before": 77.495,
+  "alerts_per_episode_after": 77.495
+ }
+}

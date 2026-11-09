@@ -3,6 +3,8 @@
 Kullanım (<repo> içinden; Mac'te venv_ts, VM'de venv_cyborg):
     venv_ts/bin/python -m minicage.dataset.generate --smoke --out <boş_klasör>
     venv_ts/bin/python -m minicage.dataset.generate --episodes-per-config 2000 --out minicage/data/<yeni_surum>
+    venv_ts/bin/python -m minicage.dataset.generate --topology rewired --blue react_restore_eps0.1 react_restore_eps0.3 --seed 3
+                                                     # → minicage/data/minicage_v1_topo
 
 Var olan veri sürümlerinin üzerine yazılmaz: hedef klasör (--out ya da varsayılanı) boş değilse üretim başlamaz.
 """
@@ -15,19 +17,23 @@ import time
 
 import numpy as np
 
-from CybORG_plus_plus.mini_CAGE.minimal import HOSTS
-from minicage.dataset.env import FixedCAGE
+from CybORG_plus_plus.mini_CAGE.minimal import CONNECTED_HOSTS, HOSTS
+from minicage.dataset.env import FixedCAGE, RewiredCAGE
 from minicage.dataset.policies import (
     RED_POLICIES, BLUE_POLICIES, V1_BLUE_POLICIES, make_red, make_blue, blue_epsilon)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-def run_shard(red_name, blue_name, num_episodes, steps, remove_bugs, seed):
-    """Tek bir (red, blue) kombinasyonunu num_episodes paralel ortamda koşturur."""
+def run_shard(red_name, blue_name, num_episodes, steps, remove_bugs, seed, env_cls=FixedCAGE, blue_actions=None):
+    """Tek bir (red, blue) kombinasyonunu num_episodes paralel ortamda koşturur.
+
+    blue_actions (bölüm × adım) verilirse Blue aksiyonları kayıttan zorlanır. Politika yine çağrılır ki RNG tüketimi
+    aynı kalsın; çıktısı atılır (yeniden simülasyon: resimulate.py).
+    """
     np.random.seed(seed)
-    env = FixedCAGE(num_envs=num_episodes, remove_bugs=remove_bugs)
-    red, blue = make_red(red_name), make_blue(blue_name)
+    env = env_cls(num_envs=num_episodes, remove_bugs=remove_bugs)
+    red, blue = make_red(red_name, links=getattr(env_cls, 'connected_hosts', None)), make_blue(blue_name)
     state, _ = env.reset()
 
     E, T = num_episodes, steps
@@ -49,6 +55,8 @@ def run_shard(red_name, blue_name, num_episodes, steps, remove_bugs, seed):
     for t in range(T):
         red_action = red.get_action(state['Red'])
         blue_action = blue.get_action(state['Blue'])
+        if blue_actions is not None:
+            blue_action = blue_actions[:, t].astype(blue_action.dtype).reshape(-1, 1)
         state, reward, _, info = env.step(
             red_action=red_action, blue_action=blue_action, red_agent=red)
         out['act_red'][:, t] = red_action[:, 0]
@@ -82,7 +90,10 @@ def main():
     p.add_argument('--seed', type=int, default=0)
     p.add_argument('--out', default=None)
     p.add_argument('--smoke', action='store_true', help='2 kombinasyon x 20 bölüm')
+    p.add_argument('--topology', default='minicage', choices=['minicage', 'rewired'],
+                   help='rewired: user1/2 → ent1, user3/4 → ent0 (env.RewiredCAGE; B-line bağlantıyı tablodan okur)')
     args = p.parse_args()
+    env_cls = RewiredCAGE if args.topology == 'rewired' else FixedCAGE
 
     remove_bugs = args.remove_bugs == 'true'
     if args.smoke:
@@ -91,8 +102,9 @@ def main():
         out_dir = args.out or os.path.join(ROOT, 'data', 'smoke')
     else:
         configs = [(r, b) for r in args.red for b in args.blue]
-        out_dir = args.out or os.path.join(
-            ROOT, 'data', 'minicage_v1' if remove_bugs else 'minicage_v1_bugged')
+        default = 'minicage_v1_topo' if args.topology == 'rewired' else \
+            'minicage_v1' if remove_bugs else 'minicage_v1_bugged'
+        out_dir = args.out or os.path.join(ROOT, 'data', default)
     if os.path.isdir(out_dir) and os.listdir(out_dir):
         sys.exit(f'{out_dir} boş değil; var olan veri sürümlerinin üzerine yazılmaz. '
                  '--out ile yeni (ya da boş) bir klasör verin.')
@@ -105,7 +117,7 @@ def main():
             n = min(args.shard_size, remaining)
             seed = args.seed * 100_000 + shard_id
             data, action_mapping = run_shard(
-                red_name, blue_name, n, args.steps, remove_bugs, seed)
+                red_name, blue_name, n, args.steps, remove_bugs, seed, env_cls=env_cls)
             fname = f'shard_{shard_id:03d}.npz'
             np.savez_compressed(os.path.join(out_dir, fname), **data)
             shards.append({'file': fname, 'red': red_name, 'blue': blue_name,
@@ -140,6 +152,13 @@ def main():
         'generation_seconds': round(time.time() - t0, 1),
         'command': ' '.join(sys.argv),
     }
+    if args.topology == 'rewired':
+        meta['source'] = ('CybORG++ MiniCAGE (RewiredCAGE: FixedCAGE, user → ent bağlantıları değiştirilmiş; '
+                          'alt ağlar, hostlar ve gözlem düzeni aynı)')
+        meta['red_agents']['bline'] = ('minicage/dataset/policies.py::LinkedBline (B_line_minimal; ent hedefi bağlantı '
+                                       'tablosundan, özgün tabloyla B_line_minimal ile aynı)')
+        meta['topology'] = {'name': 'rewired', 'connected_hosts': dict(zip(HOSTS, RewiredCAGE.connected_hosts)),
+                            'minicage_connected_hosts': dict(zip(HOSTS, CONNECTED_HOSTS))}
     with open(os.path.join(out_dir, 'meta.json'), 'w') as f:
         json.dump(meta, f, indent=2, ensure_ascii=False)
 

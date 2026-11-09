@@ -1,0 +1,14 @@
+| Intervention on S | Host set S | Novel observation rows | Novel per-host transitions | CMF | CMF, no topology bias | Full-history GRU |
+|---|---|---:|---:|---:|---:|---:|
+| None (silent recall) | — | 0.258 | 0.000 | 0.902 ± 0.006 | 0.903 ± 0.006 | 0.899 ± 0.002 |
+| Empty (t = 0 observation) | Related hosts | 0.763 | 0.000 | −0.314 ± 0.161 | −0.187 ± 0.084 | −0.449 ± 0.044 |
+|  | Random unrelated hosts | 0.615 | 0.000 | +0.049 ± 0.005 | +0.024 ± 0.023 | −0.008 ± 0.007 |
+|  | Related − random [95% CI] | — | — | −0.362 [−0.374, −0.350] | −0.211 [−0.222, −0.200] | −0.441 [−0.456, −0.426] |
+| Swap (other episode, same policies) | Related hosts | 0.400 | 0.000 | −0.177 ± 0.031 | −0.159 ± 0.016 | −0.210 ± 0.005 |
+|  | Random unrelated hosts | 0.371 | 0.000 | −0.035 ± 0.011 | −0.025 ± 0.009 | −0.049 ± 0.003 |
+|  | Related − random [95% CI] | — | — | −0.142 [−0.155, −0.128] | −0.134 [−0.147, −0.121] | −0.161 [−0.175, −0.147] |
+| Shuffle (in time) | Related hosts | 0.376 | 0.147 | −0.100 ± 0.025 | −0.099 ± 0.015 | −0.078 ± 0.016 |
+|  | Random unrelated hosts | 0.371 | 0.139 | −0.063 ± 0.025 | −0.057 ± 0.020 | −0.058 ± 0.012 |
+|  | Related − random [95% CI] | — | — | −0.037 [−0.048, −0.026] | −0.042 [−0.052, −0.032] | −0.020 [−0.028, −0.011] |
+
+Note. Test episodes of the training policies (2,000). The target host's own observation columns are kept; the columns of a host set S are replaced at every step. Empty: S's own t = 0 observation; swap: S's columns from a random other episode with the same Red and Blue policy (keeps the marginal and the alert count, breaks the joint distribution); shuffle: S's columns permuted in time within the episode (t ≥ 1). S = related hosts (attack-graph neighbours and same subnet in the training topology) or three random equal-size sets of unrelated hosts (pooled). Targets: the 8 label hosts ent0, ent1, ent2, opserv, user1, user2, user3, user4; host-steps pooled over targets (211,741 silent, 54,731 N_hist). Silent and N_hist are defined by the target's own observation and are unchanged by the intervention. First row: silent recall of the original episodes; intervention rows: Δ silent recall = intervened − original, mean ± SD over seeds 0–4; related − random rows: paired episode bootstrap of the seed mean (100,000 resamples, Algorithm 2), Holm over all m = 114 rows of this analysis (smallest attainable adjusted p = 0.0023); all p (Holm) ≤ 0.0023. Novel observation rows: share of the 78-d observations never seen in the training split (original test episodes: 0.258); novel transitions: share of consecutive per-host token pairs of the intervened hosts never seen in training. The interventions act on observations, not on the simulator; they measure how much the estimate depends on other hosts' observations and are not causal effects in the network. N_hist recall, decision changes, alerted breaches and false alarms: Table @tbl:mudahale_tum; differences between models: Table @tbl:mudahale_cift.

@@ -3,6 +3,7 @@ import numpy as np
 
 from CybORG_plus_plus.mini_CAGE import (
     Meander_minimal, React_restore_minimal, Blue_sleep, Restore_decoys)
+from CybORG_plus_plus.mini_CAGE.minimal import HOSTS
 from CybORG_plus_plus.mini_CAGE.red_bline_agent import B_line_minimal
 
 NUM_BLUE_ACTIONS = 53
@@ -19,26 +20,46 @@ BLUE_POLICIES = ['sleep', 'react_restore', 'restore_decoys', 'random',
 V1_BLUE_POLICIES = BLUE_POLICIES[:6]   # minicage_v1 ve minicage_v1_bugged'in politikaları; generate.py varsayılanı
 
 
+class LinkedBline(B_line_minimal):
+    """B_line_minimal; user hostundan sonra hedeflenen ent, koda gömülü eşleme yerine bağlantı tablosundan seçilir.
+
+    B_line_minimal 4. durumda user1/2 → ent0, user3/4 → ent1 eşlemesini sabit kullanır (MiniCAGE'in bağlantı tablosu).
+    Özgün CybORG B-line'ı sonraki hostu gözlemden bulur. Burada ent, root alınan user hostunun tablodaki bağlantısıdır.
+    4. duruma yalnız user hostundan gelindiği için özgün tabloyla davranış B_line_minimal ile aynıdır.
+    """
+
+    def __init__(self, links):
+        super().__init__()
+        self.links = list(links)
+
+    def DiscoverNetworkServices_ent(self, host, obs, last_host):
+        if host in (1, 2) and last_host in (9, 10, 11, 12):
+            host = self.enterprise_host = HOSTS.index(self.links[last_host])
+        return super().DiscoverNetworkServices_ent(host, obs, last_host)
+
+
 class BatchedBline:
     """red_bline_agent.B_line_minimal tek ortamlık; ortam başına bir örnek tutar.
 
     test_agent.B_line_minimal kullanılmaz: escalate_user1'den sonra network_ent1'de takılı kalıyor
-    (B-line x Sleep ≈ -10, README -1141).
+    (B-line x Sleep ≈ -10, README -1141). links verilirse (değiştirilmiş topoloji) LinkedBline kullanılır.
     """
 
-    def __init__(self):
-        self.agents = None
+    def __init__(self, links=None):
+        self.agents, self.links = None, links
 
     def get_action(self, observation):
         if self.agents is None:
-            self.agents = [B_line_minimal() for _ in range(observation.shape[0])]
+            make = B_line_minimal if self.links is None else (lambda: LinkedBline(self.links))
+            self.agents = [make() for _ in range(observation.shape[0])]
         return np.array([np.asarray(a.get_action(o)).reshape(-1)[0]
                          for a, o in zip(self.agents, observation)]).reshape(-1, 1).astype(int)
 
 
-def make_red(name):
+def make_red(name, links=None):
+    """links: değiştirilmiş topolojinin bağlantı tablosu (env.RewiredCAGE); yalnız B-line kullanır."""
     if name == 'bline':
-        return BatchedBline()
+        return BatchedBline(links)
     if name == 'meander':
         return Meander_minimal()
     raise ValueError(f'Bilinmeyen red politikası: {name}')
