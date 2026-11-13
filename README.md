@@ -24,13 +24,12 @@ The repository contains:
 - **`cybermetaformer/results/hidden_state/`**: per-run metrics, selected hyperparameters (`hpo/*/best.yaml`),
   summaries, and the paper's tables (`makale/tablolar/*.md`) and figures (`makale/sekiller/`).
 
-> **Status (v0.2.0, pre-release).** This release adds the evaluation-only analyses of the second revision round:
-> host permutations and a rewired simulator topology, interventions on the observations of other hosts, a failure
-> analysis of the periodic-analyse and remove defenders, the evaluation on a copy of the data with the remove-flag
-> observation bug corrected, and a single inference-cost measurement of ten models. They reuse the stored five-seed
-> models and retrain nothing. Code comments, docstrings and some module and result-folder names are still in
-> Turkish; the [glossary](#glossary) maps them. An English pass, the raw model outputs (logits and per-episode
-> confusions, about 10 GB) and the trained weights will be published with `v1.0-submission` on Zenodo with a DOI.
+> **Status (v0.3.0, pre-release).** English release of the code: comments, docstrings, messages and module names
+> are in English, the dataset datasheet is regenerated in English, and the paper tables include the combined tables of
+> the main text (`t_compact_baselines`, `t_main_uncertainty`, `t_security`, `t_host_controls`, `t_robust_compact`).
+> Result folders, run names and a few data keys keep their original short names; the [glossary](#glossary) maps them.
+> The raw model outputs (logits and per-episode confusions, about 10 GB) and the trained weights will be published
+> with `v1.0-submission` on Zenodo with a DOI.
 
 ## Installation
 
@@ -124,37 +123,37 @@ python -m cybermetaformer.hidden_state.aggregate --stage asama2
 **Paper analyses:**
 
 ```bash
-python -m cybermetaformer.hidden_state.ood_paketi collect && python -m cybermetaformer.hidden_state.ood_paketi analyze
-python -m cybermetaformer.hidden_state.hic_uyari           # no-alert subsets N_hist / N_ep
-python -m cybermetaformer.hidden_state.sinif_duzeyi        # class-level metrics, confusion, worst host
-python -m cybermetaformer.hidden_state.esdegerlik --settings cpu64 cpu32 mps32 --seeds 0 1 2 3 4   # step = episode mode
-python -m cybermetaformer.hidden_state.gecikme             # online CPU step latency (first measurement)
-python -m cybermetaformer.hidden_state.maliyet             # online inference cost of ten models (latency, memory)
-python -m cybermetaformer.hidden_state.rapor.boyut_tablosu # tensor shapes and parameter counts
+python -m cybermetaformer.hidden_state.ood_suite collect && python -m cybermetaformer.hidden_state.ood_suite analyze
+python -m cybermetaformer.hidden_state.no_alert            # no-alert subsets N_hist / N_ep
+python -m cybermetaformer.hidden_state.class_level         # class-level metrics, confusion, worst host
+python -m cybermetaformer.hidden_state.step_equivalence --settings cpu64 cpu32 mps32 --seeds 0 1 2 3 4   # step = episode mode
+python -m cybermetaformer.hidden_state.step_latency        # online CPU step latency (first measurement)
+python -m cybermetaformer.hidden_state.inference_cost      # online inference cost of ten models (latency, memory)
+python -m cybermetaformer.hidden_state.report.shape_table   # tensor shapes and parameter counts
 ```
 
 **Shift, intervention and failure analyses (stored five-seed models, no retraining):**
 
 ```bash
-python -m cybermetaformer.hidden_state.ood_permutasyon collect          # host permutations P1, P1s, P2, P2s, P3
-python -m cybermetaformer.hidden_state.ood_permutasyon analyze --n-boot 100000
-python -m cybermetaformer.hidden_state.ood_topoloji collect             # rewired simulator topology
-python -m cybermetaformer.hidden_state.ood_topoloji analyze --n-boot 100000
-python -m cybermetaformer.hidden_state.basarisizlik --n-boot 100000     # error types and slices per defender policy
-python -m cybermetaformer.hidden_state.mudahale collect                 # interventions on other hosts' observations
-python -m cybermetaformer.hidden_state.mudahale analyze --n-boot 100000
-python -m cybermetaformer.hidden_state.duzeltilmis_gozlem collect       # flawed vs corrected remove-flag observation
-python -m cybermetaformer.hidden_state.duzeltilmis_gozlem analyze --n-boot 10000
+python -m cybermetaformer.hidden_state.ood_permutation collect          # host permutations P1, P1s, P2, P2s, P3
+python -m cybermetaformer.hidden_state.ood_permutation analyze --n-boot 100000
+python -m cybermetaformer.hidden_state.ood_topology collect             # rewired simulator topology
+python -m cybermetaformer.hidden_state.ood_topology analyze --n-boot 100000
+python -m cybermetaformer.hidden_state.failure_analysis --n-boot 100000 # error types and slices per defender policy
+python -m cybermetaformer.hidden_state.interventions collect            # interventions on other hosts' observations
+python -m cybermetaformer.hidden_state.interventions analyze --n-boot 100000
+python -m cybermetaformer.hidden_state.corrected_obs collect            # flawed vs corrected remove-flag observation
+python -m cybermetaformer.hidden_state.corrected_obs analyze --n-boot 10000
 ```
 
 **Paper tables and figures:**
 
 ```bash
-python -m cybermetaformer.hidden_state.rapor.makale_tablolar --basis m4   # five-seed main pair, as in the paper
-python -m cybermetaformer.hidden_state.rapor.makale_sekiller
+python -m cybermetaformer.hidden_state.report.paper_tables --basis m4   # five-seed main pair, as in the paper
+python -m cybermetaformer.hidden_state.report.paper_figures
 ```
 
-`makale_tablolar` reads the per-episode outputs of the runs (`episode_slices.npz`) and, for parameter counts, the
+`paper_tables` reads the per-episode outputs of the runs (`episode_slices.npz`) and, for parameter counts, the
 trained weights (`model.pt`). Both are produced by the commands above; until the Zenodo archive is published, the
 stored tables in `makale/tablolar/` are the reference (regenerating them from the original runs reproduces these
 files byte for byte). The tables of the shift, intervention and failure analyses are built from the stored analysis
@@ -166,25 +165,26 @@ analyses ran on the M3 Pro (MPS); latency and cost on the M3 Pro CPU, batch size
 
 ## Glossary
 
+Module names are English; these short names of folders, runs and data keys are kept from the original runs.
+
 | Name | Meaning |
 |---|---|
 | `asama0` … `asama3` | Stage 0 (EDA, benchmarks) … Stage 3 (CyberMetaFormer) |
-| `makale/`, `tablolar/`, `sekiller/` | paper, tables, figures |
-| `ozet`, `karsilastirma`, `verimlilik`, `aciklama`, `belirsizlik` | summary, comparison, efficiency, explanations, uncertainty |
-| `ood_paketi.py` | extended OOD suite (unseen defender, severity curve, mechanism changes) |
-| `hic_uyari.py`, `sinif_duzeyi.py`, `esdegerlik.py`, `gecikme.py` | no-alert subsets, class-level report, step/episode equivalence, latency |
-| `ood_permutasyon.py`, `ood_topoloji.py` | host-permutation shift; rewired simulator topology (optionally with the relation matrix rebuilt from the new links) |
-| `basarisizlik.py`, `mudahale.py` | failure analysis by error type, attacker, subnet and alert age; interventions on other hosts' observations |
-| `duzeltilmis_gozlem.py`, `maliyet.py` | flawed vs corrected observation; online inference cost (latency, state and working memory) |
-| `rapor/makale_tablolar.py`, `rapor/makale_sekiller.py`, `rapor/boyut_tablosu.py` | paper tables, paper figures, shape table |
+| `makale/`, `tablolar/`, `sekiller/`, `boyut/` | paper, tables, figures, tensor shapes |
+| `ozet`, `karsilastirma`, `verimlilik`, `aciklama`, `belirsizlik`, `analiz` | summary, comparison, efficiency, explanations, uncertainty, analysis |
+| `kosular.csv` / `kosu`, `olcum*.json`, `dikkat.json`, `cd_enIyiK.json` | runs / run, measurement, attention, critical-difference summary at the best k |
 | `duz78`, `host_yok`, `host_tam`, `host_gcn` | no host tokens (one 78-d token); no host mixer; full attention, no topology bias; GCN-like host mixer |
-| `kol_konv`, `kol_ssd`, `konv_dikkat`, `konv_gru` | short convolution only; SSD branch only; causal attention instead of SSD; GRU instead of SSD |
+| `kol_konv`, `kol_ssd`, `konv_dikkat`, `konv_gru`, `havuz_mlp` | short convolution only; SSD branch only; causal attention instead of SSD; GRU instead of SSD; pooling and MLP mixers |
 | `hafiza_yok`, `yalniz_yas`, `yalniz_ssd`, `konum_yok` | window 32 without alert age; window 32 with alert age; SSD without alert age; no positional encoding |
-| `b2`, `ana_m4`, `aksiyon` | B2 scale (2.8 M parameters); main-model copy on the second machine; previous defender action as input |
+| `b2`, `ana_m4`, `aksiyon` | B2 parameter budget; copy of the main model for the M4 comparisons; previous defender action as input |
 | `dg_*`, `art_uyari`, `art_zaman` | domain generalization (GroupDRO, V-REx, CORAL, DANN); alert-dropout and time-mask augmentation |
 | `saldirgan_bline`, `saldirgan_meander` | trained on one attacker (attacker transfer) |
-| `gru_host_topo`, `gru_host_attn` | host-token GRU with topology-biased / full cross-host attention |
-| `temiz`, `sessiz ihlal`, `bölüm`, `seed` | clean, silent compromise, episode, seed |
+| `gru_host_topo`, `gru_host_attn` | host-token GRU with topology-biased / unbiased cross-host attention |
+| `sessiz`, `tam` | silent-compromise slice; k label of the full history (k = 101) |
+| `yok`, `kacak_5`, `green_maske`, `remove_maske`, `restore`, `bilinmiyor` | silent-compromise causes stored in `silent_cause.npz`: none, exploit not recorded (5% leak), masked by a Green scan, masked by a failed remove, cleared by restore, unknown |
+| `uye`, `topluluk_T`, `capraz`, `fark` | member, temperature-scaled ensemble, cross, difference |
+| `resmi`, `karisik`, `tek` | official, shuffled, one-by-one (TimesNet explanation modes) |
+| `veri`, `veriyle_ayni`, `genel`, `ort_sure`, `kosu`, `hic` | other short JSON keys: data, same as stored data, overall, mean duration, run, never |
 
 ## Citation and license
 

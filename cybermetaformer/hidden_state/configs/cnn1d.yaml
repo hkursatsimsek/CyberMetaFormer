@@ -1,4 +1,4 @@
-# Aşama 1 1D-CNN (nedensel, k ≥ 8'de dilate). HPO: channels, layers, kernel, dropout + ortak.
+# Stage 1 1D-CNN (causal, dilated for k ≥ 8). HPO: channels, layers, kernel, dropout + shared.
 model: cnn1d
 model_args: {channels: 128, layers: 3, kernel: 3, dropout: 0.1}
 scale: global

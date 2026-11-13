@@ -1,5 +1,5 @@
-# Aşama 2 vanilla Transformer (yalnızca kodlayıcı, token = gözlem adımı). HPO: d_model, heads, layers, ff,
-# dropout, konum kodlaması, okuma (son adım / CLS) + ortak. compile: eğitim ileri geçişi torch.compile ile.
+# Stage 2 vanilla Transformer (encoder only, token = observation step). HPO: d_model, heads, layers, ff,
+# dropout, positional encoding, readout (last step / CLS) + shared. compile: training forward pass via torch.compile.
 model: transformer
 model_args: {d_model: 128, heads: 4, layers: 2, ff: 256, dropout: 0.1, pos: learned, readout: last}
 scale: global

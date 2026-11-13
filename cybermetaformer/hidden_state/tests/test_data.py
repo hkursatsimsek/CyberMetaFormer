@@ -1,4 +1,4 @@
-"""data.py ↔ loaders.detection_view denkliği ve split koruması."""
+"""data.py ↔ loaders.detection_view equivalence and split protection."""
 import numpy as np
 import pytest
 import torch
@@ -28,7 +28,7 @@ def test_windows_match_detection_view(store, raw, small_idx, k):
 def test_padding_mask(store, small_idx):
     wd = D.WindowData(store, small_idx)
     x, mask = wd.windows(torch.tensor([0, 1]), torch.tensor([1, 100]), 8)
-    assert mask[0].tolist() == [False] * 6 + [True] * 2      # t=1: obs0, obs1 gerçek, 6 dolgu
+    assert mask[0].tolist() == [False] * 6 + [True] * 2      # t=1: obs0, obs1 real, 6 padding
     assert mask[1].all()
     assert (x[0, :6] == 0).all()
 
@@ -36,7 +36,7 @@ def test_padding_mask(store, small_idx):
 def test_padding_mask_partial(store, small_idx):
     wd = D.WindowData(store, small_idx)
     x, mask = wd.windows(torch.tensor([0]), torch.tensor([5]), 8)
-    assert mask[0].tolist() == [False, False] + [True] * 6   # obs[-2], obs[-1] dolgu; obs0..obs5 gerçek
+    assert mask[0].tolist() == [False, False] + [True] * 6   # obs[-2], obs[-1] padding; obs0..obs5 real
     np.testing.assert_array_equal(x[0, 2:].numpy(), store.obs[small_idx[0], 0:6])
 
 
@@ -45,7 +45,7 @@ def test_episode_mode(store, small_idx):
     obs, lab = wd.episodes(torch.tensor([3, 7]))
     np.testing.assert_array_equal(obs.numpy(), store.obs[small_idx[[3, 7]]])
     np.testing.assert_array_equal(lab.numpy(), store.labels[small_idx[[3, 7]]])
-    # tam geçmişin son konumu = k=T+1 penceresi
+    # the last position of the full history = the window k=T+1
     x, mask = wd.windows(torch.tensor([3]), torch.tensor([wd.T]), wd.T + 1)
     assert mask.all()
     np.testing.assert_array_equal(x[0].numpy(), obs[0].numpy())
@@ -98,7 +98,7 @@ def test_batch_indices_subsample():
 
 
 def test_permutation_matches_baselines_fit():
-    """baselines.fit: torch.randperm(len(X)); bizde de aynı çağrı → aynı seed ile aynı batch sırası."""
+    """baselines.fit: torch.randperm(len(X)); we make the same call → same batch order with the same seed."""
     torch.manual_seed(0)
     ref = torch.randperm(4000 * 100)
     torch.manual_seed(0)
@@ -107,6 +107,6 @@ def test_permutation_matches_baselines_fit():
 
 
 def test_subsample_matches_baselines(splits):
-    baselines = pytest.importorskip('minicage.dataset.baselines')   # CybORG ister → yalnız VM'de koşar
+    baselines = pytest.importorskip('minicage.dataset.baselines')   # needs CybORG → runs only on the VM
     tr = splits['train']
     np.testing.assert_array_equal(D.subsample_episodes(tr, 4000), tr[baselines.subsample(len(tr), 4000)])

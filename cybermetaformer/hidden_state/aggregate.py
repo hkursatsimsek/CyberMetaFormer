@@ -1,20 +1,20 @@
-"""Aşama 1 ve 2 sonuçlarının toplanması: tablolar ve figürler.
+"""Aggregation of the stage 1 and 2 results: tables and figures.
 
-Yalnızca koşu klasörlerindeki metrics.json + config.yaml okunur (git'teki dosyalar); torch/CybORG gerekmez.
+Only metrics.json + config.yaml in the run folders are read (files in git); no torch/CybORG needed.
 
     python -m cybermetaformer.hidden_state.aggregate                 # Mac venv_ts
-    python -m cybermetaformer.hidden_state.aggregate --stage asama2  # M2; M1 referansları asama1'den okunur
-    venv_mini/bin/python -m cybermetaformer.hidden_state.aggregate   # VM (matplotlib venv_mini'de)
+    python -m cybermetaformer.hidden_state.aggregate --stage asama2  # M2; M1 references are read from asama1
+    venv_mini/bin/python -m cybermetaformer.hidden_state.aggregate   # VM (matplotlib in venv_mini)
 
-Aşama 2'de tablolar ve figürler M1 referanslarını da verir (README Kararlar 2026-10-18, üç çıta): orijinal MLP,
-aynı k'daki ayarlanmış MLP, aynı k'daki en iyi M1 modeli (val host makro-F1 ile) ve tam geçmiş GRU.
+In stage 2 the tables and figures also give the M1 references (three bars, decided 2026-10-18): original MLP,
+the tuned MLP at the same k, the best M1 model at the same k (by val host macro-F1) and the full-history GRU.
 
-Çıktılar `results/hidden_state/<asama>/ozet/`: kosular.csv (koşu başına), ozet.json (model × k ortalama ± std,
-uyarı-yaşı ve neden dilimleri, politika kırılımı), tablolar.md; figürler `<asama>/figures/`.
-Renkler: dataviz varsayılan paletinin kategorik slotları sabit sırayla (model → slot), ayrıca her modelin kendi
-işaretçisi var (renge ek ikinci kodlama); kural gri kesikli referans çizgisidir.
-Tek seed'li öğrenen satırlar (kısaltılmış plan, Kararlar 2026-10-17) tablolarda ve ısı haritalarında † ile, hafıza
-eğrisinde içi boş işaretçiyle gösterilir; bunlarda std yoktur.
+Outputs in `results/hidden_state/<asama>/ozet/`: kosular.csv (per run), ozet.json (model × k mean ± std,
+alert-age and cause slices, policy breakdown), tablolar.md; figures in `<asama>/figures/`.
+Colours: the categorical slots of the dataviz default palette in a fixed order (model → slot); each model also has
+its own marker (a second encoding besides colour); the rule is a grey dashed reference line.
+Single-seed learned rows (shortened plan, decided 2026-10-17) are marked with † in the tables and heat maps and
+with a hollow marker in the memory curve; they have no std.
 """
 import argparse
 import csv
@@ -37,26 +37,27 @@ SKIP_DIRS = {'hpo', 'ozet', 'figures'}
 M1_LEARNED = ['xgb', 'xgb_tf', 'mlp', 'cnn1d', 'lstm', 'gru']
 M2_MODELS = ['transformer', 'patchtst', 'itransformer', 'tsmixer', 'timesnet', 'timemixer']
 MODELS = ['majority', 'persist', *M1_LEARNED, 'lstm_full', 'gru_full', *M2_MODELS]
-RULES = {'majority', 'persist'}                      # deterministik, seed'siz tek koşu
-LABEL = {'majority': 'Çoğunluk', 'persist': 'Uyarı-kalıcılık kuralı', 'xgb': 'XGBoost', 'xgb_tf': 'XGB-TF',
-         'mlp': 'MLP', 'cnn1d': '1D-CNN', 'lstm': 'LSTM', 'gru': 'GRU', 'lstm_full': 'LSTM (tam geçmiş)',
-         'gru_full': 'GRU (tam geçmiş)', 'transformer': 'Transformer', 'patchtst': 'PatchTST',
+RULES = {'majority', 'persist'}                      # deterministic, seedless single run
+# the `*_full` labels and the k label 'tam' (full) are also written into asama2/cd/cd_enIyiK.json (data; export maps)
+LABEL = {'majority': 'Majority', 'persist': 'Alert-persistence rule', 'xgb': 'XGBoost', 'xgb_tf': 'XGB-TF',
+         'mlp': 'MLP', 'cnn1d': '1D-CNN', 'lstm': 'LSTM', 'gru': 'GRU', 'lstm_full': 'LSTM (full history)',
+         'gru_full': 'GRU (full history)', 'transformer': 'Transformer', 'patchtst': 'PatchTST',
          'itransformer': 'iTransformer', 'tsmixer': 'TSMixer', 'timesnet': 'TimesNet', 'timemixer': 'TimeMixer'}
 LEARNED = M1_LEARNED + M2_MODELS
-# Her aşamanın altı öğrenen modeli kategorik 1–6 slotlarını aynı sırayla kullanır (iki aşama aynı figürde buluşmaz;
-# aşama 2'de M1 referansları nötr renktedir).
-_SLOTS = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300']                 # kategorik 1–6
+# The six learned models of each stage use the categorical slots 1–6 in the same order (the two stages never meet in
+# one figure; in stage 2 the M1 references are in a neutral colour).
+_SLOTS = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300']                 # categorical 1–6
 _MARKERS = ['o', 's', 'D', '^', 'v', 'P']
 SLOT = {**dict(zip(M1_LEARNED, _SLOTS)), **dict(zip(M2_MODELS, _SLOTS))}
 MARKER = {**dict(zip(M1_LEARNED, _MARKERS)), **dict(zip(M2_MODELS, _MARKERS))}
-M2_GAPS = ('`—`: PatchTST ve TimesNet k ∈ {4, 16, 64} bütçe (paket B, README Kararlar 2026-10-19); k=1 N/A '
+M2_GAPS = ('`—`: PatchTST and TimesNet k ∈ {4, 16, 64} budget (package B, decided 2026-10-19); k=1 N/A '
            '(PatchTST, TimesNet, TimeMixer; `models.NOT_APPLICABLE`).')
 FULL_OF = {'lstm_full': 'lstm', 'gru_full': 'gru'}
 SURFACE, INK, INK2, MUTED, GRID, BASE = '#fcfcfb', '#0b0b0b', '#52514e', '#898781', '#e1e0d9', '#c3c2b7'
-BLUES = ['#f0efec', '#cde2fb', '#9ec5f4', '#6da7ec', '#3987e5', '#256abf', '#184f95', '#0d366b']   # sıralı mavi
-ORIGINAL_MLP = {'test': 0.929, 'ood_test': 0.816}      # baselines.json, MLP k=8 (geçilecek çıta)
-AGE_BINS = ['hiç', '1–3', '4–7', '8–15', '16–31', '32–63', '64+']
-CAUSE_LABEL = {'kacak_5': '%5 tespit kaçağı', 'green_maske': 'Green maskesi', 'remove_maske': 'remove maskesi'}
+BLUES = ['#f0efec', '#cde2fb', '#9ec5f4', '#6da7ec', '#3987e5', '#256abf', '#184f95', '#0d366b']   # sequential blue
+ORIGINAL_MLP = {'test': 0.929, 'ood_test': 0.816}      # baselines.json, MLP k=8 (the bar to beat)
+AGE_BINS = ['never', '1–3', '4–7', '8–15', '16–31', '32–63', '64+']
+CAUSE_LABEL = {'kacak_5': '5% detection miss', 'green_maske': 'Green scan mask', 'remove_maske': 'remove mask'}
 
 plt.rcParams.update({
     'figure.facecolor': SURFACE, 'axes.facecolor': SURFACE, 'savefig.facecolor': SURFACE,
@@ -65,7 +66,7 @@ plt.rcParams.update({
     'axes.spines.top': False, 'axes.spines.right': False, 'legend.frameon': False,
 })
 
-SCALARS = {                                  # sütun adı → rapor içindeki yol
+SCALARS = {                                  # column name → path inside the report
     'host_macro_f1': ('host_macro_f1',), 'breach_f1': ('breach_f1',), 'silent_recall': ('silent_recall',),
     'silent_exact': ('silent_exact',), 'noalert_macro_f1': ('noalert_macro_f1',), 'alert_recall': ('alert_recall',),
     'latency': ('latency', 'mean_latency'), 'detected_spells': ('latency', 'detected_spells'),
@@ -123,7 +124,7 @@ def _mean_std(vals):
 
 
 def _mean_dicts(ds, leaf):
-    """Aynı anahtarlı sözlüklerin (ör. alert_age_recall) leaf alanının seed ortalaması."""
+    """Seed mean of the leaf field of dictionaries with the same keys (e.g. alert_age_recall)."""
     keys = list(dict.fromkeys(k for d in ds if d for k in d))
     return {k: _mean_std([_get(d, (k, leaf)) if leaf else d.get(k) for d in ds if d]) for k in keys}
 
@@ -147,7 +148,7 @@ def summarize(runs, rows):
     return out
 
 
-# ── tablolar ────────────────────────────────────────────────────────────
+# ── tables ──────────────────────────────────────────────────────────────
 
 def _cell(s, digits=3):
     if not s or not np.isfinite(s['mean']):
@@ -156,7 +157,7 @@ def _cell(s, digits=3):
 
 
 def _single(g):
-    """Tek seed'le koşulmuş öğrenen model (kurallar seed'siz olduğu için sayılmaz)."""
+    """Learned model run with a single seed (rules are seedless, so they do not count)."""
     return g['model'] not in RULES and len(g['seeds']) == 1
 
 
@@ -186,14 +187,14 @@ def _single_note(summary):
 
 
 def _best(summary, m):
-    """Modelin val host makro-F1 ortalamasına göre en iyi k'si (test/OOD seçime girmez)."""
+    """Best k of the model by mean val host macro-F1 (test/OOD take no part in the choice)."""
     cands = [g for g in summary.values() if g['model'] == m]
     return max(cands, key=lambda g: (g.get('val_host_macro_f1') or {}).get('mean', -1))
 
 
 def m1_refs(ref):
-    """Aşama 2'nin M1 referansları (README Kararlar 2026-10-18, üç çıta): k → ayarlanmış MLP ve val'e göre aynı k'daki
-    en iyi M1 modeli; en iyi pencereli M1 modeli ve k'dan bağımsız tam geçmiş GRU."""
+    """M1 references of stage 2 (three bars, decided 2026-10-18): k → tuned MLP and the best M1 model at the same k
+    by val; the best windowed M1 model and the k-independent full-history GRU."""
     learned = [g for g in ref.values() if g['model'] in M1_LEARNED]
     val = lambda g: (g.get('val_host_macro_f1') or {}).get('mean', -1)       # noqa: E731
     best = {}
@@ -215,25 +216,25 @@ def _best_row(label, b, k_label=None):
             f"{_gcell(b, 'test_held_fraction')} | {_gcell(b, 'test_ece_T')} |")
 
 
-def tables_md(summary, title='Aşama 1 özet tabloları', ref=None):
+def tables_md(summary, title='Stage 1 summary tables', ref=None):
     ks = sorted({g['k'] for g in summary.values() if g['k'] > 0})
     models = [m for m in MODELS if any(g['model'] == m for g in summary.values())]
     R = m1_refs(ref) if ref else None
     if R:
-        intro = (f'Hücreler: {_n_seeds(summary)} seed ortalaması ± std. {M2_GAPS} M1 referansları (`asama1`, '
-                 "5 seed): ayarlanmış MLP ve aynı k'daki en iyi M1 modeli (val host makro-F1 ile seçilir; adı hücrede, "
-                 "† = tek seed); tam geçmiş GRU k'dan bağımsızdır, tablo altında. "
-                 f"Orijinal MLP (k=8): test {ORIGINAL_MLP['test']} / OOD {ORIGINAL_MLP['ood_test']}.")
+        intro = (f'Cells: mean ± std over {_n_seeds(summary)} seeds. {M2_GAPS} M1 references (`asama1`, '
+                 "5 seeds): tuned MLP and the best M1 model at the same k (chosen by val host macro-F1; name in the "
+                 "cell, † = single seed); the full-history GRU does not depend on k and is below the table. "
+                 f"Original MLP (k=8): test {ORIGINAL_MLP['test']} / OOD {ORIGINAL_MLP['ood_test']}.")
     else:
-        intro = (f'Hücreler: {_n_seeds(summary)} seed ortalaması ± std. **† = tek seed (s0), std yok:** '
-                 f'{_single_note(summary)} (kısaltılmış plan, Kararlar 2026-10-17). Kurallar deterministik, tek koşu. '
-                 '`tam` = tam geçmiş (k=101: obs[0..t]). '
-                 f"Geçilecek çıta (orijinal MLP, k=8): test {ORIGINAL_MLP['test']} / OOD {ORIGINAL_MLP['ood_test']}.")
+        intro = (f'Cells: mean ± std over {_n_seeds(summary)} seeds. **† = single seed (s0), no std:** '
+                 f'{_single_note(summary)} (shortened plan, decided 2026-10-17). Rules are deterministic, one run. '
+                 '`tam` = full history (k=101: obs[0..t]). '
+                 f"Bar to beat (original MLP, k=8): test {ORIGINAL_MLP['test']} / OOD {ORIGINAL_MLP['ood_test']}.")
     lines = [f'# {title}', '', intro, '']
-    specs = [('Test host makro-F1', 'test_host_macro_f1'), ('OOD host makro-F1', 'ood_host_macro_f1'),
-             ('Test sessiz recall', 'test_silent_recall'), ('OOD sessiz recall', 'ood_silent_recall'),
-             ('Test uyarısız host-adım makro-F1', 'test_noalert_macro_f1'), ('OOD göreli düşüş', 'ood_rel_drop'),
-             ('Test ECE (sıcaklık sonrası)', 'test_ece_T')]
+    specs = [('Test host macro-F1', 'test_host_macro_f1'), ('OOD host macro-F1', 'ood_host_macro_f1'),
+             ('Test silent recall', 'test_silent_recall'), ('OOD silent recall', 'ood_silent_recall'),
+             ('Test no-alert host-step macro-F1', 'test_noalert_macro_f1'), ('OOD relative drop', 'ood_rel_drop'),
+             ('Test ECE (after temperature)', 'test_ece_T')]
     for title_, col in specs:
         lines += [f'## {title_}', '', '| Model | ' + ' | '.join(f'k={_k_label(k)}' for k in ks) + ' |',
                   '|---|' + '---:|' * len(ks)]
@@ -245,31 +246,31 @@ def tables_md(summary, title='Aşama 1 özet tabloları', ref=None):
             lines.append(f'| {LABEL[m]} | ' + ' | '.join(_gcell(summary.get(f'{m}_k{k}'), col) for k in ks) + ' |')
         if R:
             lines.append('| M1: MLP | ' + ' | '.join(_gcell(R['mlp'].get(k), col) for k in ks) + ' |')
-            lines.append('| M1: en iyi (val) | ' + ' | '.join(_ref_cell(R['best'].get(k), col) for k in ks) + ' |')
-            lines += ['', f"M1: GRU (tam geçmiş) {_gcell(R['gru_full'], col)}."]
+            lines.append('| M1: best (val) | ' + ' | '.join(_ref_cell(R['best'].get(k), col) for k in ks) + ' |')
+            lines += ['', f"M1: GRU (full history) {_gcell(R['gru_full'], col)}."]
         lines.append('')
-    # her modelin val'e göre en iyi k'sı: özet, maliyet ve politika kırılımı
+    # best k of each model by val: summary, cost and policy breakdown
     best = {m: _best(summary, m) for m in models}
-    lines += ['## Model başına en iyi k (val host makro-F1 ile seçilir)', '',
-              '| Model | k | Test F1 | OOD F1 | Sessiz recall (test / OOD) | Gecikme (adım) | Kalıcılık payı | ECE_T |',
+    lines += ['## Best k per model (chosen by val host macro-F1)', '',
+              '| Model | k | Test F1 | OOD F1 | Silent recall (test / OOD) | Latency (steps) | Held share | ECE_T |',
               '|---|---:|---:|---:|---:|---:|---:|---:|']
     for m in models:
         lines.append(_best_row(LABEL[m], best[m]))
     if R:
-        lines += [f"| Orijinal MLP | 8 | {ORIGINAL_MLP['test']} | {ORIGINAL_MLP['ood_test']} | — | — | — | — |",
+        lines += [f"| Original MLP | 8 | {ORIGINAL_MLP['test']} | {ORIGINAL_MLP['ood_test']} | — | — | — | — |",
                   _best_row('M1: MLP', _best(ref, 'mlp')),
-                  _best_row(f"M1: {LABEL[R['best_window']['model']]} (en iyi pencereli)", R['best_window']),
-                  _best_row('M1: GRU (tam geçmiş)', R['gru_full'])]
-    cost_note = ('Eğitim süresi: MPS; iki Mac (M3 Pro, M4 Pro) ve eş zamanlı şeritler, iki koşuda kapak uykusu. '
-                 "Süreler kabaca karşılaştırma içindir; verimlilik bench'ten." if R else
-                 'Eğitim süresi: Mac, sinir ağları MPS, XGBoost CPU; iki kuyruk paralel koştuğu için süreler birbirini '
-                 'etkilemiş olabilir.')
-    lines += ['', '## Maliyet (en iyi k)', '', cost_note, '',
-              '| Model | k | Parametre / ağaç | Epoch | Eğitim (dk) | Val F1 |', '|---|---:|---:|---:|---:|---:|']
+                  _best_row(f"M1: {LABEL[R['best_window']['model']]} (best windowed)", R['best_window']),
+                  _best_row('M1: GRU (full history)', R['gru_full'])]
+    cost_note = ('Training time: MPS; two Macs (M3 Pro, M4 Pro) and concurrent lanes, lid sleep in two runs. '
+                 "Times are for rough comparison only; efficiency comes from bench." if R else
+                 'Training time: Mac, neural networks on MPS, XGBoost on CPU; the two queues ran in parallel, so the '
+                 'times may have affected each other.')
+    lines += ['', '## Cost (best k)', '', cost_note, '',
+              '| Model | k | Parameters / trees | Epoch | Training (min) | Val F1 |', '|---|---:|---:|---:|---:|---:|']
     for m in [m for m in models if m not in RULES]:
         b = best[m]
         if b.get('n_trees'):
-            size = f"{b['n_trees']['mean']:,.0f} ağaç"
+            size = f"{b['n_trees']['mean']:,.0f} trees"
         else:
             size = f"{b['n_params']['mean']:,.0f}" if b.get('n_params') else '—'
         secs = b.get('train_seconds')
@@ -279,11 +280,11 @@ def tables_md(summary, title='Aşama 1 özet tabloları', ref=None):
     shown = [(f"{LABEL[m]} k={_k_label(best[m]['k'])}", best[m]) for m in models if m != 'majority']
     if R:
         shown += [(f"M1: {LABEL[R['best_window']['model']]} k={_k_label(R['best_window']['k'])}", R['best_window']),
-                  ('M1: GRU tam', R['gru_full'])]
+                  ('M1: full GRU', R['gru_full'])]
     pols = list(dict.fromkeys(p for _, g in shown for split in ['test', 'ood_test']
                               for p in (g.get(f'{split}_policy') or {})))
-    lines += ['', '## Politika kırılımı (host makro-F1, Red × Blue; model başına en iyi k)', '',
-              f"Son {sum('eps0.3' in p for p in pols)} satır OOD (`react_restore_eps0.3`), diğerleri test.", '',
+    lines += ['', '## Policy breakdown (host macro-F1, Red × Blue; best k per model)', '',
+              f"The last {sum('eps0.3' in p for p in pols)} rows are OOD (`react_restore_eps0.3`), the others test.", '',
               '| Red × Blue | ' + ' | '.join(h for h, _ in shown) + ' |', '|---|' + '---:|' * len(shown)]
     for p in pols:
         split = 'ood_test' if 'eps0.3' in p else 'test'
@@ -293,7 +294,7 @@ def tables_md(summary, title='Aşama 1 özet tabloları', ref=None):
     return '\n'.join(lines)
 
 
-# ── figürler ────────────────────────────────────────────────────────────
+# ── figures ─────────────────────────────────────────────────────────────
 
 def _grid(ax):
     ax.grid(axis='y', color=GRID, linewidth=1)
@@ -301,12 +302,12 @@ def _grid(ax):
 
 
 def fig_memory_curve(summary, fig_dir, R=None):
-    panels = [('test_host_macro_f1', 'Test host makro-F1', 'test'), ('ood_host_macro_f1', 'OOD host makro-F1', 'ood_test'),
-              ('test_silent_recall', 'Test sessiz recall', None)]
+    panels = [('test_host_macro_f1', 'Test host macro-F1', 'test'), ('ood_host_macro_f1', 'OOD host macro-F1', 'ood_test'),
+              ('test_silent_recall', 'Test silent recall', None)]
     fig, axes = plt.subplots(1, 3, figsize=(12.5, 4.4))
     allk = sorted({g['k'] for g in summary.values() if g['k'] > 0})
     for ax, (col, title, orig) in zip(axes, panels):
-        if R:                                         # M1 referansları nötr renkte (aşama 2)
+        if R:                                         # M1 references in a neutral colour (stage 2)
             bk = [k for k in allk if R['best'].get(k) and R['best'][k].get(col)]
             ax.plot(bk, [R['best'][k][col]['mean'] for k in bk], color=INK2, lw=1.2, marker='x', ms=5, zorder=1)
             if R['gru_full'] and R['gru_full'].get(col):
@@ -325,7 +326,7 @@ def fig_memory_curve(summary, fig_dir, R=None):
                 ax.errorbar([g['k'] for g in multi], [g[col]['mean'] for g in multi],
                             yerr=[g[col]['std'] for g in multi], color=SLOT[m], marker=MARKER[m], ms=6, ls='none',
                             capsize=0, elinewidth=1, markeredgecolor=SURFACE, markeredgewidth=1, zorder=3)
-            single = [g for g in gs if _single(g)]       # tek seed: içi boş işaretçi, std yok
+            single = [g for g in gs if _single(g)]       # single seed: hollow marker, no std
             if single:
                 ax.plot([g['k'] for g in single], [g[col]['mean'] for g in single], marker=MARKER[m], ms=6,
                         mfc=SURFACE, mec=SLOT[m], mew=1.5, ls='none', zorder=3)
@@ -341,11 +342,11 @@ def fig_memory_curve(summary, fig_dir, R=None):
                                 markeredgewidth=1, zorder=3)
         if orig:
             ax.axhline(ORIGINAL_MLP[orig], color=INK2, lw=1, ls=':')
-            ax.text(1, ORIGINAL_MLP[orig], ' orijinal MLP (k=8)', va='bottom', fontsize=8, color=INK2)
+            ax.text(1, ORIGINAL_MLP[orig], ' original MLP (k=8)', va='bottom', fontsize=8, color=INK2)
         ax.set_xscale('log', base=2)
         ax.set_xticks(allk, [_k_label(k) for k in allk])
         ax.minorticks_off()
-        ax.set_xlabel('geçmiş uzunluğu k (gözlem)')
+        ax.set_xlabel('history length k (observations)')
         ax.set_title(title, loc='left', fontsize=10, color=INK)
         _grid(ax)
     present = {g['model'] for g in summary.values()}
@@ -354,24 +355,24 @@ def fig_memory_curve(summary, fig_dir, R=None):
         filled = any(not _single(g) for g in summary.values() if g['model'] == m)
         handles.append(Line2D([], [], color=SLOT[m], lw=2, marker=MARKER[m], ms=6,
                               mfc=SLOT[m] if filled else SURFACE, mec=SURFACE if filled else SLOT[m],
-                              mew=1 if filled else 1.5, label=LABEL[m] + ('' if filled else ' (tek seed)')))
+                              mew=1 if filled else 1.5, label=LABEL[m] + ('' if filled else ' (single seed)')))
     for full, base in FULL_OF.items():
         if full in present:
             single = _single(summary[f'{full}_k101'])
             handles.append(Line2D([], [], ls='none', marker=MARKER[base], ms=9, mfc=SURFACE if single else SLOT[base],
                                   mec=SLOT[base] if single else SURFACE, mew=2 if single else 1,
-                                  label=LABEL[full] + (' (tek seed)' if single else '')))
+                                  label=LABEL[full] + (' (single seed)' if single else '')))
     if 'persist' in present:
         handles.append(Line2D([], [], color=MUTED, lw=1.5, ls='--', label=LABEL['persist']))
     if R:
-        handles += [Line2D([], [], color=INK2, lw=1.2, marker='x', ms=5, label="M1: aynı k'da en iyi (val)"),
-                    Line2D([], [], color=MUTED, lw=1.2, ls='--', label='M1: GRU (tam geçmiş)')]
+        handles += [Line2D([], [], color=INK2, lw=1.2, marker='x', ms=5, label="M1: best at the same k (val)"),
+                    Line2D([], [], color=MUTED, lw=1.2, ls='--', label='M1: GRU (full history)')]
     fig.legend(handles=handles, loc='lower center', ncol=5, fontsize=8.5, bbox_to_anchor=(0.5, -0.02))
-    fig.suptitle('Hafıza eğrisi: geçmiş uzadıkça kestirim nasıl değişiyor?', x=0.01, ha='left', fontsize=11,
+    fig.suptitle('Memory curve: how does estimation change as the history grows?', x=0.01, ha='left', fontsize=11,
                  fontweight='bold')
     singles = any(_single(g) for g in summary.values())
-    fig.text(0.01, 0.905, f'Dolu işaretçi: {_n_seeds(summary)} seed ortalaması, çubuk = std.'
-             + (' İçi boş işaretçi: tek seed (s0), std yok.' if singles else ''), ha='left', fontsize=9, color=INK2)
+    fig.text(0.01, 0.905, f'Filled marker: mean over {_n_seeds(summary)} seeds, bar = std.'
+             + (' Hollow marker: single seed (s0), no std.' if singles else ''), ha='left', fontsize=9, color=INK2)
     fig.tight_layout(rect=(0, 0.1, 1, 0.9))
     fig.savefig(os.path.join(fig_dir, 'fig_hafiza_egrisi.png'), dpi=180)
     plt.close(fig)
@@ -398,7 +399,7 @@ def _heat_label(g, prefix=''):
 
 
 def _heat_rows(summary, ks_pick, R=None):
-    """(etiket, grup) satırları; aşama 2'de sonda M1 referansları: k=32'de en iyi M1 modeli ve tam geçmiş GRU."""
+    """(label, group) rows; in stage 2 the M1 references at the end: best M1 model at k=32 and the full-history GRU."""
     rows = []
     for m in MODELS[1:]:
         for g in sorted([g for g in summary.values() if g['model'] == m], key=lambda g: g['k']):
@@ -418,8 +419,8 @@ def fig_alert_age(summary, fig_dir, ks_pick=(8, 32, 101), R=None):
         M = np.array([[(g[f'{split}_alert_age_recall'].get(b) or {}).get('mean', np.nan) for b in AGE_BINS]
                       for _, g in rows], float)
         _heatmap(ax, M, [lab for lab, _ in rows], AGE_BINS, title)
-        ax.set_xlabel('son uyarıdan bu yana geçen adım (sessiz ihlaller)')
-    fig.suptitle(f'Sessiz ihlallerde recall, uyarı yaşına göre ({_n_seeds(summary)} seed ortalaması; † = tek seed)',
+        ax.set_xlabel('steps since the last alert (silent compromises)')
+    fig.suptitle(f'Recall on silent compromises by alert age (mean over {_n_seeds(summary)} seeds; † = single seed)',
                  x=0.01, ha='left', fontsize=11, fontweight='bold')
     fig.tight_layout(rect=(0, 0, 1, 0.97))
     fig.savefig(os.path.join(fig_dir, 'fig_uyari_yasi.png'), dpi=180)
@@ -436,7 +437,7 @@ def fig_cause(summary, fig_dir, ks_pick=(8, 32, 101), R=None):
         M = np.array([[(g[f'{split}_cause_recall'].get(c) or {}).get('mean', np.nan) for c in causes]
                       for _, g in rows], float)
         _heatmap(ax, M, [lab for lab, _ in rows], [CAUSE_LABEL[c] for c in causes], title)
-    fig.suptitle(f'Sessiz ihlallerde recall, nedene göre ({_n_seeds(summary)} seed ortalaması, † = tek seed)',
+    fig.suptitle(f'Recall on silent compromises by cause (mean over {_n_seeds(summary)} seeds, † = single seed)',
                  x=0.01, ha='left', fontsize=11, fontweight='bold')
     fig.tight_layout(rect=(0, 0, 1, 0.97))
     fig.savefig(os.path.join(fig_dir, 'fig_neden_recall.png'), dpi=180)
@@ -446,7 +447,7 @@ def fig_cause(summary, fig_dir, ks_pick=(8, 32, 101), R=None):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--stage', default='asama1')
-    p.add_argument('--ref', help="M1 referanslarının aşaması (varsayılan: aşama 2'de asama1)")
+    p.add_argument('--ref', help="stage of the M1 references (default: asama1 in stage 2)")
     args = p.parse_args()
     stage_dir = os.path.join(RESULTS, args.stage)
     ref_stage = args.ref or ('asama1' if args.stage.startswith('asama2') else None)
@@ -471,11 +472,11 @@ def main():
     with open(os.path.join(out_dir, 'ozet.json'), 'w') as f:
         json.dump(summary, f, indent=1, ensure_ascii=False)
     with open(os.path.join(out_dir, 'tablolar.md'), 'w') as f:
-        f.write(tables_md(summary, f"Aşama {args.stage.removeprefix('asama')} özet tabloları", ref))
+        f.write(tables_md(summary, f"Stage {args.stage.removeprefix('asama')} summary tables", ref))
     fig_memory_curve(summary, fig_dir, R)
     fig_alert_age(summary, fig_dir, ks_pick, R)
     fig_cause(summary, fig_dir, ks_pick, R)
-    print(f'{len(runs)} koşu toplandı → {out_dir}, {fig_dir}')
+    print(f'{len(runs)} runs aggregated → {out_dir}, {fig_dir}')
 
 
 if __name__ == '__main__':

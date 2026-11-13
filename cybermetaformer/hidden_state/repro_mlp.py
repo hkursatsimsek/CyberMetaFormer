@@ -1,11 +1,11 @@
-"""Adım 0.7: orijinal MLP baseline'ının yeni altyapıyla yeniden üretimi.
+"""Reproduction of the original MLP baseline with the new infrastructure.
 
-Orijinal protokol (minicage/dataset/baselines.py): train'den 4000 bölüm (seed 0), ham girdi (ölçekleme yok),
-MLP 256-256, Adam 1e-3, 5 epoch, batch 1024, tek torch seed'i (0) ve k=1 → 4 → 8 aynı RNG akışında.
+Original protocol (minicage/dataset/baselines.py): 4000 episodes from train (seed 0), raw input (no scaling),
+MLP 256-256, Adam 1e-3, 5 epochs, batch 1024, a single torch seed (0) and k=1 → 4 → 8 in the same RNG stream.
 
-İki kip:
-- zincir: orijinal RNG akışı birebir izlenir → baselines.json değerleriyle aynı sonuç beklenir
-- bağımsız: her (k, seed) taze tohumla → seed oynaklığı ve ±0.005 toleransının anlamı
+Two modes:
+- chain: the original RNG stream is followed exactly → the same result as the baselines.json values is expected
+- independent: a fresh seed for every (k, seed) → seed variability and the meaning of the ±0.005 tolerance
 
     venv_cyborg/bin/python -m cybermetaformer.hidden_state.repro_mlp [--seeds 0 1 2]
 """
@@ -35,7 +35,7 @@ def reference():
     for r in rows:
         if r['model'].startswith('MLP, k=') and r['task'].startswith('tespit'):
             k = int(r['model'].split('=')[1])
-            key = 'host_macro_f1' if r['task'].startswith('tespit (host') else 'breach_f1'
+            key = 'host_macro_f1' if r['task'].startswith('detection (host') else 'breach_f1'
             ref[(k, r['split'], key)] = r['value']
     return ref
 
@@ -56,22 +56,22 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument('--seeds', type=int, nargs='+', default=[0, 1, 2])
     args = p.parse_args()
-    torch.set_num_threads(4)                       # baselines.py ile aynı
+    torch.set_num_threads(4)                       # same as baselines.py
     store, ref = D.EpisodeStore(), reference()
     res = {'protocol': ORIGINAL, 'tolerance': TOL, 'chain': {}, 'independent': {}}
 
-    torch.manual_seed(0)                           # baselines.py modül düzeyinde bir kez
+    torch.manual_seed(0)                           # baselines.py sets it once at module level
     for k in KS:
         res['chain'][k] = run_one(store, k, seed=None)
         for split in ['test', 'ood_test']:
             for m in ['host_macro_f1', 'breach_f1']:
                 got, want = res['chain'][k][split][m], ref[(k, split, m)]
-                print(f'zincir k={k} {split:8s} {m:13s} yeni {got:.6f}  orijinal {want:.6f}  fark {got - want:+.2e}')
+                print(f'chain k={k} {split:8s} {m:13s} new {got:.6f}  original {want:.6f}  diff {got - want:+.2e}')
 
     for k in KS:
         for s in args.seeds:
             res['independent'][f'{k}_{s}'] = r = run_one(store, k, seed=s)
-            print(f"bağımsız k={k} seed={s}: test {r['test']['host_macro_f1']:.4f}  "
+            print(f"independent k={k} seed={s}: test {r['test']['host_macro_f1']:.4f}  "
                   f"ood {r['ood_test']['host_macro_f1']:.4f}  ({r['train_seconds']:.0f} s)")
 
     res['reference'] = {f'{k}_{s}_{m}': v for (k, s, m), v in ref.items()}

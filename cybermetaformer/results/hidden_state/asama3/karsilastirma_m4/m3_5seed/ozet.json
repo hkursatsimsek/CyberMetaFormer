@@ -5,7 +5,7 @@
  "n_rows": 116,
  "rows": [
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama1/gru_full_k101",
    "seeds_a": [
@@ -37,7 +37,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama1/gru_full_k101",
    "seeds_a": [
@@ -69,7 +69,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama1/gru_full_k101",
    "seeds_a": [
@@ -101,7 +101,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama1/gru_full_k101",
    "seeds_a": [
@@ -133,7 +133,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama1/gru_k32",
    "seeds_a": [
@@ -165,7 +165,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama1/gru_k32",
    "seeds_a": [
@@ -197,7 +197,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama1/gru_k32",
    "seeds_a": [
@@ -229,7 +229,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama2/timemixer_k64",
    "seeds_a": [
@@ -259,7 +259,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama2/timemixer_k64",
    "seeds_a": [
@@ -289,7 +289,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama2/timemixer_k64",
    "seeds_a": [
@@ -319,7 +319,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama2/timemixer_k64",
    "seeds_a": [
@@ -349,7 +349,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama2/transformer_k64",
    "seeds_a": [
@@ -379,7 +379,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama2/transformer_k64",
    "seeds_a": [
@@ -409,7 +409,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama2/transformer_k64",
    "seeds_a": [
@@ -439,7 +439,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama2/transformer_k64",
    "seeds_a": [
@@ -469,7 +469,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama2/patchtst_k32",
    "seeds_a": [
@@ -499,7 +499,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama2/patchtst_k32",
    "seeds_a": [
@@ -529,7 +529,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama2/patchtst_k32",
    "seeds_a": [
@@ -559,7 +559,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ3: ana model − çıtalar",
+   "family": "RQ3: main model − baselines",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama2/patchtst_k32",
    "seeds_a": [
@@ -589,7 +589,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-duz78_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -617,7 +617,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-duz78_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -645,7 +645,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-duz78_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -673,7 +673,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-host_yok_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -701,7 +701,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-host_yok_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -729,7 +729,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-host_yok_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -757,7 +757,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-host_tam_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -785,7 +785,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-host_tam_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -813,7 +813,7 @@
    "p_holm_plan": 0.11855881441185588
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-host_tam_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -841,7 +841,7 @@
    "p_holm_plan": 0.8044319556804432
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-host_gcn_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -869,7 +869,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-host_gcn_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -897,7 +897,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-host_gcn_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -925,7 +925,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-konv_dikkat_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -953,7 +953,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-konv_dikkat_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -981,7 +981,7 @@
    "p_holm_plan": 0.05183948160518395
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-konv_dikkat_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1009,7 +1009,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-hafiza_yok_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1037,7 +1037,7 @@
    "p_holm_plan": 0.08749912500874991
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-hafiza_yok_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1065,7 +1065,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-hafiza_yok_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1093,7 +1093,7 @@
    "p_holm_plan": 0.17387826121738784
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-yalniz_yas_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1121,7 +1121,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-yalniz_yas_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1149,7 +1149,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-yalniz_yas_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1177,7 +1177,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-yalniz_ssd_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1205,7 +1205,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-yalniz_ssd_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1233,7 +1233,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-yalniz_ssd_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1261,7 +1261,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-konum_yok_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1289,7 +1289,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-konum_yok_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1317,7 +1317,7 @@
    "p_holm_plan": 0.00899991000089999
   },
   {
-   "family": "Ablasyon çekirdeği (M3 Pro, ana modele karşı)",
+   "family": "Ablation core (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-konum_yok_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1345,7 +1345,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "family": "Ablation extension (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-kol_konv_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1373,7 +1373,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "family": "Ablation extension (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-kol_konv_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1401,7 +1401,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "family": "Ablation extension (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-kol_konv_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1429,7 +1429,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "family": "Ablation extension (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-kol_ssd_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1457,7 +1457,7 @@
    "p_holm_plan": 0.8723112768872311
   },
   {
-   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "family": "Ablation extension (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-kol_ssd_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1485,7 +1485,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "family": "Ablation extension (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-kol_ssd_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1513,7 +1513,7 @@
    "p_holm_plan": 0.06447935520644793
   },
   {
-   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "family": "Ablation extension (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-konv_gru_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1541,7 +1541,7 @@
    "p_holm_plan": 0.01101988980110199
   },
   {
-   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "family": "Ablation extension (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-konv_gru_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1569,7 +1569,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "family": "Ablation extension (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-konv_gru_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1597,7 +1597,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "family": "Ablation extension (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-havuz_mlp_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1625,7 +1625,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "family": "Ablation extension (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-havuz_mlp_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1653,7 +1653,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ablasyon eki (M3 Pro, ana modele karşı)",
+   "family": "Ablation extension (M3 Pro, against the main model)",
    "model_a": "asama3/cybermetaformer-havuz_mlp_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -1681,7 +1681,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ4 (H4): hiç uyarı görülmemiş dilim",
+   "family": "RQ4 (H4): never-alerted slice",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama3/cybermetaformer-host_yok_k101",
    "seeds_a": [
@@ -1709,7 +1709,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ4 (H4): hiç uyarı görülmemiş dilim",
+   "family": "RQ4 (H4): never-alerted slice",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama3/cybermetaformer-host_yok_k101",
    "seeds_a": [
@@ -1737,7 +1737,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ4 (H4): hiç uyarı görülmemiş dilim",
+   "family": "RQ4 (H4): never-alerted slice",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama3/cybermetaformer-duz78_k101",
    "seeds_a": [
@@ -1765,7 +1765,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "RQ4 (H4): hiç uyarı görülmemiş dilim",
+   "family": "RQ4 (H4): never-alerted slice",
    "model_a": "asama3/cybermetaformer_k101",
    "model_b": "asama3/cybermetaformer-duz78_k101",
    "seeds_a": [
@@ -1793,7 +1793,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ4 (H4): hiç uyarı görülmemiş dilim",
+   "family": "RQ4 (H4): never-alerted slice",
    "model_a": "asama3/cybermetaformer-host_tam_k101",
    "model_b": "asama3/cybermetaformer-host_yok_k101",
    "seeds_a": [
@@ -1821,7 +1821,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ4 (H4): hiç uyarı görülmemiş dilim",
+   "family": "RQ4 (H4): never-alerted slice",
    "model_a": "asama3/cybermetaformer-host_tam_k101",
    "model_b": "asama3/cybermetaformer-host_yok_k101",
    "seeds_a": [
@@ -1849,7 +1849,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ4 (H4): hiç uyarı görülmemiş dilim",
+   "family": "RQ4 (H4): never-alerted slice",
    "model_a": "asama3/cybermetaformer-host_gcn_k101",
    "model_b": "asama3/cybermetaformer-host_yok_k101",
    "seeds_a": [
@@ -1877,7 +1877,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "RQ4 (H4): hiç uyarı görülmemiş dilim",
+   "family": "RQ4 (H4): never-alerted slice",
    "model_a": "asama3/cybermetaformer-host_gcn_k101",
    "model_b": "asama3/cybermetaformer-host_yok_k101",
    "seeds_a": [
@@ -1905,7 +1905,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-dg_groupdro_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -1933,7 +1933,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-dg_groupdro_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -1961,7 +1961,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-dg_groupdro_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -1989,7 +1989,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-dg_groupdro_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2017,7 +2017,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-dg_vrex_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2045,7 +2045,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-dg_vrex_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2073,7 +2073,7 @@
    "p_holm_plan": 0.23715762842371574
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-dg_vrex_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2101,7 +2101,7 @@
    "p_holm_plan": 0.5774342256577435
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-dg_vrex_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2129,7 +2129,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-dg_coral_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2157,7 +2157,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-dg_coral_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2185,7 +2185,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-dg_coral_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2213,7 +2213,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-dg_coral_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2241,7 +2241,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-dg_dann_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2269,7 +2269,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-dg_dann_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2297,7 +2297,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-dg_dann_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2325,7 +2325,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-dg_dann_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2353,7 +2353,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-art_uyari_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2381,7 +2381,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-art_uyari_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2409,7 +2409,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-art_uyari_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2437,7 +2437,7 @@
    "p_holm_plan": 0.913790862091379
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-art_uyari_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2465,7 +2465,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-art_zaman_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2493,7 +2493,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-art_zaman_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2521,7 +2521,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-art_zaman_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2549,7 +2549,7 @@
    "p_holm_plan": 0.016239837601623983
   },
   {
-   "family": "Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)",
+   "family": "Domain generalisation and augmentation (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-art_zaman_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2577,7 +2577,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Aksiyon girdisi",
+   "family": "Action input",
    "model_a": "asama3/cybermetaformer-aksiyon_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2605,7 +2605,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Aksiyon girdisi",
+   "family": "Action input",
    "model_a": "asama3/cybermetaformer-aksiyon_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2633,7 +2633,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Aksiyon girdisi",
+   "family": "Action input",
    "model_a": "asama3/cybermetaformer-aksiyon_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2661,7 +2661,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Aksiyon girdisi",
+   "family": "Action input",
    "model_a": "asama3/cybermetaformer-aksiyon_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2689,7 +2689,7 @@
    "p_holm_plan": 0.3876561234387656
   },
   {
-   "family": "Aksiyon girdisi",
+   "family": "Action input",
    "model_a": "asama3/gru_full-aksiyon_k101",
    "model_b": "asama3/gru_full_k101",
    "seeds_a": [
@@ -2717,7 +2717,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Aksiyon girdisi",
+   "family": "Action input",
    "model_a": "asama3/gru_full-aksiyon_k101",
    "model_b": "asama3/gru_full_k101",
    "seeds_a": [
@@ -2745,7 +2745,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Aksiyon girdisi",
+   "family": "Action input",
    "model_a": "asama3/gru_full-aksiyon_k101",
    "model_b": "asama3/gru_full_k101",
    "seeds_a": [
@@ -2773,7 +2773,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Aksiyon girdisi",
+   "family": "Action input",
    "model_a": "asama3/gru_full-aksiyon_k101",
    "model_b": "asama3/gru_full_k101",
    "seeds_a": [
@@ -2801,7 +2801,7 @@
    "p_holm_plan": 0.003099969000309997
   },
   {
-   "family": "Ölçek ve makineler arası tekrar",
+   "family": "Scale and cross-machine replication",
    "model_a": "asama3/cybermetaformer-b2_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2829,7 +2829,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ölçek ve makineler arası tekrar",
+   "family": "Scale and cross-machine replication",
    "model_a": "asama3/cybermetaformer-b2_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2857,7 +2857,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "Ölçek ve makineler arası tekrar",
+   "family": "Scale and cross-machine replication",
    "model_a": "asama3/cybermetaformer-b2_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -2885,7 +2885,7 @@
    "p_holm_plan": 0.5059949400505994
   },
   {
-   "family": "Ölçek ve makineler arası tekrar",
+   "family": "Scale and cross-machine replication",
    "model_a": "asama3/cybermetaformer-ana_m4_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -2917,7 +2917,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "Ölçek ve makineler arası tekrar",
+   "family": "Scale and cross-machine replication",
    "model_a": "asama3/cybermetaformer-ana_m4_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -2949,7 +2949,7 @@
    "p_holm_plan": 0.5293347066529335
   },
   {
-   "family": "Ölçek ve makineler arası tekrar",
+   "family": "Scale and cross-machine replication",
    "model_a": "asama3/cybermetaformer-ana_m4_k101",
    "model_b": "asama3/cybermetaformer_k101",
    "seeds_a": [
@@ -2981,7 +2981,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "(ii) saldırgan kayması: yalnız bline ile eğitim",
+   "family": "(ii) attacker shift: trained only on bline",
    "model_a": "asama3/cybermetaformer-saldirgan_bline_k101",
    "model_b": "asama3/gru_full-saldirgan_bline_k101",
    "seeds_a": [
@@ -3009,7 +3009,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "(ii) saldırgan kayması: yalnız bline ile eğitim",
+   "family": "(ii) attacker shift: trained only on bline",
    "model_a": "asama3/cybermetaformer-saldirgan_bline_k101",
    "model_b": "asama3/gru_full-saldirgan_bline_k101",
    "seeds_a": [
@@ -3037,7 +3037,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "(ii) saldırgan kayması: yalnız bline ile eğitim",
+   "family": "(ii) attacker shift: trained only on bline",
    "model_a": "asama3/cybermetaformer-saldirgan_bline_k101",
    "model_b": "asama3/gru_full-saldirgan_bline_k101",
    "seeds_a": [
@@ -3065,7 +3065,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "(ii) saldırgan kayması: yalnız bline ile eğitim",
+   "family": "(ii) attacker shift: trained only on bline",
    "model_a": "asama3/cybermetaformer-saldirgan_bline_k101",
    "model_b": "asama3/timemixer-saldirgan_bline_k64",
    "seeds_a": [
@@ -3093,7 +3093,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "(ii) saldırgan kayması: yalnız bline ile eğitim",
+   "family": "(ii) attacker shift: trained only on bline",
    "model_a": "asama3/cybermetaformer-saldirgan_bline_k101",
    "model_b": "asama3/timemixer-saldirgan_bline_k64",
    "seeds_a": [
@@ -3121,7 +3121,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "(ii) saldırgan kayması: yalnız bline ile eğitim",
+   "family": "(ii) attacker shift: trained only on bline",
    "model_a": "asama3/cybermetaformer-saldirgan_bline_k101",
    "model_b": "asama3/timemixer-saldirgan_bline_k64",
    "seeds_a": [
@@ -3149,7 +3149,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "(ii) saldırgan kayması: yalnız meander ile eğitim",
+   "family": "(ii) attacker shift: trained only on meander",
    "model_a": "asama3/cybermetaformer-saldirgan_meander_k101",
    "model_b": "asama3/gru_full-saldirgan_meander_k101",
    "seeds_a": [
@@ -3177,7 +3177,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "(ii) saldırgan kayması: yalnız meander ile eğitim",
+   "family": "(ii) attacker shift: trained only on meander",
    "model_a": "asama3/cybermetaformer-saldirgan_meander_k101",
    "model_b": "asama3/gru_full-saldirgan_meander_k101",
    "seeds_a": [
@@ -3205,7 +3205,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "(ii) saldırgan kayması: yalnız meander ile eğitim",
+   "family": "(ii) attacker shift: trained only on meander",
    "model_a": "asama3/cybermetaformer-saldirgan_meander_k101",
    "model_b": "asama3/gru_full-saldirgan_meander_k101",
    "seeds_a": [
@@ -3233,7 +3233,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "(ii) saldırgan kayması: yalnız meander ile eğitim",
+   "family": "(ii) attacker shift: trained only on meander",
    "model_a": "asama3/cybermetaformer-saldirgan_meander_k101",
    "model_b": "asama3/timemixer-saldirgan_meander_k64",
    "seeds_a": [
@@ -3261,7 +3261,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "(ii) saldırgan kayması: yalnız meander ile eğitim",
+   "family": "(ii) attacker shift: trained only on meander",
    "model_a": "asama3/cybermetaformer-saldirgan_meander_k101",
    "model_b": "asama3/timemixer-saldirgan_meander_k64",
    "seeds_a": [
@@ -3289,7 +3289,7 @@
    "p_holm_plan": 0.002319976800231998
   },
   {
-   "family": "(ii) saldırgan kayması: yalnız meander ile eğitim",
+   "family": "(ii) attacker shift: trained only on meander",
    "model_a": "asama3/cybermetaformer-saldirgan_meander_k101",
    "model_b": "asama3/timemixer-saldirgan_meander_k64",
    "seeds_a": [

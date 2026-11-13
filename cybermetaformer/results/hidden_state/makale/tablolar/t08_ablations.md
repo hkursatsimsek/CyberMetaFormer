@@ -11,4 +11,4 @@
 | No memory: window 32, no alert-age channel | −0.0033 [−0.0038, −0.0028] | −0.004 [−0.007, −0.001] |
 | B2 scale (2,828,473 parameters) | −0.0035 [−0.0041, −0.0030] | −0.003 [−0.007, −0.000] |
 
-Note. Δ = variant − main model, seeds 0–2 each. B2 is compared with seeds 0–2 of CyberMetaFormer run 2, which was trained on the same hardware (Table @tbl:hostgru); all other variants with seeds 0–2 of the main run. 95% CI from the paired episode bootstrap (100,000 resamples).
+Note. Δ = variant − main model, seeds 0–2 each. B2 is compared with seeds 0–2 of CyberMetaFormer run 2, which was trained on the same hardware (Table @tbl:host_kontrol); all other variants with seeds 0–2 of the main run. 95% CI from the paired episode bootstrap (100,000 resamples).

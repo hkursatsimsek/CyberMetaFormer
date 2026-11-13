@@ -1,25 +1,26 @@
-"""OOD başarısızlık analizi (revizyon madde 6, ilk adım): eğitimde görülmemiş mekanizmalarda hataların türüne göre
-ayrıştırılması.
+"""OOD failure analysis (revision item 6, first step): breakdown of the errors by type on mechanisms unseen in
+training.
 
-Yeniden eğitim yok. Kayıtlı ood_paketi logitleri (asama3, s0–s4) kullanılır: CMF, GRU tam, gru_host_topo ve
-gru_host_attn. Kümeler ood_paketi ile aynı:
-    eps0.1   v1 test'in react_restore_eps0.1 bölümleri (eğitim politikası, referans)
+No retraining. The saved ood_suite logits (asama3, s0–s4) are used: CMF, full GRU, gru_host_topo and
+gru_host_attn. The sets are the same as in ood_suite:
+    eps0.1   the react_restore_eps0.1 episodes of v1 test (training policy, reference)
     ood      v1 ood_test (ε = 0.3)
     analyse  react_restore_analyse (periyodik analyse; minicage_v1_shift)
-    remove   react_remove (restore yerine remove; minicage_v1_shift)
+    remove   react_remove (remove instead of restore; minicage_v1_shift)
 
-Her kümede:
-1. Sınıf sayıları (temiz / user / root host-adımları), sessiz host-adımlar sınıf başına, N_geçmiş.
-2. Model başına hata türleri (seed ortalaması ± sd). Bütün host-adımlarda: root→clean, root→user, user→clean,
-   user→root, temiz yanlış alarm. Sessiz host-adımlarda: root→clean, root→user, user→clean.
-3. Sessiz host-adım dilimleri: saldırgan × host grubu (alt ağ), uyarı yaşı, son uyarının türü × o uyarıdan sonra
-   hosta restore yapıldı mı (explain_m3.alert_context), sessiz ihlal nedeni (silent_cause). Her dilimde n, pay,
-   root payı; model başına recall, root→clean ve user→clean.
-4. CMF − GRU tam ve CMF − gru_host_topo sessiz recall farkı. Dilim başına eşli bölüm bootstrap'ı uygulanır;
-   n ≥ MIN_BOOT host-adım olan dilimlerde, Holm bütün satırlar üzerinden.
-Sessiz = etiket > 0 ve o adımda 'export' uyarısı yok; yakalandı = tahmin > 0. Tahmin argmax'tır (sıcaklık değiştirmez).
+In each set:
+1. Class counts (clean / user / root host-steps), silent host-steps per class, N_hist.
+2. Error types per model (seed mean ± sd). On all host-steps: root→clean, root→user, user→clean,
+   user→root, clean false alarm. On silent host-steps: root→clean, root→user, user→clean.
+3. Silent host-step slices: attacker × host group (subnet), alert age, type of the last alert × whether the host
+   was restored after that alert (explain_m3.alert_context), silent-compromise cause (silent_cause). Per slice n,
+   share, root share; per model recall, root→clean and user→clean.
+4. Silent-recall differences CMF − full GRU and CMF − gru_host_topo. A paired episode bootstrap per slice, on the
+   slices with n ≥ MIN_BOOT host-steps; Holm over all rows.
+Silent = label > 0 and no 'export' alert at that step; caught = prediction > 0. Predictions are argmax (temperature
+does not change them).
 
-    python -m cybermetaformer.hidden_state.basarisizlik     # makale/basarisizlik/{ozet.json, tablolar.md}
+    python -m cybermetaformer.hidden_state.failure_analysis     # makale/failure_analysis/{ozet.json, tablolar.md}
 """
 import argparse
 import json
@@ -29,13 +30,13 @@ import numpy as np
 
 from cybermetaformer.hidden_state import data as D
 from cybermetaformer.hidden_state import metrics as M
-from cybermetaformer.hidden_state import ood_paketi as O
-from cybermetaformer.hidden_state.duzeltilmis_gozlem import _stat as member_stat
+from cybermetaformer.hidden_state import ood_suite as O
+from cybermetaformer.hidden_state.corrected_obs import _stat as member_stat
 from cybermetaformer.hidden_state.explain_m3 import LAST_KIND, alert_context
 from cybermetaformer.hidden_state.models.cybermetaformer import SUBNET
-from cybermetaformer.hidden_state.ood_permutasyon import ERROR_LABEL, ERRORS, _ci, _ms, _msd, _p, error_rates
+from cybermetaformer.hidden_state.ood_permutation import ERROR_LABEL, ERRORS, _ci, _ms, _msd, _p, error_rates
 
-OUT_DIR = os.path.join(D.ROOT, 'results', 'hidden_state', 'makale', 'basarisizlik')
+OUT_DIR = os.path.join(D.ROOT, 'results', 'hidden_state', 'makale', 'failure_analysis')
 MODELS = {'cybermetaformer': 'CyberMetaFormer', 'gru_full': 'GRU (full history)',
           'cybermetaformer-gru_host_topo': 'Host-token GRU, topology-biased attention',
           'cybermetaformer-gru_host_attn': 'Host-token GRU, attention without bias'}
@@ -57,9 +58,9 @@ MIN_SLICE, MIN_BOOT = 200, 1000
 
 
 def slices(st, ep, es):
-    """{(tür, ad): maske (E, T, 12)} sessiz host-adımları içinde; tür ∈ attacker_group, age, last_alert, cause."""
+    """{(kind, name): mask (E, T, 12)} within the silent host-steps; kind ∈ attacker_group, age, last_alert, cause."""
     sil = (es.y > 0) & ~es.alert
-    group = np.array(['ent', 'op', 'user'])[np.array(SUBNET)[D.LABEL_HOSTS]]       # def hep temiz
+    group = np.array(['ent', 'op', 'user'])[np.array(SUBNET)[D.LABEL_HOSTS]]       # def is always clean
     out = {}
     for r, red in enumerate(st.meta['red_policies']):
         for g in ('ent', 'op', 'user'):
@@ -80,7 +81,7 @@ def slices(st, ep, es):
 
 
 def slice_rates(y, pred, m):
-    """Bir dilimde recall (tahmin > 0) ve sessiz hata türleri (gerçek sınıf içinde oran)."""
+    """Recall (prediction > 0) and silent error types (rate within the true class) in a slice."""
     out = {'recall': float((pred[m] > 0).mean()) if m.any() else None}
     for e in SILENT_ERRORS:
         t, ps = ALL_ERRORS[e]
@@ -90,7 +91,7 @@ def slice_rates(y, pred, m):
 
 
 def episode_counts(pred, m):
-    """(E, 2): dilimdeki host-adım sayısı ve yakalanan (bölüm bootstrap'ı için)."""
+    """(E, 2): number of host-steps in the slice and caught ones (for the episode bootstrap)."""
     return np.stack([m.sum((1, 2)), (m & (pred > 0)).sum((1, 2))], -1)
 
 
@@ -142,7 +143,7 @@ def analyze(n_boot=10_000, seeds=SEEDS, log=print):
                                            n_boot=n_boot, seed=0)
                     res['rows'].append({'set': s, 'slice': f'{kind}|{name}', 'a': a, 'b': bb, **r})
         res['slices'][s] = rows
-        log(f"{s:8s} " + '  '.join(f"{n} sessiz {res['models'][n][s]['silent']['recall']['mean']:.3f} "
+        log(f"{s:8s} " + '  '.join(f"{n} silent {res['models'][n][s]['silent']['recall']['mean']:.3f} "
                                    f"r→c {res['models'][n][s]['silent']['root_to_clean']['mean']:.3f}" for n in MODELS))
     for r, p in zip(res['rows'], M.holm([r['p'] for r in res['rows']])):
         r['p_holm'] = p
@@ -155,7 +156,7 @@ def analyze(n_boot=10_000, seeds=SEEDS, log=print):
     return res
 
 
-# ── çıktılar ─────────────────────────────────────────────────────────────
+# ── outputs ──────────────────────────────────────────────────────────────
 
 def _m(d):
     return f"{d['mean']:.3f}" if d else '–'

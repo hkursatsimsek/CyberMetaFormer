@@ -12,4 +12,4 @@
 | No host tokens (single 78-d token) | Flat 78-d | 0.860 ± 0.004 | 0.726 ± 0.009 | 0.711 ± 0.009 | 0.83 | 0.863 ± 0.001 |
 | Full-history GRU | Flat 78-d | 0.858 ± 0.005 | 0.736 ± 0.005 | 0.706 ± 0.002 | 0.82 | 0.862 ± 0.004 |
 
-Note. Seed mean ± SD over seeds 0–2 (the ablation seeds), from the stored logits (argmax). ε = 0.1: test episodes of the training policy; OOD: ε = 0.3; periodic analyse: react_restore_analyse. With seeds 0–4 the periodic-analyse silent recall is 0.625 for CyberMetaFormer and 0.703 for the full-history GRU (Table @tbl:basarisizlik).
+Note. Seed mean ± SD over seeds 0–2 (the ablation seeds), from the stored logits (argmax). ε = 0.1: test episodes of the training policy; OOD: ε = 0.3; periodic analyse: react_restore_analyse. With seeds 0–4 the periodic-analyse silent recall is 0.625 for CyberMetaFormer and 0.703 for the full-history GRU (Table @tbl:failure_analysis).

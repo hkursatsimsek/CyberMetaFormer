@@ -1,12 +1,12 @@
-"""MiniCAGE'den ham bölüm-ana veri seti üretir.
+"""Generates the raw episode-major dataset from MiniCAGE.
 
-Kullanım (<repo> içinden; Mac'te venv_ts, VM'de venv_cyborg):
-    venv_ts/bin/python -m minicage.dataset.generate --smoke --out <boş_klasör>
+Usage (from <repo>; venv_ts on the Mac, venv_cyborg on the VM):
+    venv_ts/bin/python -m minicage.dataset.generate --smoke --out <empty_folder>
     venv_ts/bin/python -m minicage.dataset.generate --episodes-per-config 2000 --out minicage/data/<yeni_surum>
     venv_ts/bin/python -m minicage.dataset.generate --topology rewired --blue react_restore_eps0.1 react_restore_eps0.3 --seed 3
                                                      # → minicage/data/minicage_v1_topo
 
-Var olan veri sürümlerinin üzerine yazılmaz: hedef klasör (--out ya da varsayılanı) boş değilse üretim başlamaz.
+Existing data versions are never overwritten: generation does not start if the target folder (--out or its default) is not empty.
 """
 import argparse
 import json
@@ -26,10 +26,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def run_shard(red_name, blue_name, num_episodes, steps, remove_bugs, seed, env_cls=FixedCAGE, blue_actions=None):
-    """Tek bir (red, blue) kombinasyonunu num_episodes paralel ortamda koşturur.
+    """Runs a single (red, blue) combination in num_episodes parallel environments.
 
-    blue_actions (bölüm × adım) verilirse Blue aksiyonları kayıttan zorlanır. Politika yine çağrılır ki RNG tüketimi
-    aynı kalsın; çıktısı atılır (yeniden simülasyon: resimulate.py).
+    If blue_actions (episode × step) is given, the Blue actions are forced from the record. The policy is still called so that
+    RNG consumption stays the same; its output is discarded (re-simulation: resimulate.py).
     """
     np.random.seed(seed)
     env = env_cls(num_envs=num_episodes, remove_bugs=remove_bugs)
@@ -89,9 +89,9 @@ def main():
     p.add_argument('--blue', nargs='+', default=V1_BLUE_POLICIES, choices=BLUE_POLICIES)
     p.add_argument('--seed', type=int, default=0)
     p.add_argument('--out', default=None)
-    p.add_argument('--smoke', action='store_true', help='2 kombinasyon x 20 bölüm')
+    p.add_argument('--smoke', action='store_true', help='2 combinations x 20 episodes')
     p.add_argument('--topology', default='minicage', choices=['minicage', 'rewired'],
-                   help='rewired: user1/2 → ent1, user3/4 → ent0 (env.RewiredCAGE; B-line bağlantıyı tablodan okur)')
+                   help='rewired: user1/2 → ent1, user3/4 → ent0 (env.RewiredCAGE; B-line reads the link from the table)')
     args = p.parse_args()
     env_cls = RewiredCAGE if args.topology == 'rewired' else FixedCAGE
 
@@ -106,8 +106,8 @@ def main():
             'minicage_v1' if remove_bugs else 'minicage_v1_bugged'
         out_dir = args.out or os.path.join(ROOT, 'data', default)
     if os.path.isdir(out_dir) and os.listdir(out_dir):
-        sys.exit(f'{out_dir} boş değil; var olan veri sürümlerinin üzerine yazılmaz. '
-                 '--out ile yeni (ya da boş) bir klasör verin.')
+        sys.exit(f'{out_dir} is not empty; existing data versions are never overwritten. '
+                 'Give a new (or empty) folder with --out.')
     os.makedirs(out_dir, exist_ok=True)
 
     shards, shard_id, t0 = [], 0, time.time()
@@ -123,16 +123,16 @@ def main():
             shards.append({'file': fname, 'red': red_name, 'blue': blue_name,
                            'episodes': n, 'seed': seed})
             mean = data['rew_blue'].sum(1).mean()
-            print(f'{fname}: {red_name:8s} x {blue_name:22s} {n} bölüm, '
-                  f'ort. ödül {mean:8.1f}  ({time.time() - t0:.0f} s)', flush=True)
+            print(f'{fname}: {red_name:8s} x {blue_name:22s} {n} episodes, '
+                  f'mean reward {mean:8.1f}  ({time.time() - t0:.0f} s)', flush=True)
             remaining -= n
             shard_id += 1
 
     n = len(HOSTS)
     meta = {
         'name': os.path.basename(out_dir),
-        'source': 'CybORG++ MiniCAGE (FixedCAGE: SimplifiedCAGE + ödül çift-sayım düzeltmesi)',
-        'red_agents': {'bline': 'mini_CAGE/red_bline_agent.py::B_line_minimal (ortam başına)', 'meander': 'mini_CAGE/test_agent.py::Meander_minimal'},
+        'source': 'CybORG++ MiniCAGE (FixedCAGE: SimplifiedCAGE + reward double-counting fix)',
+        'red_agents': {'bline': 'mini_CAGE/red_bline_agent.py::B_line_minimal (one per environment)', 'meander': 'mini_CAGE/test_agent.py::Meander_minimal'},
         'steps_per_episode': args.steps,
         'remove_bugs': remove_bugs,
         'base_seed': args.seed,
@@ -141,22 +141,22 @@ def main():
         'blue_policies': BLUE_POLICIES,
         'action_names': action_mapping,
         'obs_blue_layout': {
-            'host_activity_safety': [0, 4 * n, 'host başına 4: aktivite [scan, exploit] + güvenlik ([0,0] temiz/bilinmiyor, [0,1] istismar edildi, [1,1] root (analyse ile), [1,0] remove)'],
-            'scan_history': [4 * n, 5 * n, '0 yok, 1 önceden tarandı, 2 bu adımda tarandı'],
-            'decoys_left': [5 * n, 6 * n, 'host başına kalan decoy sayısı'],
+            'host_activity_safety': [0, 4 * n, '4 per host: activity [scan, exploit] + safety ([0,0] clean/unknown, [0,1] exploited, [1,1] root (with analyse), [1,0] remove)'],
+            'scan_history': [4 * n, 5 * n, '0 none, 1 scanned earlier, 2 scanned at this step'],
+            'decoys_left': [5 * n, 6 * n, 'decoys left per host'],
         },
-        'obs_red_layout': '1 success bayrağı + host başına 3 (scanned, user, priv)',
-        'true_state_layout': 'host başına 3: [scanned, user, priv]; -1 = Red bilmiyor',
+        'obs_red_layout': '1 success flag + 3 per host (scanned, user, priv)',
+        'true_state_layout': '3 per host: [scanned, user, priv]; -1 = unknown to Red',
         'shards': shards,
         'versions': {'python': platform.python_version(), 'numpy': np.__version__},
         'generation_seconds': round(time.time() - t0, 1),
         'command': ' '.join(sys.argv),
     }
     if args.topology == 'rewired':
-        meta['source'] = ('CybORG++ MiniCAGE (RewiredCAGE: FixedCAGE, user → ent bağlantıları değiştirilmiş; '
-                          'alt ağlar, hostlar ve gözlem düzeni aynı)')
-        meta['red_agents']['bline'] = ('minicage/dataset/policies.py::LinkedBline (B_line_minimal; ent hedefi bağlantı '
-                                       'tablosundan, özgün tabloyla B_line_minimal ile aynı)')
+        meta['source'] = ('CybORG++ MiniCAGE (RewiredCAGE: FixedCAGE, user → ent links changed; '
+                          'subnets, hosts and observation layout unchanged)')
+        meta['red_agents']['bline'] = ('minicage/dataset/policies.py::LinkedBline (B_line_minimal; ent target from the link '
+                                       'table; identical to B_line_minimal with the original table)')
         meta['topology'] = {'name': 'rewired', 'connected_hosts': dict(zip(HOSTS, RewiredCAGE.connected_hosts)),
                             'minicage_connected_hosts': dict(zip(HOSTS, CONNECTED_HOSTS))}
     with open(os.path.join(out_dir, 'meta.json'), 'w') as f:

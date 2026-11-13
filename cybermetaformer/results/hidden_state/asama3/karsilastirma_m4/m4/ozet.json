@@ -5,7 +5,7 @@
  "n_rows": 35,
  "rows": [
   {
-   "family": "A4: host-token GRU − CMF (M4 Pro, ana_m4'e karşı)",
+   "family": "A4: host-token GRU − CMF (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -37,7 +37,7 @@
    "p_holm_plan": 0.11787882121178789
   },
   {
-   "family": "A4: host-token GRU − CMF (M4 Pro, ana_m4'e karşı)",
+   "family": "A4: host-token GRU − CMF (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -69,7 +69,7 @@
    "p_holm_plan": 0.2064379356206438
   },
   {
-   "family": "A4: host-token GRU − CMF (M4 Pro, ana_m4'e karşı)",
+   "family": "A4: host-token GRU − CMF (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -101,7 +101,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "A4: host-token GRU − CMF (M4 Pro, ana_m4'e karşı)",
+   "family": "A4: host-token GRU − CMF (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -133,7 +133,7 @@
    "p_holm_plan": 0.034559654403455965
   },
   {
-   "family": "A4: host-token GRU − CMF (M4 Pro, ana_m4'e karşı)",
+   "family": "A4: host-token GRU − CMF (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -165,7 +165,7 @@
    "p_holm_plan": 0.0006999930000699993
   },
   {
-   "family": "A4: host-token GRU − CMF (M4 Pro, ana_m4'e karşı)",
+   "family": "A4: host-token GRU − CMF (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -197,7 +197,7 @@
    "p_holm_plan": 0.004319956800431996
   },
   {
-   "family": "A4: host-token GRU − CMF (M4 Pro, ana_m4'e karşı)",
+   "family": "A4: host-token GRU − CMF (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -229,7 +229,7 @@
    "p_holm_plan": 0.0006999930000699993
   },
   {
-   "family": "A4: host-token GRU − CMF (M4 Pro, ana_m4'e karşı)",
+   "family": "A4: host-token GRU − CMF (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-gru_host_attn_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -261,7 +261,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "A4: host-token GRU − CMF (M4 Pro, ana_m4'e karşı)",
+   "family": "A4: host-token GRU − CMF (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-gru_host_attn_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -293,7 +293,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "A4: host-token GRU − CMF (M4 Pro, ana_m4'e karşı)",
+   "family": "A4: host-token GRU − CMF (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-gru_host_attn_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -325,7 +325,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "A4: host-token GRU − CMF (M4 Pro, ana_m4'e karşı)",
+   "family": "A4: host-token GRU − CMF (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-gru_host_attn_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -357,7 +357,7 @@
    "p_holm_plan": 0.11069889301106989
   },
   {
-   "family": "A4: host-token GRU − CMF (M4 Pro, ana_m4'e karşı)",
+   "family": "A4: host-token GRU − CMF (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-gru_host_attn_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -389,7 +389,7 @@
    "p_holm_plan": 0.0006999930000699993
   },
   {
-   "family": "A4: host-token GRU − CMF (M4 Pro, ana_m4'e karşı)",
+   "family": "A4: host-token GRU − CMF (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-gru_host_attn_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -421,7 +421,7 @@
    "p_holm_plan": 0.0006999930000699993
   },
   {
-   "family": "A4: host-token GRU − CMF (M4 Pro, ana_m4'e karşı)",
+   "family": "A4: host-token GRU − CMF (M4 Pro, against ana_m4)",
    "model_a": "asama3/cybermetaformer-gru_host_attn_k101",
    "model_b": "asama3/cybermetaformer-ana_m4_k101",
    "seeds_a": [
@@ -453,7 +453,7 @@
    "p_holm_plan": 0.0006999930000699993
   },
   {
-   "family": "A4: topoloji sapması, host-token GRU içinde (M4 Pro)",
+   "family": "A4: topology bias within the host-token GRU (M4 Pro)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama3/cybermetaformer-gru_host_attn_k101",
    "seeds_a": [
@@ -485,7 +485,7 @@
    "p_holm_plan": 0.45095549044509553
   },
   {
-   "family": "A4: topoloji sapması, host-token GRU içinde (M4 Pro)",
+   "family": "A4: topology bias within the host-token GRU (M4 Pro)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama3/cybermetaformer-gru_host_attn_k101",
    "seeds_a": [
@@ -517,7 +517,7 @@
    "p_holm_plan": 0.018019819801801982
   },
   {
-   "family": "A4: topoloji sapması, host-token GRU içinde (M4 Pro)",
+   "family": "A4: topology bias within the host-token GRU (M4 Pro)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama3/cybermetaformer-gru_host_attn_k101",
    "seeds_a": [
@@ -549,7 +549,7 @@
    "p_holm_plan": 0.4861951380486195
   },
   {
-   "family": "A4: topoloji sapması, host-token GRU içinde (M4 Pro)",
+   "family": "A4: topology bias within the host-token GRU (M4 Pro)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama3/cybermetaformer-gru_host_attn_k101",
    "seeds_a": [
@@ -581,7 +581,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "A4: topoloji sapması, host-token GRU içinde (M4 Pro)",
+   "family": "A4: topology bias within the host-token GRU (M4 Pro)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama3/cybermetaformer-gru_host_attn_k101",
    "seeds_a": [
@@ -613,7 +613,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "A4: topoloji sapması, host-token GRU içinde (M4 Pro)",
+   "family": "A4: topology bias within the host-token GRU (M4 Pro)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama3/cybermetaformer-gru_host_attn_k101",
    "seeds_a": [
@@ -645,7 +645,7 @@
    "p_holm_plan": 0.004179958200417996
   },
   {
-   "family": "A4: topoloji sapması, host-token GRU içinde (M4 Pro)",
+   "family": "A4: topology bias within the host-token GRU (M4 Pro)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama3/cybermetaformer-gru_host_attn_k101",
    "seeds_a": [
@@ -677,7 +677,7 @@
    "p_holm_plan": 0.0006999930000699993
   },
   {
-   "family": "A4: host-token GRU − tam geçmiş GRU (makineler arası)",
+   "family": "A4: host-token GRU − full-history GRU (across machines)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama1/gru_full_k101",
    "seeds_a": [
@@ -709,7 +709,7 @@
    "p_holm_plan": 0.0006999930000699993
   },
   {
-   "family": "A4: host-token GRU − tam geçmiş GRU (makineler arası)",
+   "family": "A4: host-token GRU − full-history GRU (across machines)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama1/gru_full_k101",
    "seeds_a": [
@@ -741,7 +741,7 @@
    "p_holm_plan": 0.0006999930000699993
   },
   {
-   "family": "A4: host-token GRU − tam geçmiş GRU (makineler arası)",
+   "family": "A4: host-token GRU − full-history GRU (across machines)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama1/gru_full_k101",
    "seeds_a": [
@@ -773,7 +773,7 @@
    "p_holm_plan": 0.0006999930000699993
   },
   {
-   "family": "A4: host-token GRU − tam geçmiş GRU (makineler arası)",
+   "family": "A4: host-token GRU − full-history GRU (across machines)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama1/gru_full_k101",
    "seeds_a": [
@@ -805,7 +805,7 @@
    "p_holm_plan": 0.5736542634573654
   },
   {
-   "family": "A4: host-token GRU − tam geçmiş GRU (makineler arası)",
+   "family": "A4: host-token GRU − full-history GRU (across machines)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama1/gru_full_k101",
    "seeds_a": [
@@ -837,7 +837,7 @@
    "p_holm_plan": 0.0006999930000699993
   },
   {
-   "family": "A4: host-token GRU − tam geçmiş GRU (makineler arası)",
+   "family": "A4: host-token GRU − full-history GRU (across machines)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama1/gru_full_k101",
    "seeds_a": [
@@ -869,7 +869,7 @@
    "p_holm_plan": 1.0
   },
   {
-   "family": "A4: host-token GRU − tam geçmiş GRU (makineler arası)",
+   "family": "A4: host-token GRU − full-history GRU (across machines)",
    "model_a": "asama3/cybermetaformer-gru_host_topo_k101",
    "model_b": "asama1/gru_full_k101",
    "seeds_a": [
@@ -901,7 +901,7 @@
    "p_holm_plan": 0.0006999930000699993
   },
   {
-   "family": "A4: host-token GRU − tam geçmiş GRU (makineler arası)",
+   "family": "A4: host-token GRU − full-history GRU (across machines)",
    "model_a": "asama3/cybermetaformer-gru_host_attn_k101",
    "model_b": "asama1/gru_full_k101",
    "seeds_a": [
@@ -933,7 +933,7 @@
    "p_holm_plan": 0.0006999930000699993
   },
   {
-   "family": "A4: host-token GRU − tam geçmiş GRU (makineler arası)",
+   "family": "A4: host-token GRU − full-history GRU (across machines)",
    "model_a": "asama3/cybermetaformer-gru_host_attn_k101",
    "model_b": "asama1/gru_full_k101",
    "seeds_a": [
@@ -965,7 +965,7 @@
    "p_holm_plan": 0.0006999930000699993
   },
   {
-   "family": "A4: host-token GRU − tam geçmiş GRU (makineler arası)",
+   "family": "A4: host-token GRU − full-history GRU (across machines)",
    "model_a": "asama3/cybermetaformer-gru_host_attn_k101",
    "model_b": "asama1/gru_full_k101",
    "seeds_a": [
@@ -997,7 +997,7 @@
    "p_holm_plan": 0.0006999930000699993
   },
   {
-   "family": "A4: host-token GRU − tam geçmiş GRU (makineler arası)",
+   "family": "A4: host-token GRU − full-history GRU (across machines)",
    "model_a": "asama3/cybermetaformer-gru_host_attn_k101",
    "model_b": "asama1/gru_full_k101",
    "seeds_a": [
@@ -1029,7 +1029,7 @@
    "p_holm_plan": 0.7135928640713592
   },
   {
-   "family": "A4: host-token GRU − tam geçmiş GRU (makineler arası)",
+   "family": "A4: host-token GRU − full-history GRU (across machines)",
    "model_a": "asama3/cybermetaformer-gru_host_attn_k101",
    "model_b": "asama1/gru_full_k101",
    "seeds_a": [
@@ -1061,7 +1061,7 @@
    "p_holm_plan": 0.0006999930000699993
   },
   {
-   "family": "A4: host-token GRU − tam geçmiş GRU (makineler arası)",
+   "family": "A4: host-token GRU − full-history GRU (across machines)",
    "model_a": "asama3/cybermetaformer-gru_host_attn_k101",
    "model_b": "asama1/gru_full_k101",
    "seeds_a": [
@@ -1093,7 +1093,7 @@
    "p_holm_plan": 0.45095549044509553
   },
   {
-   "family": "A4: host-token GRU − tam geçmiş GRU (makineler arası)",
+   "family": "A4: host-token GRU − full-history GRU (across machines)",
    "model_a": "asama3/cybermetaformer-gru_host_attn_k101",
    "model_b": "asama1/gru_full_k101",
    "seeds_a": [

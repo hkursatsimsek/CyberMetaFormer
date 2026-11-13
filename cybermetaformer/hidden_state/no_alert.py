@@ -1,21 +1,22 @@
-"""M4 revizyonu, madde 1: "hiç uyarı görülmemiş" kümelerinin kesin tanımı, sayıları ve recall'u.
+"""M4 revision, item 1: exact definition, counts and recall of the "never alerted" sets.
 
-Tanımlar (kodla birebir):
-    A(h, τ)        = features.alerts(obs[τ], 'export') = istismar etkinliği biti b1 ∨ güvenlik bayrağı g1 (b3), τ = 1..T
-    sessiz(h, t)   = y(h, t) > 0 ∧ ¬A(h, t)                                  (metrics.silent_metrics)
-    N_geçmiş(h, t) = 1[Σ_{τ=1..t} A(h, τ) = 0]  = features.alert_age == NEVER   (çevrimiçi; metrics 'hiç' dilimi)
-    N_bölüm(h)     = 1[Σ_{τ=1..T} A(h, τ) = 0]                                (geriye dönük; yalnız analizde)
-Her iki küme sessiz ihlallerle kesiştirilerek kullanılır; N_bölüm ⊆ N_geçmiş. obs[0] (başlangıç gözlemi) uyarı
-tanımına girmez; burada uyarı içermediği de denetlenir.
+Definitions (one-to-one with the code):
+    A(h, τ)        = features.alerts(obs[τ], 'export') = exploit activity bit b1 ∨ security flag g1 (b3), τ = 1..T
+    silent(h, t)   = y(h, t) > 0 ∧ ¬A(h, t)                                  (metrics.silent_metrics)
+    N_hist(h, t)   = 1[Σ_{τ=1..t} A(h, τ) = 0]  = features.alert_age == NEVER   (online; the 'never' slice of metrics)
+    N_ep(h)        = 1[Σ_{τ=1..T} A(h, τ) = 0]                                (retrospective; analysis only)
+Both sets are intersected with the silent compromises; N_ep ⊆ N_hist. obs[0] (initial observation) is not part of
+the alert definition; it is also checked here that it carries no alert.
 
-Yeniden eğitim ve çıkarım yok. N_geçmiş sayımları koşuların `episode_slices.npz` 'hiç' diliminden (eğitim sonunda
-float32 tahminlerle yazılmış; kesin). N_bölüm kayıtlı float16 logitlerden: `asama3/ood_paketi/logits` (CMF, GRU tam,
-gru_host_*; 5 seed) ve `asama3/aciklama/logits` (host ablasyonları; 3 seed). Denetim: aynı logitlerle N_geçmiş yeniden sayıldığında n'ler birebir,
-isabetler 2.1 milyonda 61 farklı (2.9e-5; float16 yuvarlamasındaki argmax eşitlikleri; 2026-11-08). Eşli bölüm
-bootstrap'ı compare.py ile aynı: her model seed ortalamasıyla, test ve OOD ayrı; Holm her küme ailesinde ayrı. Bir
-çiftte iki model de yalnız ortak seed'leriyle girer: ablasyon çiftlerinde CMF s0–s2, CMF–GRU'da s0–s4.
+No retraining and no inference. The N_hist counts come from the 'never' slice of the runs' `episode_slices.npz` (written
+with the float32 predictions at the end of training; exact). N_ep from the saved float16 logits:
+`asama3/ood_suite/logits` (CMF, full GRU, gru_host_*; 5 seeds) and `asama3/aciklama/logits` (host ablations; 3
+seeds). Check: recounting N_hist from the same logits gives identical n, and hits differ in 61 of 2.1 million (2.9e-5;
+argmax ties under float16 rounding; 2026-11-08). The paired episode bootstrap is the same as in compare.py: each model
+with its seed mean, test and OOD separately; Holm within each set family. In a pair both models enter with their
+common seeds only: CMF s0–s2 in the ablation pairs, s0–s4 in CMF–GRU.
 
-    python -m cybermetaformer.hidden_state.hic_uyari     # results/hidden_state/makale/hic_uyari/{ozet.json, tablolar.md}
+    python -m cybermetaformer.hidden_state.no_alert     # results/hidden_state/makale/no_alert/{ozet.json, tablolar.md}
 """
 import argparse
 import json
@@ -29,9 +30,9 @@ from cybermetaformer.hidden_state import metrics as M
 
 RESULTS = os.path.join(D.ROOT, 'results', 'hidden_state')
 STAGE = os.path.join(RESULTS, 'asama3')
-OUT_DIR = os.path.join(RESULTS, 'makale', 'hic_uyari')
-LOGIT_DIRS = [os.path.join(STAGE, 'ood_paketi', 'logits'), os.path.join(STAGE, 'aciklama', 'logits')]
-SPLITS = {'test': 'test', 'ood': 'ood_test'}          # logit anahtarı → store split'i
+OUT_DIR = os.path.join(RESULTS, 'makale', 'no_alert')
+LOGIT_DIRS = [os.path.join(STAGE, 'ood_suite', 'logits'), os.path.join(STAGE, 'aciklama', 'logits')]
+SPLITS = {'test': 'test', 'ood': 'ood_test'}          # logit key → store split
 MODELS = {
     'cybermetaformer': 'CMF (topology-biased host attention)',
     'cybermetaformer-host_tam': 'CMF, full host attention (no topology bias)',
@@ -49,14 +50,14 @@ SUBSETS = {'hist': 'N_hist(h,t): no alert on h up to t (online)', 'ep': 'N_ep(h)
 
 
 def subsets(store, idx):
-    """(E, T, 12) bool maskeleri: sessiz, sessiz ∩ N_geçmiş, sessiz ∩ N_bölüm; ayrıca y ve uyarılar."""
+    """(E, T, 12) bool masks: silent, silent ∩ N_hist, silent ∩ N_ep; also y and the alerts."""
     y = store.labels[idx]
     alert = F.episode_alerts(store.obs[idx])
     age = F.alert_age(alert)
     silent = (y > 0) & ~alert
     hist = silent & (age == F.NEVER)
     ep = silent & ~alert.any(axis=1, keepdims=True)
-    assert not (ep & ~hist).any(), 'N_bölüm ⊄ N_geçmiş'
+    assert not (ep & ~hist).any(), 'N_ep ⊄ N_hist'
     return {'silent': silent, 'hist': hist, 'ep': ep}, y, alert, age
 
 
@@ -65,7 +66,7 @@ def split_counts(store, idx):
     comp = y > 0
     g = age[m['silent']]
     prev = g[g != F.NEVER]
-    pairs = lambda mask: int(mask.any(axis=1).sum())          # noqa: E731  (bölüm, host) çiftleri
+    pairs = lambda mask: int(mask.any(axis=1).sum())          # noqa: E731  (episode, host) pairs
     return {
         'episodes': int(len(idx)), 'host_steps': int(y.size),
         'compromised': int(comp.sum()), 'silent': int(m['silent'].sum()),
@@ -97,21 +98,21 @@ def seeds_of(name):
 
 
 def episode_counts(pred, mask):
-    """(E, 2): bölüm başına [n, isabet (tahmin > 0)]."""
+    """(E, 2): per episode [n, hits (prediction > 0)]."""
     return np.stack([mask.sum((1, 2)), (mask & (pred > 0)).sum((1, 2))], -1).astype(np.float64)
 
 
 def slice_counts(name, seed, split):
-    """Koşunun episode_slices.npz 'hiç' dilimi: (E, 2) [n, isabet]; dosya yoksa None."""
+    """The 'never' slice of the run's episode_slices.npz: (E, 2) [n, hits]; None if the file is missing."""
     path = os.path.join(STAGE, f'{name}_k101_s{seed}', 'episode_slices.npz')
     if not os.path.exists(path):
         return None
     with np.load(path) as z:
-        return z[split][:, list(z['names']).index('hiç')].astype(np.float64)
+        return z[split][:, list(z['names']).index('never')].astype(np.float64)
 
 
 def slice_check(name, seed, split, hist_counts):
-    """episode_slices 'hiç' sayımları ile float16 logitlerden hesaplananların en büyük farkı (bölüm başına host-adım)."""
+    """Largest gap between the episode_slices 'never' counts and the float16-logit counts (host-steps per episode)."""
     ref = slice_counts(name, seed, split)
     return None if ref is None else float(np.abs(ref - hist_counts).max())
 
@@ -149,7 +150,7 @@ def main():
                 checks.append({'model': name, 'seed': seed, 'split': s,
                                'max_abs_diff_vs_episode_slices': slice_check(name, seed, s,
                                                                              ep_counts[name, k, 'hist', seed])})
-                ref = slice_counts(name, seed, s)          # N_geçmiş: eğitimdeki float32 tahminlerin kesin sayımı
+                ref = slice_counts(name, seed, s)          # N_hist: exact count, float32 predictions of training
                 if ref is not None:
                     assert (ref[:, 0] == ep_counts[name, k, 'hist', seed][:, 0]).all()
                     ep_counts[name, k, 'hist', seed] = ref

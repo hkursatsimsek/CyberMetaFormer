@@ -1,13 +1,13 @@
-"""Makale (M4, madde 2): CyberMetaFormer'ın aşama aşama tensör şekilleri ve bileşen başına parametre sayısı.
+"""Paper (M4, item 2): stage-by-stage tensor shapes of CyberMetaFormer and parameter counts per component.
 
-Model, HPO'nun en iyi ayarıyla (asama3/hpo/cybermetaformer_k101/best.yaml) kurulur. Tablodaki sembolik şekiller,
-kukla bir bölüm üzerinde ileri kancalarıyla ölçülen gerçek şekillerle karşılaştırılır. Parametreler `named_parameters`
-adlarından gruplanır. Gruplar modelin bütün parametrelerini kapsamazsa ya da toplam tutmazsa betik durur.
-Çevrimiçi durum boyutu `init_state`'ten sayılır.
+The model is built with the best HPO setting (asama3/hpo/cybermetaformer_k101/best.yaml). The symbolic shapes in the
+table are compared with the real shapes measured by forward hooks on a dummy episode. Parameters are grouped by their
+`named_parameters` names. The script stops if the groups do not cover all model parameters or the total does not match.
+The online state size is counted from `init_state`.
 
-Çıktı (İngilizce): results/hidden_state/makale/boyut/{table.md, summary.json}
+Output (English): results/hidden_state/makale/boyut/{table.md, summary.json}
 
-    venv_ts/bin/python -m cybermetaformer.hidden_state.rapor.boyut_tablosu
+    venv_ts/bin/python -m cybermetaformer.hidden_state.report.shape_table
 """
 import json
 import os
@@ -30,7 +30,7 @@ def build():
 
 
 def param_groups(model):
-    """Parametre adı → tablo satırı. Blok parametreleri blok indeksinden bağımsız toplanır (L ile çarpılmadan)."""
+    """Parameter name → table row. Block parameters are summed over the block index (not multiplied by L)."""
     rules = [('inp.', 'proj'), ('host_emb', 'emb_host'), ('subnet_emb', 'emb_sub'), ('pos', 'emb_pos'),
              ('temporal.branches.0.', 'conv'), ('temporal.branches.1.', 'ssd'), ('temporal.gate.', 'gate'),
              ('n1.', 'ln1'), ('n2.', 'ln2'), ('host.', 'host'), ('n3.', 'ln3'), ('mlp.', 'mlp'),
@@ -41,7 +41,7 @@ def param_groups(model):
         key = name.split('.', 2)[2] if block else name
         group = next((g for prefix, g in rules if key.startswith(prefix)), None)
         if group is None:
-            raise KeyError(f'gruplanmamış parametre: {name}')
+            raise KeyError(f'ungrouped parameter: {name}')
         tgt = per_block if block else other
         if block:
             idx = int(name.split('.')[1])
@@ -51,12 +51,12 @@ def param_groups(model):
             tgt[group] = tgt.get(group, 0) + p.numel()
     counts = {g: set(v.values()) for g, v in per_block.items()}
     if any(len(c) != 1 for c in counts.values()):
-        raise ValueError(f'bloklar arası parametre sayısı farklı: {counts}')
+        raise ValueError(f'parameter counts differ between blocks: {counts}')
     return {g: c.pop() for g, c in counts.items()}, other
 
 
 def measured_shapes(model, B=2):
-    """Kukla bölüm (B, S, 78) üzerinde ilk bloğun alt modüllerinin girdi/çıkış şekilleri."""
+    """Input/output shapes of the submodules of the first block on a dummy episode (B, S, 78)."""
     shapes = {}
 
     def hook(key):
@@ -96,7 +96,7 @@ def main():
     n_in = model.inp.in_features
     shp = measured_shapes(model, B)
 
-    # sembolik şekiller; ölçülen şekillerle (B=2) karşılaştırılır
+    # symbolic shapes; compared with the measured shapes (B=2)
     sym = {'proj': (f'(B, S, H, {n_in})', '(B, S, H, d)', (B, S, H, n_in), (B, S, H, d)),
            'conv': ('(B·H, S, d)', '(B·H, S, d)', (B * H, S, d), (B * H, S, d)),
            'ssd': ('(B·H, S, d)', '(B·H, S, d)', (B * H, S, d), (B * H, S, d)),
@@ -107,13 +107,13 @@ def main():
            'output': ('(B, S, 78)', '(B, S, 12, 3)', (B, S, OBS_DIM), (B, S, len(LABEL_HOSTS), 3))}
     for k, (_, _, i, o) in sym.items():
         if shp[k] != (i, o):
-            raise AssertionError(f'{k}: ölçülen {shp[k]} ≠ beklenen {(i, o)}')
+            raise AssertionError(f'{k}: measured {shp[k]} ≠ expected {(i, o)}')
 
     emb = other['proj'] + other['emb_host'] + other['emb_sub'] + other['emb_pos']
     block_total = sum(blk.values())
     out_total = other['ln_f'] + other['head']
     if emb + L * block_total + out_total != total:
-        raise AssertionError(f'gruplar toplamı {emb + L * block_total + out_total} ≠ {total}')
+        raise AssertionError(f'sum of groups {emb + L * block_total + out_total} ≠ {total}')
     st = state_size(model)
 
     def n(v):

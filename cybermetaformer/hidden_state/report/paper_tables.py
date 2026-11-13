@@ -1,39 +1,45 @@
-"""Makale (M4) tabloları, İngilizce, yalnız sonuç dosyalarından.
+"""Paper (M4) tables, in English, from result files only.
 
-Taslaktan gelen tablolar (Faz 0; md'de `::: {#tbl:… .tablo include=…}` ile):
-- t00_related.md           §2.4'teki ilgili yöntemler karşılaştırması (sonuç değil, literatür; içerik burada sabit)
-- t01_policies.md          savunmacı politikaları, bölüm sayısı ve veri bölmesindeki rolü (veri seti + splits.npz)
-- t02_silent.md            sessiz ihlalin yaygınlığı (makale/hic_uyari/ozet.json)
-- t03_protocol.md          aşamaların eğitim ve değerlendirme protokolü (ozet.json, hpo/*/best.yaml, configs/)
-- t04_stage1.md            aşama 1, val'e göre en iyi k (asama1/ozet/ozet.json; orijinal MLP asama0/mlp_repro_mac.json)
-- t05_stage2.md            aşama 2, val'e göre en iyi k ve GRU referansları (asama2/ozet/ozet.json)
-- t06_main.md              CMF ile tam geçmiş GRU: ölçütler, eşli bölüm bootstrap'ı, ECE (metrics.json + plan)
-- t07_no_alert.md          N_geçmiş (t'ye kadar uyarısız) sessiz ihlal recall'u ve eşli farklar (plan, RQ4 ailesi)
-- t08_ablations.md         seçili ablasyonlar, Δ ve %95 GA (plan)
-- t09_policy_shift.md      savunmacı politika kaymaları (asama3/ood_paketi/ozet.json)
-- t10_attacker.md          saldırganlar arası aktarım (saldirgan_* koşularının metrics.json'ı)
-- t11_efficiency.md        eski gecikme ölçümü (asama3/verimlilik), parametre ve OOD F1
-- tA1_ablations_all.md     bütün ablasyonlar (plan)
-- tB1_hyperparameters.md   B1 ayarları (asama3/hpo/cybermetaformer_k101/best.yaml)
-Madde 4 ve 5 (Faz 1'de metne girer): a4_reference.md, a4_pairs.md, a5_seeds.md, a5_two_sources.md.
-Madde 6–8 ve 10 (Faz 2; sonuçlar makale/<analiz>/ozet.json, seed 0–4, yeniden eğitimsiz):
-- t_shift_types.md         değerlendirilen kayma türleri ve bölüm sayıları (§3.2)
-- t_host_shift.md          host permütasyonu ve yeniden bağlanmış topoloji, OOD (ood_permutasyon, ood_topoloji)
-- t_failure.md             dört politikada hata türleri (basarisizlik)
-- t_intervention.md        diğer hostların gözlemine müdahale (mudahale)
-- t_corrected.md           kusurlu ve düzeltilmiş gözlem, CMF − GRU (duzeltilmis_gozlem)
-- t_cost.md                gecikme, bellek ve OOD F1 (maliyet; t11_efficiency ile gecikme/table.md'nin yerine)
-- tE_*.md                  Ek E: kayma farkları, analyse/remove dilimleri, analyse'da temsil türü, müdahalenin bütün
-                           ölçütleri ve model farkları, düzeltilmiş − kusurlu farkları
-t11_efficiency eski ölçümdür; yalnız iç sayı denetimi (temel m3) için üretilir, makalede yoktur.
+Tables from the draft (phase 0; included in the md with `::: {#tbl:… .tablo include=…}`):
+- t00_related.md           related-methods comparison of §2.4 (literature, not results; the content is fixed here)
+- t01_policies.md          defender policies, episode counts and their role in the data split (dataset + splits.npz)
+- t02_silent.md            prevalence of silent compromise (makale/no_alert/ozet.json)
+- t03_protocol.md          training and evaluation protocol of the stages (ozet.json, hpo/*/best.yaml, configs/)
+- t04_stage1.md            stage 1, best k on val (asama1/ozet/ozet.json; original MLP asama0/mlp_repro_mac.json)
+- t05_stage2.md            stage 2, best k on val and the GRU references (asama2/ozet/ozet.json)
+- t06_main.md              CMF vs full-history GRU: metrics, paired episode bootstrap, ECE (metrics.json + plan)
+- t07_no_alert.md          silent recall with no alert up to t (N_hist) and paired differences (plan, RQ4 family)
+- t08_ablations.md         selected ablations, Δ and 95% CI (plan)
+- t09_policy_shift.md      defender policy shifts (asama3/ood_suite/ozet.json)
+- t10_attacker.md          transfer across attackers (metrics.json of the saldirgan_* runs)
+- t11_efficiency.md        old latency measurement (asama3/verimlilik), parameters and OOD F1
+- tA1_ablations_all.md     all ablations (plan)
+- tB1_hyperparameters.md   B1 settings (asama3/hpo/cybermetaformer_k101/best.yaml)
+Items 4 and 5 (added to the text in phase 1): a4_reference.md, a4_pairs.md, a5_seeds.md, a5_two_sources.md.
+Items 6–8 and 10 (phase 2; results in makale/<analysis>/ozet.json, seeds 0–4, no retraining):
+- t_shift_types.md         evaluated shift types and episode counts (§3.2)
+- t_host_shift.md          host permutation and rewired topology, OOD (ood_permutation, ood_topology)
+- t_failure.md             error types under four policies (failure_analysis)
+- t_intervention.md        intervention on the observations of other hosts (interventions)
+- t_corrected.md           faulty and corrected observation, CMF − GRU (corrected_obs)
+- t_cost.md                latency, memory and OOD F1 (inference_cost; replaces t11_efficiency and step_latency/table.md)
+- tE_*.md                  Appendix E: shift differences, analyse/remove slices, representation type under analyse,
+                           all intervention metrics and model differences, corrected − faulty differences
+Combined tables of the JISA main text (advisor's revision; the detailed tables go to the supplement):
+- t_compact_baselines.md   Table 4: selected baselines from stages 1–2 (t04_stage1 + t05_stage2)
+- t_main_uncertainty.md    Table 5: main pair and two sources of uncertainty (t06_main + a5_two_sources)
+- t_security.md            Table 6: root F1, root → clean, false alarm, detection of silent onsets (t_class_*)
+- t_host_controls.md       Table 8: host-structured controls, performance and online cost (a4_reference + t_cost)
+- t_robust_compact.md      Table 11: policy, host order, topology, corrected obs. (t09, t_host_shift, t_corrected)
+t11_efficiency is the old measurement; it is produced only for the internal number check (basis m3), not the paper.
 
-Temel (--basis): `m3` taslağın sayılarını üretir (CMF seed 0–2; M3 kaydı, `compare --plan m3`, 10.000 örnek);
-`m4` 5 seed'li ana çifti kullanır (CMF seed 0–4; `compare --plan m3_5seed`, 100.000 örnek). Ablasyonlar ve 3 seed'li
-varyantlar her iki temelde CMF seed 0–2'ye karşıdır. İç sayı denetimi `build(basis='m3')`'ü çağırır.
-Her hücre biçimli metni ve ham değerleri birlikte taşır (`Cell`); denetim ham değerlerle karşılaştırır.
-Bootstrap'ın nokta tahminleri seed ortalamalarıyla karşılaştırılır; tutmazsa betik durur.
+Basis (--basis): `m3` produces the draft's numbers (CMF seeds 0–2; M3 record, `compare --plan m3`, 10,000
+resamples); `m4` uses the five-seed main pair (CMF seeds 0–4; `compare --plan m3_5seed`, 100,000 resamples).
+Ablations and three-seed variants are compared with CMF seeds 0–2 under both bases. The internal number check calls
+`build(basis='m3')`. Each cell carries both the formatted text and the raw values (`Cell`); the check compares the raw
+values. The bootstrap point estimates are compared with the seed means; the script stops if they disagree.
 
-    venv_ts/bin/python -m cybermetaformer.hidden_state.rapor.makale_tablolar [--basis m3]   # results/hidden_state/makale/tablolar/
+    venv_ts/bin/python -m cybermetaformer.hidden_state.report.paper_tables [--basis m3]   # results/hidden_state/makale/tablolar/
 """
 import argparse
 import glob
@@ -45,22 +51,22 @@ import numpy as np
 import yaml
 from scipy import stats
 
-from cybermetaformer.hidden_state.ood_paketi import load_model
+from cybermetaformer.hidden_state.ood_suite import load_model
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 RESULTS = os.path.join(ROOT, 'results', 'hidden_state')
 CONFIGS = os.path.join(ROOT, 'hidden_state', 'configs')
 CMP = os.path.join(RESULTS, 'asama3', 'karsilastirma_m4')
-LATENCY = os.path.join(RESULTS, 'makale', 'maliyet', 'olcum.json')   # madde 10 ölçümü (maliyet.py; gecikme.py'nin yerine)
+LATENCY = os.path.join(RESULTS, 'makale', 'inference_cost', 'olcum.json')   # item 10 (inference_cost.py; replaces step_latency.py)
 OUT = os.path.join(RESULTS, 'makale', 'tablolar')
-LAT_THREADS = '1'                                         # A4 sütunu: tek iş parçacığı (varsayılan ayar gecikme tablosunda)
+LAT_THREADS = '1'                                         # A4 column: one thread (default setting: latency table)
 PLAN_FILE = {'m3': os.path.join(RESULTS, 'asama3', 'karsilastirma', 'ozet.json'),
              'm4': os.path.join(CMP, 'm3_5seed', 'ozet.json')}
-CMF_SEEDS = {'m3': [0, 1, 2], 'm4': None}                 # None = bütün seed'ler
+CMF_SEEDS = {'m3': [0, 1, 2], 'm4': None}                 # None = all seeds
 
-PM = '±\u00a0'        # ± ile sapma arasında bölünmez boşluk: dar sütunda hücre "ortalama" / "± sd" diye iki satıra bölünür
-# anahtar → (aşama, koşu öneki, İngilizce ad). Makine adı tablolara girmez (kullanıcı kararı, 2026-11-08); cmf_m4,
-# host-token GRU referanslarıyla aynı donanımda yapılan ikinci, bağımsız beş seed'li CMF eğitimidir ("run 2").
+PM = '±\u00a0'        # no-break space between ± and SD: in a narrow column the cell breaks into "mean" / "± sd"
+# key → (stage, run prefix, English name). Machine names stay out of the tables (user decision, 2026-11-08); cmf_m4
+# is a second, independent five-seed CMF training on the same hardware as the host-token GRU references ("run 2").
 RUNS = {
     'cmf': ('asama3', 'cybermetaformer_k101', 'CyberMetaFormer (conv + SSD, topology bias)'),
     'cmf_m4': ('asama3', 'cybermetaformer-ana_m4_k101', 'CyberMetaFormer, run 2'),
@@ -71,7 +77,7 @@ RUNS = {
     'gru_full': ('asama1', 'gru_full_k101', 'Full-history GRU (flat 78-d input)'),
     'host_yok': ('asama3', 'cybermetaformer-host_yok_k101', 'CMF, no host mixer'),
 }
-# ablasyonlar (configs/m3_varyantlar.yaml), taslağın Tablo A1 sırasıyla; hepsi asama3, 3 seed
+# ablations (configs/m3_variants.yaml) in the order of the draft's Table A1; all asama3, 3 seeds
 ABLATIONS = {
     'duz78': 'No host tokens (single 78-d token)',
     'host_yok': 'No host mixer',
@@ -90,7 +96,7 @@ ABLATIONS = {
 }
 ABL_SEEDS = [0, 1, 2]
 SELECTED = ['duz78', 'host_yok', 'host_tam', 'host_gcn', 'kol_konv', 'kol_ssd', 'konv_dikkat', 'konv_gru',
-            'hafiza_yok', 'b2']                                    # Tablo 8, taslağın sırası
+            'hafiza_yok', 'b2']                                    # selected-ablations table, draft order
 CRIT = {'test_host_macro_f1': 'Test host macro-F1', 'ood_host_macro_f1': 'OOD host macro-F1',
         'ood_rel_drop': 'Relative OOD drop', 'test_silent_recall': 'Test silent recall',
         'ood_silent_recall': 'OOD silent recall', 'test_never_recall': 'Test N_hist recall',
@@ -101,21 +107,21 @@ TO_CRIT = {'test_f1': 'test_host_macro_f1', 'ood_f1': 'ood_host_macro_f1', 'rel_
            'test_silent': 'test_silent_recall', 'ood_silent': 'ood_silent_recall', 'ood_hist': 'ood_never_recall'}
 
 
-# ── tablo yapısı ─────────────────────────────────────────────────────────
+# ── table structure ──────────────────────────────────────────────────────
 
 @dataclass
 class Cell:
     text: str
-    values: tuple = ()                 # ham değerler (oran olarak; yüzde gösterilse de); denetim bunları kullanır
+    values: tuple = ()                 # raw values (fractions, even when shown as percent); the check uses them
 
 
 @dataclass
 class Table:
     name: str
-    cols: list                         # [(anahtar, başlık, hizalama 'l'/'r')]
-    rows: list = field(default_factory=list)   # [(satır anahtarı, {sütun anahtarı: Cell})]
+    cols: list                         # [(key, header, alignment 'l'/'r')]
+    rows: list = field(default_factory=list)   # [(row key, {column key: Cell})]
     note: str = ''
-    group: tuple = ()                  # bu sütunlar önceki satırla aynıysa md'de boş yazılır (yalnız görünüm)
+    group: tuple = ()                  # left blank in the md when equal to the previous row (display only)
 
     def add(self, key, **cells):
         self.rows.append((key, {k: (v if isinstance(v, Cell) else Cell(str(v))) for k, v in cells.items()}))
@@ -190,7 +196,7 @@ def ms(d, metric, n):
     return f"{d['mean']:.{nd(metric)}f}" + (f" {PM}{d['sd']:.{nd(metric)}f}" if n > 1 else '')
 
 
-# ── veri ─────────────────────────────────────────────────────────────────
+# ── data ─────────────────────────────────────────────────────────────────
 
 def run_seeds(stage, prefix):
     d = os.path.join(RESULTS, stage)
@@ -200,11 +206,11 @@ def run_seeds(stage, prefix):
 
 
 def seed_metrics(stage, prefix, seed):
-    """Bir koşunun ölçütleri: metrics.json'dan F1, sessiz recall ve ECE; N_geçmiş recall'u 'hiç' diliminin havuzundan."""
+    """Metrics of one run: F1, silent recall and ECE from metrics.json; N_hist recall from the pooled 'never' slice."""
     d = os.path.join(RESULTS, stage, f'{prefix}_s{seed}')
     rep = json.load(open(os.path.join(d, 'metrics.json')))['reports']
     with np.load(os.path.join(d, 'episode_slices.npz')) as z:
-        hist = z['ood_test'][:, list(z['names']).index('hiç')].sum(0)
+        hist = z['ood_test'][:, list(z['names']).index('never')].sum(0)
     t, o = rep['test']['host_macro_f1'], rep['ood_test']['host_macro_f1']
     return {'seed': seed, 'test_f1': t, 'ood_f1': o, 'rel_drop': 1 - o / t, 'test_silent': rep['test']['silent_recall'],
             'ood_silent': rep['ood_test']['silent_recall'], 'ood_hist': float(hist[1] / hist[0]),
@@ -212,7 +218,7 @@ def seed_metrics(stage, prefix, seed):
 
 
 def n_params(prefix):
-    model, _ = load_model(prefix.rsplit('_k', 1)[0], 0, 'cpu')            # mimari seed'den bağımsız
+    model, _ = load_model(prefix.rsplit('_k', 1)[0], 0, 'cpu')            # architecture does not depend on the seed
     return sum(p.numel() for p in model.parameters())
 
 
@@ -232,15 +238,15 @@ def load_all():
 
 
 def subset(run, seeds):
-    """Aynı koşunun yalnız verilen seed'leri (None = hepsi)."""
+    """Only the given seeds of the same run (None = all)."""
     rows = [r for r in run['per_seed'] if seeds is None or r['seed'] in seeds]
     assert seeds is None or len(rows) == len(seeds), (run['prefix'], seeds)
     return {**run, 'seeds': [r['seed'] for r in rows], 'per_seed': rows, **stats_of(rows)}
 
 
 def load_ablations():
-    """Ablasyonlar protokol gereği seed 0–2'dir. Sonradan seed eklenen varyantların (host_tam s3–s4, host permütasyonu
-    için) ek seed'leri burada sayılmaz; o seed'ler RUNS üzerinden kendi tablolarına girer."""
+    """Ablations use seeds 0–2 by protocol. Seeds added later to some variants (host_tam s3–s4, for the host
+    permutation) are not counted here; those seeds enter their own tables through RUNS."""
     out = {}
     for v in ABLATIONS:
         prefix = f'cybermetaformer-{v}_k101'
@@ -267,11 +273,11 @@ def find(plan, a, b, crit):
 
 
 def check_point(row, runs, ka, kb, metric):
-    """Bootstrap'ın a ve b nokta tahminleri, tabloların seed ortalamalarıyla aynı seed kümesinde tutmalı."""
+    """The bootstrap point estimates of a and b must match the seed means of the tables on the same seed set."""
     for key, side in [(ka, 'a'), (kb, 'b')]:
         seeds = row[f'seeds_{side}']
         v = np.mean([r[metric] for r in runs[key]['per_seed'] if r['seed'] in seeds])
-        assert abs(v - row[side]) < 1e-9, f'{key} {metric}: bootstrap {row[side]} ≠ seed ortalaması {v}'
+        assert abs(v - row[side]) < 1e-9, f'{key} {metric}: bootstrap {row[side]} ≠ seed mean {v}'
 
 
 def stage_summary(stage):
@@ -299,7 +305,7 @@ def config(model):
 
 
 def n_boot_of(stage):
-    """Aşama 1/2 karşılaştırma JSON'larının bootstrap örnek sayısı (hepsi aynı olmalı)."""
+    """Bootstrap resample count of the stage 1/2 comparison JSONs (all must be equal)."""
     ns = {json.load(open(p))['n_boot'] for p in glob.glob(os.path.join(RESULTS, stage, 'karsilastirma', '*.json'))}
     assert len(ns) == 1, (stage, ns)
     return ns.pop()
@@ -309,16 +315,16 @@ def seed_text(seeds):
     return f'{seeds[0]}–{seeds[-1]}' if seeds == list(range(seeds[0], seeds[-1] + 1)) else ', '.join(map(str, seeds))
 
 
-# ── §2.4: ilgili yöntemler (sabit içerik) ────────────────────────────────
+# ── §2.4: related methods (fixed content) ────────────────────────────────
 
-RELATED = [  # (yaklaşım ve kaynak no, birincil görev, çıktı, zamansal/ilişkisel yaklaşım, temel fark)
+RELATED = [  # (approach and reference no., primary task, output, temporal/relational approach, key difference)
     ('BF-PPO \\[3\\]', 'Defence action', 'Approximate belief and policy', 'POMDP / particle filter',
      'No separate three-class F1 target per host state'),
-    ('Nayeri–Rezvani \\[36\\]', 'Next victim / alert', 'Future target relation', 'Temporal graph and Transformer',
-     'Does not estimate the current hidden privilege state'),
-    ('NIDS-Mamba \\[39\\]', 'Network intrusion detection', 'Flow-level class', 'SSD and attention',
+    ('Makki Nayeri and Rezvani \\[16\\]', 'Next victim / alert', 'Future target relation',
+     'Temporal graph and Transformer', 'Does not estimate the current hidden privilege state'),
+    ('NIDS-Mamba \\[17\\]', 'Network intrusion detection', 'Flow-level class', 'SSD and attention',
      'Differs in multi-host privilege state and the silent-compromise subset'),
-    ('GTB-PPO \\[44\\]', 'Target prediction + action', 'Next-target belief / action', 'Graph + causal time + PPO',
+    ('GTB-PPO \\[28\\]', 'Target prediction + action', 'Next-target belief / action', 'Graph + causal time + PPO',
      'Different prediction horizon and outcome metrics'),
     ('CyberMetaFormer', 'Hidden host-state estimation', 'Three-class probabilities per host',
      'Causal host memory + cross-host attention', 'Silent (no local alert) compromise and OOD sub-analyses'),
@@ -333,7 +339,7 @@ def t00_related():
     return T
 
 
-# ── Tablo 1–3: veri ve protokol ──────────────────────────────────────────
+# ── Tables 1–3: data and protocol ────────────────────────────────────────
 
 POLICY_TEXT = {'sleep': 'Never acts', 'react_restore': 'Restores a host after an exploit alert',
                'restore_decoys': 'Restores after an alert; places decoys on idle steps'}
@@ -377,7 +383,7 @@ def t01_policies():
 
 
 def t02_silent():
-    with open(os.path.join(RESULTS, 'makale', 'hic_uyari', 'ozet.json')) as f:
+    with open(os.path.join(RESULTS, 'makale', 'no_alert', 'ozet.json')) as f:
         C = json.load(f)['counts']
     cols = {'train': 'train', 'test': 'test', 'ood': 'ood_test'}
     T = Table('t02_silent', [('measure', 'Measure', 'l'), ('train', 'Train', 'r'), ('test', 'Test', 'r'),
@@ -483,7 +489,7 @@ def t03_protocol(basis):
     return T
 
 
-# ── Tablo 4–5: aşama 1 ve 2 ──────────────────────────────────────────────
+# ── Tables 4–5: stages 1 and 2 ───────────────────────────────────────────
 
 def k_label(k):
     return 'full' if k == 101 else ('—' if k == 0 else str(k))
@@ -546,7 +552,7 @@ def t05_stage2():
     return T
 
 
-# ── Tablo 6–8, A1: ana karşılaştırma ve ablasyonlar ──────────────────────
+# ── Tables 6–8, A1: main comparison and ablations ────────────────────────
 
 def plan_note(plan):
     m, n = plan['n_rows'], plan['n_boot']
@@ -581,7 +587,7 @@ def t06_main(runs, plan, basis):
 
 
 def t07_no_alert(runs, abl, plan):
-    """RQ4 ailesi: t'ye kadar uyarısız (N_geçmiş) sessiz ihlal recall'u; seed 0–2."""
+    """RQ4 family: silent-compromise recall with no alert up to t (N_hist); seeds 0–2."""
     P = 'cybermetaformer'
     T = Table('t07_no_alert', [('a', 'Model A', 'l'), ('b', 'Model B', 'l'), ('test', 'Test recall, A / B', 'r'),
                                ('ood', 'OOD recall, A / B', 'r'), ('diff', 'OOD A − B [95% CI]', 'r'),
@@ -596,7 +602,7 @@ def t07_no_alert(runs, abl, plan):
         assert rt['seeds_a'] == rt['seeds_b'] == [0, 1, 2]
         T.add(f'{a}__{b}', a=txt(lab[a]), b=txt(lab[b]), test=ab(rt['a'], rt['b'], 3), ood=ab(ro['a'], ro['b'], 3),
               diff=dci(ro['diff'], ro['lo'], ro['hi'], 3), p=txt(pfmt(ro['p_holm_plan']), ro['p_holm_plan']))
-    # nokta tahminleri koşuların 'hiç' diliminden yeniden hesaplanır
+    # the point estimates are recomputed from the 'never' slice of the runs
     cmf3 = subset(runs['cmf'], [0, 1, 2])
     hy = find(plan, f'{P}_k101', f'{P}-host_yok_k101', 'ood_never_recall')
     assert abs(hy['a'] - cmf3['ood_hist']['mean']) < 1e-9 and abs(hy['b'] - abl['host_yok']['ood_hist']['mean']) < 1e-9
@@ -607,7 +613,7 @@ def t07_no_alert(runs, abl, plan):
     return T
 
 
-# ── madde 1: iki hiç-uyarı kümesi (makale/hic_uyari, hic_uyari.py) ───────
+# ── item 1: the two no-alert sets (makale/no_alert, no_alert.py) ───────
 
 HIC_LABEL = {'cybermetaformer': 'CMF (topology-biased attention)',
              'cybermetaformer-host_tam': 'CMF, full attention (no topology bias)',
@@ -619,12 +625,12 @@ HIC_LABEL = {'cybermetaformer': 'CMF (topology-biased attention)',
 
 
 def hic():
-    with open(os.path.join(RESULTS, 'makale', 'hic_uyari', 'ozet.json')) as f:
+    with open(os.path.join(RESULTS, 'makale', 'no_alert', 'ozet.json')) as f:
         return json.load(f)
 
 
 def t07b_no_alert_sets(runs):
-    """N_geçmiş ve N_bölüm kümelerinde sessiz ihlal recall'u (seed ort. ± sd) ve iki eşli fark (hic_uyari.py)."""
+    """Silent recall in the N_hist and N_ep sets (seed mean ± SD) and two paired differences (no_alert.py)."""
     H = hic()
     R, C = H['recall'], H['counts']
     cols = [('test_hist', 'Test N_hist'), ('ood_hist', 'OOD N_hist'), ('test_ep', 'Test N_ep'), ('ood_ep', 'OOD N_ep')]
@@ -634,7 +640,7 @@ def t07b_no_alert_sets(runs):
         r = R[name]
         T.add(name, model=txt(lab), seeds=intc(len(r['seeds'])),
               **{k: pm_cell(r[k]['mean'], r[k]['sd'], 3) for k, _ in cols})
-    # N_geçmiş recall'u koşuların 'hiç' diliminden (episode_slices.npz) gelen değerle tutmalı
+    # N_hist recall must match the value from the 'never' slice of the runs (episode_slices.npz)
     for key, name in [('cmf', 'cybermetaformer'), ('gru_full', 'gru_full'), ('gru_host_topo', 'cybermetaformer-gru_host_topo'),
                       ('gru_host_attn', 'cybermetaformer-gru_host_attn'), ('host_yok', 'cybermetaformer-host_yok')]:
         assert R[name]['seeds'] == runs[key]['seeds'], name
@@ -684,7 +690,7 @@ def t08_ablations(abl, plan, b2_params):
         T.add(v, change=txt(abl_label(v, b2_params)), ood=dci(f['diff'], f['lo'], f['hi'], 4),
               silent=dci(s['diff'], s['lo'], s['hi'], 3))
     T.note = ('Note. Δ = variant − main model, seeds 0–2 each. B2 is compared with seeds 0–2 of CyberMetaFormer run 2, '
-              'which was trained on the same hardware (Table @tbl:hostgru); all other variants with seeds 0–2 of the '
+              'which was trained on the same hardware (Table @tbl:host_kontrol); all other variants with seeds 0–2 of the '
               'main run. 95% CI from the paired episode bootstrap '
               f"({plan['n_boot']:,} resamples).")
     return T
@@ -709,12 +715,12 @@ def tA1_ablations_all(abl, plan, b2_params):
     return T
 
 
-# ── Tablo 9–11 ve B1 ─────────────────────────────────────────────────────
+# ── Tables 9–11 and B1 ───────────────────────────────────────────────────
 
 def t09_policy_shift(basis='m3', runs=None):
-    """m3: M3 kaydı (seed 0–2, ood_paketi analyze); m4: 5 seed (ood_paketi members → ozet_5seed.json)."""
+    """m3: M3 record (seeds 0–2, ood_suite analyze); m4: 5 seeds (ood_suite members → ozet_5seed.json)."""
     name = 'ozet.json' if basis == 'm3' else 'ozet_5seed.json'
-    with open(os.path.join(RESULTS, 'asama3', 'ood_paketi', name)) as f:
+    with open(os.path.join(RESULTS, 'asama3', 'ood_suite', name)) as f:
         P = json.load(f)
     M = P['models']
     n_seed = 3 if basis == 'm3' else 5
@@ -731,8 +737,8 @@ def t09_policy_shift(basis='m3', runs=None):
         T.add(key, cond=txt(lab, *eps), n=intc(P['sets'][key]['n_episodes']), cmf_f1=num(c['host_macro_f1'], 3),
               gru_f1=num(g['host_macro_f1'], 3), cmf_s=num(c['silent_recall'], 3), gru_s=num(g['silent_recall'], 3))
     if basis == 'm4':
-        # ε = 0.3 satırı ana tablonun (metrics.json) 5 seed'li değerleriyle tutmalı; paket float16 logitlerden
-        # hesaplandığı için fark ~3e-5 (ood_paketi.collect'in denetimiyle aynı 1e-4 toleransı)
+        # the ε = 0.3 row must match the 5-seed values of the main table (metrics.json); the package computes from
+        # float16 logits, so the difference is ~3e-5 (same 1e-4 tolerance as the check in ood_suite.collect)
         for k, key in [('cybermetaformer', 'cmf'), ('gru_full', 'gru_full')]:
             for m, crit in [('ood_f1', 'host_macro_f1'), ('ood_silent', 'silent_recall')]:
                 assert abs(M[k]['uye']['ood'][crit] - runs[key][m]['mean']) < 1e-4, (k, m)
@@ -812,7 +818,7 @@ def tB1_hyperparameters(cmf_params):
     return T
 
 
-# ── madde 3: sınıf düzeyi (makale/sinif_duzeyi, sinif_duzeyi.py) ─────────
+# ── item 3: class level (makale/class_level, class_level.py) ───────────
 
 CLASS_MODELS = [('CyberMetaFormer', 'CMF', 'cmf'), ('Full-history GRU', 'GRU', 'gru_full')]
 SPLIT_LABEL = {'test': 'Test', 'ood': 'OOD'}
@@ -820,7 +826,7 @@ HOSTS11 = ['user1', 'user2', 'user3', 'user4', 'ent0', 'ent1', 'ent2', 'ophost0'
 
 
 def sinif():
-    with open(os.path.join(RESULTS, 'makale', 'sinif_duzeyi', 'ozet.json')) as f:
+    with open(os.path.join(RESULTS, 'makale', 'class_level', 'ozet.json')) as f:
         return json.load(f)
 
 
@@ -830,7 +836,7 @@ def pct(d, nd=2, i=None):
 
 
 def check_class(S, runs):
-    """sinif_duzeyi'nin host makro-F1'i ve seed'leri, tabloların seed ortalamalarıyla tutmalı."""
+    """Host macro-F1 and seeds of class_level must match the seed means of the tables."""
     for label, _, key in CLASS_MODELS:
         assert S[label]['seeds'] == runs[key]['seeds'], label
         for split, m in [('test', 'test_f1'), ('ood', 'ood_f1')]:
@@ -946,7 +952,7 @@ def tA_silent_confusion(runs):
 
 
 def tA_item4_pairs(runs, m4):
-    """Madde 4 ailesi (35 satır) tek tablo: makalenin ekindeki sürüm; a4_pairs.md'nin ilk bloğu."""
+    """Item 4 family (35 rows) as one table: the version in the paper's appendix; the first block of a4_pairs.md."""
     allc = list(CRIT)
     T = Table('tA_item4_pairs', [('a', 'Model A', 'l'), ('b', 'Model B', 'l'), ('crit', 'Criterion', 'l'),
                                  ('va', 'A', 'r'), ('vb', 'B', 'r'), ('d', 'A − B [95% CI]', 'r'),
@@ -971,10 +977,10 @@ def tA_item4_pairs(runs, m4):
     return T
 
 
-# ── madde 4 ve 5 (Faz 1) ─────────────────────────────────────────────────
+# ── items 4 and 5 (phase 1) ──────────────────────────────────────────────
 
 def latency(prefix, lat):
-    """Koşu öneki → (medyan, p95) ms; ana_m4 CMF ile aynı mimari olduğu için CMF ölçümü kullanılır."""
+    """Run prefix → (median, p95) ms; ana_m4 has the same architecture as CMF, so the CMF measurement is used."""
     name = prefix.rsplit('_k', 1)[0].replace('-ana_m4', '')
     m = lat['models'][name]
     return m['latency'][LAT_THREADS]['median_ms'], m['latency'][LAT_THREADS]['p95_ms'], m['params']
@@ -987,7 +993,7 @@ A4_LABEL = {'cmf': 'CyberMetaFormer', 'cmf_m4': 'CyberMetaFormer, run 2', 'host_
 
 
 def a4_reference(runs, lat):
-    """Tablo 14: madde 4 referansları. Gecikme Tablo 19'da (aynı ölçüm); burada yalnız parametre sayısı denetlenir."""
+    """Item 4 references. Latency is in the cost table (same measurement); only the parameter count is checked here."""
     L = ['| Model | Params | Test host macro-F1 | OOD host macro-F1 | Test silent recall | OOD silent recall | '
          'OOD N_hist recall |', '|---|---:|---:|---:|---:|---:|---:|']
     assert set(A4_LABEL) == set(RUNS)
@@ -996,7 +1002,7 @@ def a4_reference(runs, lat):
         n = len(r['seeds'])
         assert n in (3, 5), key
         _, _, n_par = latency(r['prefix'], lat)
-        assert n_par == r['params'], f'{key}: gecikme ölçümündeki parametre sayısı farklı'
+        assert n_par == r['params'], f'{key}: parameter count differs from the latency measurement'
         L.append(f"| {A4_LABEL[key]}{'†' if n == 3 else ''} | {r['params']:,} | " +
                  ' | '.join(ms(r[m], m, n) for m in ['test_f1', 'ood_f1', 'test_silent', 'ood_silent', 'ood_hist'])
                  + ' |')
@@ -1007,7 +1013,7 @@ def a4_reference(runs, lat):
             'as the host-token GRU references, which are compared with it (Table @tbl:hostgru_cift). The host-token '
             'GRU variants keep every CyberMetaFormer component except the temporal mixer, which is a per-host GRU over '
             'the same host tokens. The full-history GRU takes the flat 78-d observation. Online CPU step latency and '
-            'carried state of these models are given in Table @tbl:maliyet.')
+            'carried state of these models are given in Table @tbl:inference_cost.')
     return '\n'.join(L) + '\n\n' + note + '\n'
 
 
@@ -1056,7 +1062,7 @@ def a4_pairs(runs, m4, m35):
 
 
 def seed_diffs(runs, a='cmf', b='gru_full'):
-    """Aynı seed indeksindeki farklar (a − b): ortalama, sd, min–maks, a lehine seed sayısı, t₄ aralığı."""
+    """Differences at the same seed index (a − b): mean, SD, min–max, number of seeds favouring a, t₄ interval."""
     A = {r['seed']: r for r in runs[a]['per_seed']}
     B = {r['seed']: r for r in runs[b]['per_seed']}
     seeds = sorted(set(A) & set(B))
@@ -1124,8 +1130,8 @@ def a5_two_sources(runs, diffs, m35):
     return '\n'.join(L) + '\n\n' + note + '\n'
 
 
-# ── madde 6–8 ve 10 (Faz 2): kayma türleri, host düzeni ve topoloji, başarısızlık, müdahale, düzeltilmiş gözlem,
-#    maliyet. Kaynak: makale/<analiz>/ozet.json; hepsi seed 0–4 ve yeniden eğitimsizdir. ─────────────────────────
+# ── items 6–8 and 10 (phase 2): shift types, host order and topology, failure, intervention, corrected observation,
+#    cost. Source: makale/<analysis>/ozet.json; all seeds 0–4, without retraining. ───────────────────────────────
 
 F2_LABEL = {'cybermetaformer': 'CMF', 'cybermetaformer-host_tam': 'CMF, no topology bias',
             'cybermetaformer-gru_host_topo': 'Host-token GRU, topology bias',
@@ -1152,15 +1158,15 @@ def get_row(A, **kw):
 
 
 def check_main(value, runs, model, metric, tol=1e-4):
-    """Analizin kayıtlı logitlerden hesapladığı değer, ana tabloların 5 seed ortalamasıyla (metrics.json ve
-    episode_slices.npz) tutmalı; logitler float16 saklandığı için tolerans 1e-4 (ood_paketi denetimiyle aynı)."""
+    """The value an analysis computes from the saved logits must match the 5-seed mean of the main tables
+    (metrics.json and episode_slices.npz); logits are stored in float16, so the tolerance is 1e-4 (as in ood_suite)."""
     key = F2_RUN[model]
     assert runs[key]['seeds'] == F2_SEEDS, key
     assert abs(value - runs[key][metric]['mean']) < tol, (model, metric, value, runs[key][metric]['mean'])
 
 
 def dpm(d, k=3):
-    """Δ ortalama ± sd hücresi."""
+    """Δ mean ± SD cell."""
     return Cell(minus(f"{d['mean']:+.{k}f}") + f" {PM}{d['sd']:.{k}f}", (d['mean'], d['sd']))
 
 
@@ -1171,9 +1177,9 @@ def holm_note(A):
 
 
 def t_shift_types():
-    """§3.2: değerlendirilen dağılım kaymalarının türleri ve bölüm sayıları."""
-    P = json.load(open(os.path.join(RESULTS, 'asama3', 'ood_paketi', 'ozet_5seed.json')))['sets']
-    perm, topo, corr = analysis('ood_permutasyon'), analysis('ood_topoloji'), analysis('duzeltilmis_gozlem')
+    """§3.2: types and episode counts of the evaluated distribution shifts."""
+    P = json.load(open(os.path.join(RESULTS, 'asama3', 'ood_suite', 'ozet_5seed.json')))['sets']
+    perm, topo, corr = analysis('ood_permutation'), analysis('ood_topology'), analysis('corrected_obs')
     att = {}
     for tr in ['bline', 'meander']:
         rep = json.load(open(os.path.join(RESULTS, 'asama3', f'cybermetaformer-saldirgan_{tr}_k101_s0',
@@ -1195,10 +1201,10 @@ def t_shift_types():
          txt(f"{P['eps0.5']['n_episodes']:,} each", P['eps0.5']['n_episodes']), 'No', 'Table @tbl:politika'),
         ('Observation mechanism', 'Periodic analyse on idle steps',
          'Idle steps are used to analyse hosts, which re-emits the root flag of compromised hosts (alert refresh)',
-         intc(P['analyse']['n_episodes']), 'No', 'Tables @tbl:politika, @tbl:basarisizlik'),
+         intc(P['analyse']['n_episodes']), 'No', 'Tables @tbl:politika, @tbl:failure_analysis'),
         ('Observation mechanism', 'Remove instead of restore',
          'Removal replaces restore; a failed remove keeps root access but shows the "removed" flag',
-         intc(P['remove']['n_episodes']), 'No', 'Tables @tbl:politika, @tbl:basarisizlik'),
+         intc(P['remove']['n_episodes']), 'No', 'Tables @tbl:politika, @tbl:failure_analysis'),
         ('Observation mechanism', 'Corrected remove flag',
          'Same episodes and defender actions re-simulated; a failed remove no longer shows "removed"',
          txt(f"test {corr['sets']['test']['n_episodes']:,}; four shift sets "
@@ -1232,8 +1238,8 @@ PERM_COND = [('id', 'Identity'), ('P1', 'P1'), ('P1s', 'P1s'), ('P2', 'P2'), ('P
 
 
 def t_host_shift(runs):
-    """§4.8: host permütasyonu ve yeniden bağlanmış topoloji, OOD (ε = 0.3); seed ortalaması."""
-    P, TP = analysis('ood_permutasyon'), analysis('ood_topoloji')
+    """§4.8: host permutation and rewired topology, OOD (ε = 0.3); seed mean."""
+    P, TP = analysis('ood_permutation'), analysis('ood_topology')
     T = Table('t_host_shift', [('crit', 'Criterion', 'l'), ('model', 'Model', 'l')] +
               [(k, h, 'r') for k, h in PERM_COND] +
               [('rew', 'Rewired simulator', 'r'), ('upd', 'Rewired, bias updated', 'r')], group=('crit',))
@@ -1242,7 +1248,7 @@ def t_host_shift(runs):
         sds = []
         for m, lab in F2_LABEL.items():
             pm, tm = P['models'][m]['ood'], TP['models'][m]['ood']
-            # özgün topoloji = permütasyonsuz değerlendirme: aynı bölümler, aynı logitler
+            # original topology = evaluation without permutation: same episodes, same logits
             assert abs(tm['original'][crit]['mean'] - pm['id'][crit]['mean']) < 1e-9, (m, crit)
             check_main(pm['id'][crit]['mean'], runs, m, metric)
             cells = {}
@@ -1284,8 +1290,8 @@ def t_host_shift(runs):
 
 
 def tE_host_shift_diffs():
-    """Ek E: permütasyon ve yeniden bağlama farkları (aynı model) ve aynı koşulda model farkları, OOD."""
-    P, TP = analysis('ood_permutasyon'), analysis('ood_topoloji')
+    """Appendix E: permutation and rewiring differences (same model) and model differences per condition, OOD."""
+    P, TP = analysis('ood_permutation'), analysis('ood_topology')
     T = Table('tE_host_shift_diffs', [('model', 'Model', 'l'), ('comp', 'Comparison', 'l'),
                                       ('f1', 'Δ host macro-F1 [95% CI]', 'r'), ('s', 'Δ silent recall [95% CI]', 'r'),
                                       ('h', 'Δ N_hist recall [95% CI]', 'r'), ('p', 'p (Holm), silent recall', 'r')],
@@ -1329,8 +1335,8 @@ FAIL_MODELS = ['cybermetaformer', 'cybermetaformer-gru_host_topo', 'cybermetafor
 
 
 def t_failure(runs):
-    """§4.7: hata türleri, dört politika × dört model (basarisizlik.py)."""
-    B = analysis('basarisizlik')
+    """§4.7: error types, four policies × four models (failure_analysis.py)."""
+    B = analysis('failure_analysis')
     T = Table('t_failure', [('set', 'Policy', 'l'), ('n', 'Silent host-steps, user / root', 'r'),
                             ('model', 'Model', 'l'), ('f1', 'Host macro-F1', 'r'), ('s', 'Silent recall', 'r'),
                             ('src', 'Silent root → clean', 'r'), ('suc', 'Silent user → clean', 'r'),
@@ -1364,8 +1370,8 @@ SLICE_GROUP = {'attacker_group': 'Attacker × subnet', 'age': 'Alert age', 'last
 
 
 def tE_failure_slices():
-    """Ek E: analyse ve remove'da sessiz dilimler (saldırgan × alt ağ, uyarı yaşı, son uyarı)."""
-    B = analysis('basarisizlik')
+    """Appendix E: silent slices under analyse and remove (attacker × subnet, alert age, last alert)."""
+    B = analysis('failure_analysis')
     T = Table('tE_failure_slices', [('set', 'Policy', 'l'), ('slice', 'Silent slice', 'l'), ('n', 'n', 'r'),
                                     ('root', 'Root share', 'r'), ('cmf', 'CMF', 'r'),
                                     ('ht', 'Host-token GRU, topology bias', 'r'), ('gru', 'Full-history GRU', 'r'),
@@ -1373,10 +1379,10 @@ def tE_failure_slices():
     for s, slab in [('analyse', 'Periodic analyse'), ('remove', 'Remove instead of restore')]:
         for key, sl in B['slices'][s].items():
             kind = key.split('|', 1)[0]
-            if kind not in SLICE_GROUP or key == 'last_alert|no alert so far':     # bu dilim N_hist ile aynı
+            if kind not in SLICE_GROUP or key == 'last_alert|no alert so far':     # this slice equals N_hist
                 continue
             if s == 'remove' and kind != 'attacker_group' and key != 'age|never alerted (N_hist)':
-                continue                                                         # öteki remove dilimlerinde recall ≈ 1
+                continue                                                         # recall ≈ 1 in the other remove slices
             M = sl['models']
             rows = [r for r in B['rows'] if r['set'] == s and r['slice'] == key and r['b'] == 'gru_full']
             assert len(rows) <= 1 and all(r['a'] == 'cybermetaformer' for r in rows), key
@@ -1404,10 +1410,10 @@ ANALYSE_REPR = [('cybermetaformer', 'CyberMetaFormer (main)'), ('cybermetaformer
 
 
 def tE_analyse_repr():
-    """Ek E: analyse politikasında sessiz recall, temsil türüne göre (seed 0–2; asama3/aciklama, explain_m3.py)."""
+    """Appendix E: silent recall under analyse, by representation type (seeds 0–2; asama3/aciklama, explain_m3.py)."""
     with open(os.path.join(RESULTS, 'asama3', 'aciklama', 'ozet.json')) as f:
         A = json.load(f)['ablasyon']
-    B = analysis('basarisizlik')
+    B = analysis('failure_analysis')
     T = Table('tE_analyse_repr', [('model', 'Model', 'l'), ('tok', 'Input', 'l'),
                                   ('e1', 'Silent recall, ε = 0.1', 'r'), ('ood', 'Silent recall, OOD', 'r'),
                                   ('an', 'Silent recall, periodic analyse', 'r'), ('ratio', 'Analyse / ε = 0.1', 'r'),
@@ -1416,7 +1422,7 @@ def tE_analyse_repr():
         r = A[m]
         v = {s: np.asarray(r[s]['silent_recall']) for s in ['eps0.1', 'ood', 'analyse']}
         assert all(len(x) == 3 for x in v.values()), m
-        if m in B['models']:      # seed 0–2 değerleri 5 seed'li başarısızlık analizinin ilk üç seed'iyle tutmalı
+        if m in B['models']:      # seeds 0–2 must match the first three seeds of the 5-seed failure analysis
             assert abs(np.mean(B['models'][m]['analyse']['silent']['recall']['seeds'][:3]) - v['analyse'].mean()) < 1e-4
         f1 = np.asarray(r['analyse']['host_macro_f1'])
         T.add(m, model=txt(lab or ABLATIONS[m.split('-', 1)[1]]),
@@ -1427,7 +1433,7 @@ def tE_analyse_repr():
     T.note = ('Note. Seed mean ± SD over seeds 0–2 (the ablation seeds), from the stored logits (argmax). ε = 0.1: test '
               'episodes of the training policy; OOD: ε = 0.3; periodic analyse: react_restore_analyse. With seeds 0–4 '
               'the periodic-analyse silent recall is 0.625 for CyberMetaFormer and 0.703 for the full-history GRU '
-              '(Table @tbl:basarisizlik).')
+              '(Table @tbl:failure_analysis).')
     T.values = {m: float(np.mean(A[m]['analyse']['silent_recall'])) for m, _ in ANALYSE_REPR}
     return T
 
@@ -1453,8 +1459,8 @@ def iv_note_common(M):
 
 
 def t_intervention():
-    """§4.6: diğer hostların gözlemine müdahale (mudahale.py)."""
-    M = analysis('mudahale')
+    """§4.6: intervention on the observations of other hosts (interventions.py)."""
+    M = analysis('interventions')
     sh = M['shift']
     T = Table('t_intervention', [('iv', 'Intervention on S', 'l'), ('hosts', 'Host set S', 'l'),
                                  ('novel', 'Novel observation rows', 'r'), ('trans', 'Novel per-host transitions', 'r')] +
@@ -1485,12 +1491,12 @@ def t_intervention():
               'the intervened hosts never seen in training. The interventions act on observations, not on the '
               'simulator; they measure how much the estimate depends on other hosts\' observations and are not causal '
               'effects in the network. N_hist recall, decision changes, alerted breaches and false alarms: '
-              'Table @tbl:mudahale_tum; differences between models: Table @tbl:mudahale_cift.')
+              'Table @tbl:interventions_tum; differences between models: Table @tbl:interventions_cift.')
     return T
 
 
 def tE_intervention():
-    M = analysis('mudahale')
+    M = analysis('interventions')
     T = Table('tE_intervention', [('iv', 'Intervention', 'l'), ('hosts', 'Host set S', 'l'), ('model', 'Model', 'l'),
                                   ('s', 'Δ silent recall', 'r'), ('h', 'Δ N_hist recall', 'r'),
                                   ('dec', 'Decision change, silent', 'r'), ('al', 'Δ recall, alerted breaches', 'r'),
@@ -1514,7 +1520,7 @@ def tE_intervention():
 
 
 def tE_intervention_pairs():
-    M = analysis('mudahale')
+    M = analysis('interventions')
     T = Table('tE_intervention_pairs', [('iv', 'Intervention', 'l'), ('hosts', 'Host set S', 'l'),
                                         ('comp', 'Δ_A − Δ_B', 'l'), ('crit', 'Criterion', 'l'),
                                         ('d', 'Difference [95% CI]', 'r'), ('p', 'p (Holm)', 'r')],
@@ -1530,7 +1536,7 @@ def tE_intervention_pairs():
                       d=dci(r['diff'], r['lo'], r['hi'], 3), p=txt(pfmt(r['p_holm']), r['p_holm']))
     assert len(T.rows) == sum(r['kind'] == 'pair_delta' for r in M['rows'])
     T.note = ('Note. Difference between two models of the intervention effect Δ = intervened − original (Table '
-              '@tbl:mudahale); a positive value means that A loses less than B. ' + holm_note(M)[0].upper()
+              '@tbl:interventions); a positive value means that A loses less than B. ' + holm_note(M)[0].upper()
               + holm_note(M)[1:] + '.')
     return T
 
@@ -1541,8 +1547,8 @@ CORR_COPY = [('flawed', 'Flawed (as in training)'), ('corrected', 'Corrected')]
 
 
 def t_corrected(runs):
-    """§4.9: kusurlu ve düzeltilmiş gözlemli eşli kopyalar (duzeltilmis_gozlem.py)."""
-    D = analysis('duzeltilmis_gozlem')
+    """§4.9: paired copies with faulty and corrected observations (corrected_obs.py)."""
+    D = analysis('corrected_obs')
     T = Table('t_corrected', [('set', 'Set', 'l'), ('copy', 'Observation', 'l'), ('cf', 'CMF host macro-F1', 'r'),
                               ('gf', 'GRU host macro-F1', 'r'), ('cs', 'CMF silent recall', 'r'),
                               ('gs', 'GRU silent recall', 'r'), ('d', 'CMF − GRU silent recall [95% CI]', 'r'),
@@ -1574,7 +1580,7 @@ def t_corrected(runs):
 
 
 def tE_corrected_diffs():
-    D = analysis('duzeltilmis_gozlem')
+    D = analysis('corrected_obs')
     T = Table('tE_corrected_diffs', [('set', 'Set', 'l'), ('chg', 'Episodes changed', 'r'),
                                      ('rma', 'Remove-mask steps alerted when corrected', 'r'), ('model', 'Model', 'l'),
                                      ('f1', 'Δ host macro-F1', 'r'), ('s', 'Δ silent recall', 'r'),
@@ -1614,7 +1620,7 @@ COST_MODELS = [('cybermetaformer', 'CyberMetaFormer (B1)', 'run', 'cmf'),
 
 
 def t_cost(runs, abl):
-    """§4.11: çevrimiçi adım gecikmesi, bellek ve OOD F1 (maliyet.py; önceki iki gecikme tablosunun yerine)."""
+    """§4.11: online step latency, memory and OOD F1 (inference_cost.py; replaces the two earlier latency tables)."""
     with open(LATENCY) as f:
         L = json.load(f)
     E, Pr = L['environment'], L['protocol']
@@ -1668,18 +1674,196 @@ def t_cost(runs, abl):
     return T
 
 
+# ── combined tables of the JISA main text (advisor's revision). The detailed tables go to the supplement;
+#    each cell here is recomputed from the same source and checked against the source table. ───────────────────────
+
+def t_compact_baselines():
+    """Table 4: selected baselines from stages 1 and 2 (k selected on val); details in t04_stage1 and t05_stage2."""
+    from cybermetaformer.hidden_state.aggregate import ORIGINAL_MLP
+    s1, s2 = stage_summary('asama1'), stage_summary('asama2')
+    with open(os.path.join(RESULTS, 'asama0', 'mlp_repro_mac.json')) as f:
+        ref = json.load(f)['reference']
+    o_t, o_o = ref['8_test_host_macro_f1'], ref['8_ood_test_host_macro_f1']
+    assert abs(round(o_t, 3) - ORIGINAL_MLP['test']) < 1e-9 and abs(round(o_o, 3) - ORIGINAL_MLP['ood_test']) < 1e-9
+    T = Table('t_compact_baselines', [('model', 'Model', 'l'), ('k', 'History', 'r'), ('test', 'Test F1', 'r'),
+                                      ('ood', 'OOD F1', 'r'), ('silent', 'OOD silent recall', 'r'),
+                                      ('seeds', 'Seeds', 'r')])
+    T.add('orig_mlp', model=txt('Original MLP baseline'), k=k_cell(8), test=num(o_t, 3), ood=num(o_o, 3),
+          silent=txt('—'), seeds=intc(1))
+    rows = [(s1, 'xgb', 'XGBoost'), (s1, 'lstm_full', 'LSTM'), (s1, 'gru_full', 'GRU'), (s2, 'transformer', 'Transformer'),
+            (s2, 'itransformer', 'iTransformer'), (s2, 'timemixer', 'TimeMixer'), (s2, 'patchtst', 'PatchTST')]
+    for s, m, lab in rows:
+        b = best_k(s, m)
+        T.add(m, model=txt(lab), k=k_cell(b['k']), test=num(gmean(b, 'test_host_macro_f1'), 3),
+              ood=num(gmean(b, 'ood_host_macro_f1'), 3), silent=num(gmean(b, 'ood_silent_recall'), 3),
+              seeds=intc(len(b['seeds'])))
+    T.note = ('Note. Host macro-F1 and OOD silent recall, seed means; each model at the history length k selected by '
+              'validation host macro-F1 (full: the whole episode so far). Seed counts and tuning budgets differ between '
+              'the families (Section 3.6). The original MLP baseline is the eight-observation MLP of the reference '
+              'implementation reproduced on this dataset; its silent recall was not recorded. All Stage 1 and Stage 2 '
+              'models, including the rules, the windowed recurrent models, TSMixer and TimesNet: Tables @tbl:asama1 '
+              'and @tbl:asama2.')
+    return T
+
+
+def t_main_uncertainty(runs, diffs, m35):
+    """Table 5: main pair and two sources of uncertainty (t06_main + a5_two_sources)."""
+    n = len(diffs['seeds'])
+    T = Table('t_main_uncertainty', [('crit', 'Criterion', 'l'), ('gru', 'Full-history GRU', 'r'),
+                                     ('cmf', 'CyberMetaFormer', 'r'), ('d', 'Δ CMF − GRU', 'r'),
+                                     ('boot', 'Episode bootstrap 95% CI', 'r'), ('seed', 'Seed-level 95% CI', 'r')])
+    p_plan = set()
+    for m in ['test_f1', 'ood_f1', 'rel_drop', 'ood_silent']:
+        r = find(m35, RUNS['cmf'][1], RUNS['gru_full'][1], TO_CRIT[m])
+        check_point(r, runs, 'cmf', 'gru_full', m)
+        assert r['seeds_a'] == r['seeds_b'] == diffs['seeds'] and abs(r['diff'] - diffs[m]['mean']) < 1e-9
+        k, D = nd(m), diffs[m]
+        p_plan.add(round(r['p_holm_plan'], 6))
+        T.add(m, crit=txt(CRIT[TO_CRIT[m]]),
+              gru=pm_cell(runs['gru_full'][m]['mean'], runs['gru_full'][m]['sd'], k),
+              cmf=pm_cell(runs['cmf'][m]['mean'], runs['cmf'][m]['sd'], k), d=sgn(r['diff'], k),
+              boot=Cell(f"[{signed(r['lo'], k)}, {signed(r['hi'], k)}]", (r['lo'], r['hi'])),
+              seed=Cell(f"[{signed(D['t_lo'], k)}, {signed(D['t_hi'], k)}]", (D['t_lo'], D['t_hi'])))
+    assert len(p_plan) == 1
+    floor = m35['n_rows'] * 2 / (m35['n_boot'] + 1)
+    p = p_plan.pop()
+    assert abs(p - floor) < 1e-6, (p, floor)
+    T.note = (f"Note. Seed mean ± SD over seeds {seed_text(diffs['seeds'])} of each model. Episode bootstrap: paired, "
+              f"{m35['n_boot']:,} resamples (Algorithm 2), trained models held fixed. Seed-level interval: 95% "
+              f"t-interval (df = {n - 1}) of the {n} same-index differences, without episode resampling. The two "
+              'intervals describe different sources of uncertainty and neither alone is the total uncertainty. '
+              f"Plan-wide Holm-adjusted p = {p:.4f} in all four rows, the smallest attainable value over the "
+              f"m = {m35['n_rows']} rows of the comparison plan. Lower is better for the relative OOD drop. OOD ECE "
+              f"after temperature scaling: CMF {runs['cmf']['ood_ece']['mean']:.4f}, GRU "
+              f"{runs['gru_full']['ood_ece']['mean']:.4f}. Full tables: Tables @tbl:ana, @tbl:iki_kaynak and "
+              '@tbl:seedler.')
+    return T
+
+
+def t_security(runs):
+    """Table 6: security-critical errors (root F1 of t_class_level + t_class_errors)."""
+    S = sinif()
+    check_class(S, runs)
+    root = S['classes'].index('root')
+    T = Table('t_security', [('split', 'Split', 'l'), ('model', 'Model', 'l'), ('f1', 'Root F1', 'r'),
+                             ('rc', 'Root → clean (%)', 'r'), ('fa', 'False alarm on clean (%)', 'r'),
+                             ('det', 'Silent-onset spells detected (%)', 'r'),
+                             ('lat', 'Latency, median / p90 (steps)', 'r')])
+    for split in ['test', 'ood']:
+        for label, short_, _ in CLASS_MODELS:
+            r = S[label][split]
+            L = [x['latency']['silent_onset'] for x in r['prediction_per_seed']]
+            det = float(np.mean([x['breach']['detected_fraction'] for x in L]))
+            med, p90 = np.mean([x['breach']['median'] for x in L]), np.mean([x['breach']['p90'] for x in L])
+            T.add(f'{split}_{short_}', split=txt(SPLIT_LABEL[split]), model=txt(short_),
+                  f1=num(r['f1']['mean'][root], 3), rc=Cell(f"{100 * r['root_to_clean']['mean']:.2f}",
+                                                           (r['root_to_clean']['mean'],)),
+                  fa=Cell(f"{100 * r['clean_false_alarm']['mean']:.2f}", (r['clean_false_alarm']['mean'],)),
+                  det=Cell(f'{100 * det:.1f}', (det,)), lat=Cell(f'{med:.1f} / {p90:.1f}', (med, p90)))
+    T.note = ('Note. Seed mean over seeds 0–4 of CyberMetaFormer (CMF) and the full-history GRU. Root F1 from the '
+              'confusion pooled over the 11 evaluated hosts. Root → clean = P(ŷ = clean | y = root); false alarm on '
+              'clean = P(ŷ ≠ clean | y = clean). A silent-onset spell is a maximal run of compromised steps on one host '
+              'whose first step carries no alert; detected: the model predicts a compromise at some step of the spell; '
+              'latency: steps from the onset to that prediction over detected spells (median and 90th percentile per '
+              'seed, averaged). Seed SDs, all classes and error types, and per-host results: Tables @tbl:sinif, '
+              '@tbl:sinif_hata, @tbl:host and @tbl:sessiz_karisiklik.')
+    return T
+
+
+HOST_CONTROLS = [('cmf', 'cybermetaformer', 'CyberMetaFormer (B1)'),
+                 ('cmf_m4', 'cybermetaformer', 'CyberMetaFormer (B1), run 2'),
+                 ('konv_gru', 'cybermetaformer-konv_gru', 'CMF, GRU instead of SSD'),
+                 ('gru_host_topo', 'cybermetaformer-gru_host_topo', 'Host-token GRU, topology bias'),
+                 ('gru_host_attn', 'cybermetaformer-gru_host_attn', 'Host-token GRU, no topology bias'),
+                 ('gru_full', 'gru_full', 'Full-history GRU (flat input)')]
+
+
+def t_host_controls(runs):
+    """Table 8: host-structured controls, performance and online cost (a4_reference + t_cost). CMF run 2 has the
+    same architecture; its cost is that of the main model."""
+    with open(LATENCY) as f:
+        L = json.load(f)
+    T = Table('t_host_controls', [('model', 'Model', 'l'), ('params', 'Params', 'r'), ('ood', 'OOD F1', 'r'),
+                                  ('silent', 'OOD silent recall', 'r'), ('hist', 'OOD N_hist recall', 'r'),
+                                  ('lat', 'CPU step (ms)', 'r'), ('state', 'Online state (bytes)', 'r')])
+    for key, name, lab in HOST_CONTROLS:
+        r, m = runs[key], L['models'][name]
+        assert m['params'] == r['params'], key
+        n = len(r['seeds'])
+        assert n in (3, 5), key
+        T.add(key, model=txt(lab + ('†' if n == 3 else '')), params=intc(r['params']), ood=num(r['ood_f1']['mean'], 4),
+              silent=num(r['ood_silent']['mean'], 3), hist=num(r['ood_hist']['mean'], 3),
+              lat=num(m['latency'][LAT_THREADS]['median_ms'], 3), state=intc(m['state_bytes']))
+    T.note = ('Note. Accuracy and recall: seed mean over seeds 0–4; † seeds 0–2. Run 2 is an independent five-seed '
+              'training of the main configuration on the same hardware as the host-token GRU references, which are '
+              'compared with it (Table @tbl:hostgru_cift); its architecture and cost are those of the main model. The '
+              'host-token GRU references keep every CyberMetaFormer component except the temporal mixer, which is a '
+              'per-host GRU over the same host tokens. CPU step: median single-thread latency of one online step '
+              f"({L['environment']['cpu']} CPU, {dict(float32='FP32')[L['protocol']['dtype']]}, batch size "
+              f"{L['protocol']['batch_size']}), excluding observation encoding and I/O; online state: tensors carried "
+              'between steps. Seed SDs and test results: Table @tbl:hostgru; measurement protocol, six-thread latency '
+              'and memory: Table @tbl:inference_cost.')
+    return T
+
+
+def t_robust_compact(runs):
+    """Table 11: summary robustness under defender, topology and corrected-observation conditions (t09 m4,
+    t_host_shift, t_corrected); all seeds 0–4, without retraining."""
+    with open(os.path.join(RESULTS, 'asama3', 'ood_suite', 'ozet_5seed.json')) as f:
+        Pk = json.load(f)['models']
+    P, TP, D = analysis('ood_permutation'), analysis('ood_topology'), analysis('corrected_obs')
+    T = Table('t_robust_compact', [('cond', 'Evaluation condition', 'l'), ('cf', 'CMF F1', 'r'), ('gf', 'GRU F1', 'r'),
+                                   ('cs', 'CMF silent recall', 'r'), ('gs', 'GRU silent recall', 'r')])
+    C, G = 'cybermetaformer', 'gru_full'
+
+    def row(key, lab, c, g, eps=()):
+        T.add(key, cond=txt(lab, *eps), cf=num(c['host_macro_f1'], 3), gs=num(g['silent_recall'], 3) if g else txt('—'),
+              gf=num(g['host_macro_f1'], 3) if g else txt('—'), cs=num(c['silent_recall'], 3))
+
+    for k, key in [(C, 'cmf'), (G, 'gru_full')]:
+        for m, crit in [('ood_f1', 'host_macro_f1'), ('ood_silent', 'silent_recall')]:
+            assert abs(Pk[k]['uye']['ood'][crit] - runs[key][m]['mean']) < 1e-4, (k, m)
+    mean = lambda d: {c: d[c]['mean'] for c in ('host_macro_f1', 'silent_recall')}     # noqa: E731
+    row('ood', 'OOD defender policy (ε = 0.3)', Pk[C]['uye']['ood'], Pk[G]['uye']['ood'], (0.3,))
+    row('analyse', 'Periodic analyse on idle steps', Pk[C]['uye']['analyse'], Pk[G]['uye']['analyse'])
+    row('p2s', 'Host permutation P2s', mean(P['models'][C]['ood']['P2s']), mean(P['models'][G]['ood']['P2s']))
+    row('rewired', 'Rewired simulator topology', mean(TP['models'][C]['ood']['rewired']),
+        mean(TP['models'][G]['ood']['rewired']))
+    assert 'rewired_prior' not in TP['models'][G]['ood']
+    row('rewired_prior', 'Rewired, relation matrix updated', mean(TP['models'][C]['ood']['rewired_prior']), None)
+    row('corrected', 'Corrected remove flag (ε = 0.3)', mean(D['models'][C]['ood']['corrected']),
+        mean(D['models'][G]['ood']['corrected']), (0.3,))
+    T.note = ('Note. Seed mean over seeds 0–4; all models trained on the original data and evaluated without '
+              'retraining. Periodic analyse: the defender analyses hosts on idle steps (react_restore_analyse). P2s: '
+              'host permutation across attack-graph roles (user1 ↔ user3, user2 ↔ user4) with the decoy-count columns '
+              'kept in their slot. Rewired: new OOD-policy episodes with user1/2 → ent1 and user3/4 → ent0; relation '
+              'matrix updated: the topology bias of CMF rebuilt from the rewired links, weights unchanged (the flat GRU '
+              'has no relation matrix). Corrected remove flag: the OOD episodes re-simulated so that a failed remove '
+              'no longer shows the "removed" flag; silent host-steps are defined on the flawed observation. All '
+              'policies and paired differences: Tables @tbl:politika, @tbl:failure_analysis, @tbl:host_kayma, '
+              '@tbl:host_kayma_fark, @tbl:duzeltilmis and @tbl:duzeltilmis_fark.')
+    return T
+
+
+def build_jisa(runs, m35, diffs):
+    """The five combined tables of the JISA main text: {name: Table}."""
+    tables = [t_compact_baselines(), t_main_uncertainty(runs, diffs, m35), t_security(runs), t_host_controls(runs),
+              t_robust_compact(runs)]
+    return {t.name: t for t in tables}
+
+
 def build_faz2(runs, abl):
-    """Faz 2'de eklenen tablolar (madde 6–8, 10): {ad: Table}."""
+    """Tables added in phase 2 (items 6–8, 10): {name: Table}."""
     tables = [t_shift_types(), t_host_shift(runs), tE_host_shift_diffs(), t_failure(runs), tE_failure_slices(),
               tE_analyse_repr(), t_intervention(), tE_intervention(), tE_intervention_pairs(), t_corrected(runs),
               tE_corrected_diffs(), t_cost(runs, abl)]
     return {t.name: t for t in tables}
 
 
-# ── toplu üretim ─────────────────────────────────────────────────────────
+# ── batch generation ─────────────────────────────────────────────────────
 
 def build(basis='m3', runs=None, abl=None):
-    """Taslaktan gelen 14 tablo, verilen temelde: {ad: Table}."""
+    """The 14 tables from the draft, on the given basis: {name: Table}."""
     runs = runs or load_all()
     abl = abl or load_ablations()
     plan = load_basis_plan(basis)
@@ -1692,7 +1876,7 @@ def build(basis='m3', runs=None, abl=None):
 
 
 def build_faz1(runs, m4):
-    """Faz 1'de eklenen tablolar (madde 1, 3, 4): {ad: Table}. Hepsi 5 seed'li ana çift ya da kendi seed'leri."""
+    """Tables added in phase 1 (items 1, 3, 4): {name: Table}. All use the five-seed main pair or their own seeds."""
     tables = [t07b_no_alert_sets(runs), t_class_level(runs), t_class_errors(runs), tA_host_level(runs),
               tA_silent_confusion(runs), tA_item4_pairs(runs, m4)]
     return {t.name: t for t in tables}
@@ -1701,7 +1885,7 @@ def build_faz1(runs, m4):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--basis', choices=list(PLAN_FILE), default='m3',
-                   help="m3: taslağın sayıları (CMF seed 0–2); m4: 5 seed'li ana çift (Faz 1)")
+                   help="m3: the draft's numbers (CMF seeds 0–2); m4: five-seed main pair (phase 1)")
     args = p.parse_args()
     runs, abl = load_all(), load_ablations()
     m4, m35 = load_plan('m4'), load_plan('m3_5seed')
@@ -1711,6 +1895,7 @@ def main():
     texts = {name: t.md() for name, t in build(args.basis, runs, abl).items()}
     texts |= {name: t.md() for name, t in build_faz1(runs, m4).items()}
     texts |= {name: t.md() for name, t in build_faz2(runs, abl).items()}
+    texts |= {name: t.md() for name, t in build_jisa(runs, m35, diffs).items()}
     texts |= {'a4_reference': a4_reference(runs, lat), 'a4_pairs': a4_pairs(runs, m4, m35),
               'a5_seeds': a5_seeds(runs, diffs), 'a5_two_sources': a5_two_sources(runs, diffs, m35)}
     os.makedirs(OUT, exist_ok=True)
@@ -1720,7 +1905,7 @@ def main():
     with open(os.path.join(OUT, 'summary.json'), 'w') as f:
         json.dump({'basis': args.basis, 'runs': runs, 'ablations': abl, 'cmf_minus_gru_same_seed': diffs}, f,
                   indent=1)
-    print('→', OUT, f'(temel {args.basis}; ' + ', '.join(texts) + ')')
+    print('→', OUT, f'(basis {args.basis}; ' + ', '.join(texts) + ')')
 
 
 if __name__ == '__main__':

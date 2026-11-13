@@ -1,10 +1,10 @@
-# M2 ikili sınamaları (eşli bölüm bootstrap'ı)
+# M2 pairwise tests (paired episode bootstrap)
 
-10000 örnek, bootstrap seed 0. Her model kendi seed'lerinin ortalamasıyla girer. a − b; GA %95. p Holm: çift içi ölçütler üzerinden; plan: bütün satırlar üzerinden. En küçük p 2 / (n + 1). Göreli düşüşte küçük daha iyi. `python -m cybermetaformer.hidden_state.compare --plan m2`.
+10000 samples, bootstrap seed 0. Each model enters with the mean over its seeds. a − b; 95% CI. p Holm: pair = over the criteria of the pair; plan = over all rows. Smallest p 2 / (n + 1). For the relative drop smaller is better. `python -m cybermetaformer.hidden_state.compare --plan m2`.
 
-## k=8: aynı k'daki en iyi M1
+## k=8: best M1 at the same k
 
-| a | b | ölçüt | a | b | a − b | %95 GA | p Holm (çift) | p Holm (plan) |
+| a | b | criterion | a | b | a − b | 95% CI | p Holm (pair) | p Holm (plan) |
 |---|---|---|---:|---:|---:|---|---:|---:|
 | transformer_k8 | xgb_k8 | test_host_macro_f1 | 0.9367 | 0.9412 | -0.0045 | [-0.0056, -0.0035] | 0.0004 | 0.0100 |
 | transformer_k8 | xgb_k8 | ood_host_macro_f1 | 0.8261 | 0.8395 | -0.0134 | [-0.0148, -0.0120] | 0.0004 | 0.0100 |
@@ -19,9 +19,9 @@
 | timemixer_k8 | xgb_k8 | test_host_macro_f1 | 0.9368 | 0.9412 | -0.0044 | [-0.0054, -0.0034] | 0.0004 | 0.0100 |
 | timemixer_k8 | xgb_k8 | ood_host_macro_f1 | 0.8226 | 0.8395 | -0.0170 | [-0.0186, -0.0154] | 0.0004 | 0.0100 |
 
-## k=32: aynı k'daki en iyi M1
+## k=32: best M1 at the same k
 
-| a | b | ölçüt | a | b | a − b | %95 GA | p Holm (çift) | p Holm (plan) |
+| a | b | criterion | a | b | a − b | 95% CI | p Holm (pair) | p Holm (plan) |
 |---|---|---|---:|---:|---:|---|---:|---:|
 | transformer_k32 | gru_k32 | test_host_macro_f1 | 0.9628 | 0.9658 | -0.0029 | [-0.0036, -0.0023] | 0.0004 | 0.0100 |
 | transformer_k32 | gru_k32 | ood_host_macro_f1 | 0.8648 | 0.8871 | -0.0223 | [-0.0237, -0.0208] | 0.0004 | 0.0100 |
@@ -36,9 +36,9 @@
 | timemixer_k32 | gru_k32 | test_host_macro_f1 | 0.9608 | 0.9658 | -0.0050 | [-0.0057, -0.0043] | 0.0004 | 0.0100 |
 | timemixer_k32 | gru_k32 | ood_host_macro_f1 | 0.8657 | 0.8871 | -0.0214 | [-0.0229, -0.0197] | 0.0004 | 0.0100 |
 
-## k=64: en iyi pencereli M1
+## k=64: best windowed M1
 
-| a | b | ölçüt | a | b | a − b | %95 GA | p Holm (çift) | p Holm (plan) |
+| a | b | criterion | a | b | a − b | 95% CI | p Holm (pair) | p Holm (plan) |
 |---|---|---|---:|---:|---:|---|---:|---:|
 | transformer_k64 | gru_k32 | test_host_macro_f1 | 0.9714 | 0.9658 | +0.0057 | [+0.0048, +0.0066] | 0.0004 | 0.0100 |
 | transformer_k64 | gru_k32 | ood_host_macro_f1 | 0.8918 | 0.8871 | +0.0047 | [+0.0031, +0.0063] | 0.0004 | 0.0100 |
@@ -49,9 +49,9 @@
 | timemixer_k64 | gru_k32 | test_host_macro_f1 | 0.9692 | 0.9658 | +0.0035 | [+0.0027, +0.0043] | 0.0004 | 0.0100 |
 | timemixer_k64 | gru_k32 | ood_host_macro_f1 | 0.8930 | 0.8871 | +0.0059 | [+0.0044, +0.0075] | 0.0004 | 0.0100 |
 
-## RQ3: tam geçmiş GRU
+## RQ3: full-history GRU
 
-| a | b | ölçüt | a | b | a − b | %95 GA | p Holm (çift) | p Holm (plan) |
+| a | b | criterion | a | b | a − b | 95% CI | p Holm (pair) | p Holm (plan) |
 |---|---|---|---:|---:|---:|---|---:|---:|
 | transformer_k64 | gru_full_k101 | ood_host_macro_f1 | 0.8918 | 0.9264 | -0.0346 | [-0.0363, -0.0328] | 0.0006 | 0.0100 |
 | transformer_k64 | gru_full_k101 | ood_rel_drop | 0.0820 | 0.0516 | +0.0304 | [+0.0284, +0.0322] | 0.0006 | 0.0100 |

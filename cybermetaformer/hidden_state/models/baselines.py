@@ -1,6 +1,6 @@
-"""Aşama 1 modelleri. Ortak arayüz: forward(x, mask) → logits (B, 12, 3).
+"""Stage 1 models. Common interface: forward(x, mask) → logits (B, 12, 3).
 
-x: (B, k, 78) float (data.scale_obs), mask: (B, k) bool (True = gerçek adım, False = bölüm başı dolgusu).
+x: (B, k, 78) float (data.scale_obs), mask: (B, k) bool (True = real step, False = padding at the episode start).
 """
 import torch.nn as nn
 
@@ -10,8 +10,8 @@ N_OUT = len(LABEL_HOSTS) * N_CLASSES
 
 
 class MLP(nn.Module):
-    """Düzleştirilmiş k×78 girdi. Varsayılan (256, 256), dropout 0: baselines.mlp ile aynı katman sırası,
-    dolayısıyla aynı torch seed'i ile aynı başlangıç ağırlıkları (orijinal protokolün yeniden üretimi)."""
+    """Flattened k×78 input. Default (256, 256), dropout 0: the same layer order as baselines.mlp, hence the same
+    initial weights with the same torch seed (reproduction of the original protocol)."""
 
     def __init__(self, k, hidden=(256, 256), dropout=0.0):
         super().__init__()

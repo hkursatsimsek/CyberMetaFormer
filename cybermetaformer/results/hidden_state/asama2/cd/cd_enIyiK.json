@@ -31,12 +31,12 @@
    "gru_k32"
   ],
   [
-   "LSTM (tam geçmiş)",
+   "LSTM (full history)",
    "asama1",
    "lstm_full_k101"
   ],
   [
-   "GRU (tam geçmiş)",
+   "GRU (full history)",
    "asama1",
    "gru_full_k101"
   ],
@@ -80,13 +80,13 @@
    "posthoc": "nemenyi",
    "ranks": [
     {
-     "model": "GRU (tam geçmiş)",
+     "model": "GRU (full history)",
      "meanrank": 4.87975,
      "mean": 0.9511163618318028,
      "median": 0.9766498109177504
     },
     {
-     "model": "LSTM (tam geçmiş)",
+     "model": "LSTM (full history)",
      "meanrank": 5.0225,
      "mean": 0.9500385525574576,
      "median": 0.9761696197505753
@@ -173,13 +173,13 @@
    "posthoc": "nemenyi",
    "ranks": [
     {
-     "model": "GRU (tam geçmiş)",
+     "model": "GRU (full history)",
      "meanrank": 2.845875,
      "mean": 0.9248714359471504,
      "median": 0.9294819142798145
     },
     {
-     "model": "LSTM (tam geçmiş)",
+     "model": "LSTM (full history)",
      "meanrank": 3.066,
      "mean": 0.9217436710798717,
      "median": 0.9266331895433007

@@ -1,9 +1,9 @@
-"""Aşama 0 figürleri (eda.json → PNG). Yalnızca json + numpy + matplotlib; torch/CybORG gerekmez.
+"""Stage 0 figures (eda.json → PNG). Only json + numpy + matplotlib; no torch/CybORG needed.
 
-    venv_mini/bin/python -m cybermetaformer.hidden_state.figures      # VM (matplotlib venv_mini'de)
+    venv_mini/bin/python -m cybermetaformer.hidden_state.figures      # VM (matplotlib in venv_mini)
     python -m cybermetaformer.hidden_state.figures                    # Mac venv_ts
 
-Renkler: dataviz yönergesinin doğrulanmış varsayılan paletinden (kategorik ilk üç slot; sıralı mavi rampa).
+Colours: from the validated default palette of the dataviz guideline (first three categorical slots; sequential blue ramp).
 """
 import json
 import os
@@ -21,8 +21,8 @@ FIG_DIR = os.path.join(STAGE0, 'figures')
 
 SURFACE, INK, INK2, MUTED, GRID, BASE = '#fcfcfb', '#0b0b0b', '#52514e', '#898781', '#e1e0d9', '#c3c2b7'
 SERIES = ['#2a78d6', '#eb6834', '#1baf7a']           # kategorik slot 1–3
-USER, ROOT, CLEAN = '#86b6ef', '#1c5cab', '#f0efec'  # sıralı mavi rampa 250 / 550, nötr gri
-CAUSE_LABEL = {'kacak_5': '%5 tespit kaçağı', 'green_maske': 'Green taraması maskesi', 'remove_maske': 'remove maskesi'}
+USER, ROOT, CLEAN = '#86b6ef', '#1c5cab', '#f0efec'  # sequential blue ramp 250 / 550, neutral grey
+CAUSE_LABEL = {'kacak_5': '5% detection miss', 'green_maske': 'Green scan mask', 'remove_maske': 'remove mask'}
 POLICY_LABEL = {'sleep': 'sleep', 'react_restore': 'react_restore', 'restore_decoys': 'restore_decoys',
                 'random': 'random', 'react_restore_eps0.1': 'react_restore\nε=0.1', 'react_restore_eps0.3': 'react_restore\nε=0.3 (OOD)'}
 HOST_ORDER = ['user1', 'user2', 'user3', 'user4', 'ent0', 'ent1', 'ent2', 'ophost0', 'ophost1', 'ophost2', 'opserv', 'def']
@@ -53,24 +53,24 @@ def fig_label_dist(eda):
     r = np.array([d[h][2] / tot[h] for h in hosts])
     fig, ax = plt.subplots(figsize=(7.2, 4.6))
     y = np.arange(len(hosts))
-    ax.barh(y, u, height=0.55, color=USER, label='user erişimi')
-    ax.barh(y, r, left=u, height=0.55, color=ROOT, label='root erişimi', edgecolor=SURFACE, linewidth=2)
+    ax.barh(y, u, height=0.55, color=USER, label='user access')
+    ax.barh(y, r, left=u, height=0.55, color=ROOT, label='root access', edgecolor=SURFACE, linewidth=2)
     for yi, (a, b) in enumerate(zip(u, r)):
         ax.text(a + b + 0.006, yi, f'{(a + b) * 100:.1f}%', va='center', fontsize=8.5, color=INK2)
     ax.set_yticks(y, hosts)
     ax.set_xlim(0, 0.42)
     ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1, decimals=0))
-    ax.set_xlabel('host-adım oranı (train)')
+    ax.set_xlabel('share of host-steps (train)')
     _grid(ax, 'x')
     ax.legend(loc='lower left', bbox_to_anchor=(0, 1.0), ncol=2, fontsize=9)
-    _title(fig, 'Ele geçirilmiş host-adım oranı, host başına',
-           "Gerisi temiz. def hiç ele geçirilmiyor; ophost'lar nadiren. Sınıflar dengesiz.")
+    _title(fig, 'Share of compromised host-steps, per host',
+           "The rest is clean. def is never compromised; ophosts rarely. The classes are imbalanced.")
     fig.tight_layout(rect=(0, 0, 1, 0.86))
     return fig
 
 
 def fig_silent_cause_by_policy(eda):
-    # sütun yüksekliği = sessiz / ele geçirilmiş (iki Red birleşik); dilimler = neden payları
+    # bar height = silent / compromised (both Reds combined); segments = cause shares
     names = eda['cause_names']
     pol = eda['blue_policies']
     silent_by = {b: np.array(eda['cause_by_blue'][b], float) for b in pol}
@@ -90,11 +90,11 @@ def fig_silent_cause_by_policy(eda):
     ax.set_xticks(x, [POLICY_LABEL[b] for b in pol], fontsize=8.5)
     ax.set_ylim(0, 1)
     ax.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1, decimals=0))
-    ax.set_ylabel('sessiz / ele geçirilmiş host-adım')
+    ax.set_ylabel('silent / compromised host-steps')
     _grid(ax)
     ax.legend(loc='upper left', fontsize=9, ncol=3)
-    _title(fig, 'Sessiz ihlal oranı ve nedeni, Blue politikasına göre',
-           'Restore kaynaklı sessizlik yok (%0). remove maskesi yalnızca remove kullanan politikalarda.')
+    _title(fig, 'Silent-compromise rate and cause, by Blue policy',
+           'No restore-induced silence (0%). The remove mask only in policies that use remove.')
     fig.tight_layout(rect=(0, 0, 1, 0.9))
     return fig
 
@@ -114,19 +114,19 @@ def fig_window_coverage(eda):
                     fontsize=8.5, color=INK2, arrowprops=dict(arrowstyle='-', color=MUTED, linewidth=1))
     ceil = 1 - cov['test']['never']
     ax.axhline(ceil, color=BASE, linewidth=1)
-    ax.text(2, ceil + 0.015, f'tavan: o hostta daha önce uyarı görülmüş sessizler ({ceil * 100:.0f}%, test)',
+    ax.text(2, ceil + 0.015, f'ceiling: silent cases with an earlier alert on that host ({ceil * 100:.0f}%, test)',
             fontsize=8.5, color=INK2)
     ax.set_xscale('log', base=2)
     ax.set_xticks([1, 4, 8, 16, 32, 64, 100], ['1', '4', '8', '16', '32', '64', '100'])
     ax.set_xlim(1, 100)
     ax.set_ylim(0, 1)
     ax.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1, decimals=0))
-    ax.set_xlabel('pencere uzunluğu k (son k gözlem)')
-    ax.set_ylabel('son uyarısı pencereye düşen sessizler')
+    ax.set_xlabel('window length k (last k observations)')
+    ax.set_ylabel('silent cases whose last alert falls in the window')
     _grid(ax)
     ax.legend(loc='upper left', fontsize=9)
-    _title(fig, 'Pencere k, sessiz ihlallerin ne kadarında son uyarıyı içeriyor?',
-           'k=8 sessizlerin yalnızca ~%10\'unu görüyor; k=32 ~%42, k=64 ~%67. Kalanların bir kısmında hiç uyarı yok.')
+    _title(fig, 'For how many silent compromises does window k contain the last alert?',
+           'k=8 sees only ~10% of the silent cases; k=32 ~42%, k=64 ~67%. Part of the rest has no alert at all.')
     fig.tight_layout(rect=(0, 0, 1, 0.9))
     return fig
 
@@ -141,17 +141,17 @@ def fig_example_episode(eda):
     ax.imshow(lab, aspect='auto', interpolation='nearest', cmap=ListedColormap([CLEAN, USER, ROOT]), vmin=0, vmax=2,
               extent=(0.5, lab.shape[1] + 0.5, len(order) - 0.5, -0.5))
     yy, xx = np.nonzero(al)
-    ax.scatter(xx + 1, yy, s=14, color=INK, marker='o', linewidths=0, label='uyarı (gözlemde)')
+    ax.scatter(xx + 1, yy, s=14, color=INK, marker='o', linewidths=0, label='alert (in observation)')
     ax.set_yticks(range(len(order)), [hosts[i] for i in order])
-    ax.set_xlabel('adım t')
-    for v, name in [(USER, 'user erişimi'), (ROOT, 'root erişimi')]:
+    ax.set_xlabel('step t')
+    for v, name in [(USER, 'user access'), (ROOT, 'root access')]:
         ax.bar([0], [0], color=v, label=name)
     ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.16), ncol=3, fontsize=9)
     ax.spines[['left', 'bottom']].set_visible(False)
     ax.tick_params(length=0)
-    _title(fig, f"Örnek bölüm #{ex['episode']}: {ex['red']} × {ex['blue']} (test)",
-           'Koyu mavi ve noktasız hücreler sessiz root: host ele geçirilmiş, gözlemde uyarı yok. '
-           'Gerçek durum modelin göremediği etikettir.')
+    _title(fig, f"Example episode #{ex['episode']}: {ex['red']} × {ex['blue']} (test)",
+           'Dark blue cells without a dot are silent root: the host is compromised, the observation has no alert. '
+           'The true state is the label the model cannot see.')
     fig.tight_layout(rect=(0, 0, 1, 0.9))
     return fig
 
@@ -159,7 +159,7 @@ def fig_example_episode(eda):
 def main():
     with open(os.path.join(STAGE0, 'eda.json')) as f:
         eda = json.load(f)
-    # Blue politikası başına sessiz oranı (iki Red birleşik, ele geçirilmiş host-adım ağırlıklı)
+    # silent rate per Blue policy (both Reds combined, weighted by compromised host-steps)
     eda['silent_share_blue'] = {}
     for b in eda['blue_policies']:
         rows = [eda['silent_by_policy'][f'{r}×{b}'] for r in eda['red_policies']]
@@ -171,7 +171,7 @@ def main():
         fig = fn(eda)
         fig.savefig(os.path.join(FIG_DIR, f'{name}.png'), dpi=160)
         plt.close(fig)
-        print('yazıldı:', os.path.join(FIG_DIR, f'{name}.png'))
+        print('written:', os.path.join(FIG_DIR, f'{name}.png'))
 
 
 if __name__ == '__main__':

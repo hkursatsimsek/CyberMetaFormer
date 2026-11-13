@@ -1,8 +1,8 @@
-"""SimplifiedCAGE'in ödül hatası düzeltilmiş alt sınıfı (depo dosyalarına dokunmadan).
+"""Subclass of SimplifiedCAGE with the reward bug fixed (without touching the repository files).
 
-Depodaki step(), _process_reward'ı önce Red sonrası durumla, sonra gerçek durumla çağırıyor.
-_process_reward ödül sözlüğünü yerinde değiştirdiği için durum cezası iki kez düşülüyor
-(ör. Meander x Sleep: README -1067, depo step() ≈ -2120). Burada yalnızca gerçek durum kullanılır.
+The repository's step() calls _process_reward first with the post-Red state and then with the true state.
+Because _process_reward modifies the reward dictionary in place, the state penalty is subtracted twice
+(e.g. Meander x Sleep: README -1067, repository step() ≈ -2120). Only the true state is used here.
 """
 from CybORG_plus_plus.mini_CAGE import SimplifiedCAGE
 from CybORG_plus_plus.mini_CAGE import minimal as _minimal
@@ -29,15 +29,15 @@ class FixedCAGE(SimplifiedCAGE):
 
 
 class FixedObsCAGE(FixedCAGE):
-    """FixedCAGE + Blue gözlemindeki başarı bayrağı kusurunun düzeltmesi (ortam dinamiği aynı kalır).
+    """FixedCAGE + fix of the success-flag flaw in the Blue observation (environment dynamics unchanged).
 
-    update_blue başarısız aksiyonda success = -1 döndürür. _process_state bu değeri np.logical_and içinde doğru sayar
-    (minimal.py:1311 remove, :1321 restore). Sonuçları:
-      - başarısız remove gözlemde [1,0] "kaldırıldı" basar (root'lu hostta remove her zaman başarısızdır);
-      - geçersiz user0 restore'u (aksiyon 48, no-op) user0'ın güvenlik bayrağını ve aktivite bitlerini [0,0]'a siler
-        (minimal.py:1322-1329); tarama geçmişi aktivite bitinden beslendiği için o da etkilenir.
-    Burada _process_state'e yalnız başarılı aksiyonlar (blue_success > 0) geçirilir. Gerçek durum, Red gözlemi, ödül,
-    RNG tüketimi ve kaydedilen blue_success değişmez.
+    update_blue returns success = -1 for a failed action. _process_state counts this value as true inside np.logical_and
+    (minimal.py:1311 remove, :1321 restore). Consequences:
+      - a failed remove writes [1,0] "removed" into the observation (remove always fails on a host with root);
+      - the invalid user0 restore (action 48, no-op) clears user0's safety flag and activity bits to [0,0]
+        (minimal.py:1322-1329); the scan history is fed from the activity bit, so it is affected as well.
+    Here only successful actions (blue_success > 0) are passed to _process_state. True state, Red observation, reward,
+    RNG consumption and the recorded blue_success are unchanged.
     """
 
     def _process_state(self, state, logged_decoys, red_action=None, blue_action=None):
@@ -50,16 +50,16 @@ class FixedObsCAGE(FixedCAGE):
             self.blue_success = recorded
 
 
-# user → ent bağlantıları (minimal.CONNECTED_HOSTS, host sırası minimal.HOSTS). MiniCAGE: user1/2 → ent0, user3/4 → ent1.
-# Yeniden bağlanmış topoloji CAGE 2 yönündedir: user1/2 → ent1, user3/4 → ent0. ent2 → opserv aynı kalır.
+# user → ent links (minimal.CONNECTED_HOSTS, host order minimal.HOSTS). MiniCAGE: user1/2 → ent0, user3/4 → ent1.
+# The rewired topology follows CAGE 2: user1/2 → ent1, user3/4 → ent0. ent2 → opserv is unchanged.
 REWIRED_HOSTS = [None, None, None, 'opserv', None, None, None, None, None, 'ent1', 'ent1', 'ent0', 'ent0']
 
 
 class RewiredCAGE(FixedCAGE):
-    """FixedCAGE, user → ent bağlantıları değiştirilmiş topolojide (alt ağlar, hostlar ve gözlem düzeni aynı).
+    """FixedCAGE on a topology with modified user → ent links (subnets, hosts and observation layout unchanged).
 
-    Bağlantı tablosu yalnız update_red'deki yetki yükseltme adımında okunur (minimal.py:537): user hostunda root alan Red,
-    bağlı ent hostunu öğrenir. Tablo adım sırasında modül düzeyinde değiştirilir ve adım bitince geri konur.
+    The link table is read only in the privilege-escalation step of update_red (minimal.py:537): Red, on gaining root
+    on a user host, learns the linked ent host. The table is swapped at module level during the step and then restored.
     """
 
     connected_hosts = REWIRED_HOSTS

@@ -1,4 +1,4 @@
-"""Batch'li davranış politikaları (MiniCAGE). Her shard için yeni örnek oluşturulur."""
+"""Batched behaviour policies (MiniCAGE). A new instance is created for each shard."""
 import numpy as np
 
 from CybORG_plus_plus.mini_CAGE import (
@@ -8,24 +8,24 @@ from CybORG_plus_plus.mini_CAGE.red_bline_agent import B_line_minimal
 
 NUM_BLUE_ACTIONS = 53
 NUM_HOSTS = 13
-USER0 = 8                  # Red'in dayanağı; restore'u geçersiz (minimal.py check_blue_action, aksiyon 48)
+USER0 = 8                  # Red's foothold; restoring it is invalid (minimal.py check_blue_action, action 48)
 ANALYSE, REMOVE, RESTORE = 1, 1 + 2 * NUM_HOSTS, 1 + 3 * NUM_HOSTS     # aksiyon = tip ofseti + host
 
 RED_POLICIES = ['bline', 'meander']
-# Sıra veri setlerine indeks olarak yazılır (blue_policy); yeni politikalar yalnızca sona eklenir.
+# The order is written into the datasets as an index (blue_policy); new policies are only appended at the end.
 BLUE_POLICIES = ['sleep', 'react_restore', 'restore_decoys', 'random',
                  'react_restore_eps0.1', 'react_restore_eps0.3',
-                 # 2026-10-22, yalnızca test: şiddet eğrisi ve mekanizma kayması
+                 # 2026-10-22, test only: severity curve and mechanism shift
                  'react_restore_eps0.5', 'react_restore_eps0.7', 'react_restore_analyse', 'react_remove']
-V1_BLUE_POLICIES = BLUE_POLICIES[:6]   # minicage_v1 ve minicage_v1_bugged'in politikaları; generate.py varsayılanı
+V1_BLUE_POLICIES = BLUE_POLICIES[:6]   # policies of minicage_v1 and minicage_v1_bugged; default of generate.py
 
 
 class LinkedBline(B_line_minimal):
-    """B_line_minimal; user hostundan sonra hedeflenen ent, koda gömülü eşleme yerine bağlantı tablosundan seçilir.
+    """B_line_minimal; the ent host targeted after a user host comes from the link table, not a hard-coded mapping.
 
-    B_line_minimal 4. durumda user1/2 → ent0, user3/4 → ent1 eşlemesini sabit kullanır (MiniCAGE'in bağlantı tablosu).
-    Özgün CybORG B-line'ı sonraki hostu gözlemden bulur. Burada ent, root alınan user hostunun tablodaki bağlantısıdır.
-    4. duruma yalnız user hostundan gelindiği için özgün tabloyla davranış B_line_minimal ile aynıdır.
+    In state 4, B_line_minimal uses the fixed mapping user1/2 → ent0, user3/4 → ent1 (the MiniCAGE link table).
+    The original CybORG B-line finds the next host from its observation; here the ent is the rooted user host's link.
+    State 4 is reached only from a user host, so with the original table the behaviour is identical to B_line_minimal.
     """
 
     def __init__(self, links):
@@ -39,10 +39,10 @@ class LinkedBline(B_line_minimal):
 
 
 class BatchedBline:
-    """red_bline_agent.B_line_minimal tek ortamlık; ortam başına bir örnek tutar.
+    """red_bline_agent.B_line_minimal handles a single environment; one instance is kept per environment.
 
-    test_agent.B_line_minimal kullanılmaz: escalate_user1'den sonra network_ent1'de takılı kalıyor
-    (B-line x Sleep ≈ -10, README -1141). links verilirse (değiştirilmiş topoloji) LinkedBline kullanılır.
+    test_agent.B_line_minimal is not used: it gets stuck on network_ent1 after escalate_user1
+    (B-line x Sleep ≈ -10, README -1141). If links is given (modified topology), LinkedBline is used.
     """
 
     def __init__(self, links=None):
@@ -57,12 +57,12 @@ class BatchedBline:
 
 
 def make_red(name, links=None):
-    """links: değiştirilmiş topolojinin bağlantı tablosu (env.RewiredCAGE); yalnız B-line kullanır."""
+    """links: link table of the modified topology (env.RewiredCAGE); used only by B-line."""
     if name == 'bline':
         return BatchedBline(links)
     if name == 'meander':
         return Meander_minimal()
-    raise ValueError(f'Bilinmeyen red politikası: {name}')
+    raise ValueError(f'Unknown red policy: {name}')
 
 
 class RandomBlue:
@@ -71,7 +71,7 @@ class RandomBlue:
 
 
 class EpsilonBlue:
-    """ε olasılıkla rastgele aksiyon; temel ajan her adımda gözlemi işlemeye devam eder."""
+    """Random action with probability ε; the base agent keeps processing the observation at every step."""
 
     def __init__(self, base, epsilon):
         self.base, self.epsilon = base, epsilon
@@ -84,10 +84,10 @@ class EpsilonBlue:
 
 
 class ReactRestoreAnalyse(React_restore_minimal):
-    """React_restore_minimal; restore gerekmeyen adımlarda (aksiyon 0) user0 dışındaki 12 host üzerinde döngüsel analyse.
+    """React_restore_minimal; at steps needing no restore (action 0), cyclic analyse over the 12 hosts except user0.
 
-    analyse ortamı değiştirmez ama root'lu hostta güvenlik bayrağını [1,1] yeniden basar (minimal.py:1288-1304); bayrak bir
-    sonraki adımda React_restore'un tetiğine girer. Eğitim politikalarında analyse yalnızca rastgele aksiyonlarla görülür.
+    analyse does not change the environment but rewrites the safety flag [1,1] on a rooted host (minimal.py:1288-1304);
+    the flag triggers React_restore at the next step. In the training policies analyse appears only via random actions.
     """
 
     HOSTS = np.array([h for h in range(NUM_HOSTS) if h != USER0])
@@ -107,10 +107,10 @@ class ReactRestoreAnalyse(React_restore_minimal):
 
 
 class ReactRemove(React_restore_minimal):
-    """React_restore_minimal'ın tetiği; restore (40 + host) yerine remove (27 + host).
+    """Trigger of React_restore_minimal; remove (27 + host) instead of restore (40 + host).
 
-    Root'lu hostta remove her zaman başarısız olur ama gözlem [1,0] "kaldırıldı" gösterir. user0'ın
-    restore'u zaten geçersiz (no-op) olduğu için olduğu gibi kalır: user0'da remove geçerli ve Red'in dayanağını keserdi.
+    remove always fails on a rooted host, but the observation shows [1,0] "removed". The user0
+    restore is already invalid (no-op), so it stays as it is: a remove on user0 would be valid and cut Red's foothold.
     """
 
     def get_action(self, observation, *args, **kwargs):
@@ -135,7 +135,7 @@ def make_blue(name):
         return ReactRemove()
     if name.startswith('react_restore_eps'):
         return EpsilonBlue(React_restore_minimal(), float(name[len('react_restore_eps'):]))
-    raise ValueError(f'Bilinmeyen blue politikası: {name}')
+    raise ValueError(f'Unknown blue policy: {name}')
 
 
 def blue_epsilon(name):

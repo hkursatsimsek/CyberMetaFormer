@@ -1,4 +1,4 @@
-"""Ortak fixture'lar. <repo> içinden çalıştırılır:
+"""Shared fixtures. Run from inside <repo>:
 
     venv_cyborg/bin/python -m pytest cybermetaformer/hidden_state/tests -q
 """

@@ -1,11 +1,11 @@
-"""XGBoost baseline'ları.
+"""XGBoost baselines.
 
-- `xgb`: düzleştirilmiş son k gözlem (k×78), WindowData ile aynı hizalama (eskiden yeniye, baştaki dolgu sıfır).
-- `xgb_tf`: son gözlem (78) + host başına pencere içi zamansal özetler (13×7; features.temporal_features).
+- `xgb`: flattened last k observations (k×78), same alignment as WindowData (oldest to newest, zero padding at the start).
+- `xgb_tf`: last observation (78) + per-host temporal summaries within the window (13×7; features.temporal_features).
 
-Host başına çok sınıflı model (hist, multi:softprob), val mlogloss ile erken durdurma. Özellik matrisi parça parça
-nicemlenir (QuantileDMatrix + DataIter; k=32'de bile tam float32 kopya oluşmaz) ve 12 host için yalnızca etiket
-değiştirilerek yeniden kullanılır. Train'de hiç ele geçirilmemiş host (def) için sabit "temiz" tahmini kullanılır.
+Multi-class model per host (hist, multi:softprob), early stopping on val mlogloss. The feature matrix is quantized in
+chunks (QuantileDMatrix + DataIter; no full float32 copy is created even at k=32) and reused for the 12 hosts by
+changing only the label. For a host never compromised in train (def), a constant "clean" prediction is used.
 
     model, info = train_xgb({'model': 'xgb_tf', 'k': 8, 'seed': 0}, store)
     logits = model.margins(store, idx)            # (E, T, 12, 3)
@@ -26,11 +26,11 @@ DEFAULTS = {
     'params': {'max_depth': 6, 'eta': 0.1, 'subsample': 0.8, 'colsample_bytree': 0.8, 'min_child_weight': 1.0,
                'reg_lambda': 1.0, 'max_bin': 256},
 }
-CONST_CLEAN = np.array([0.0, -20.0, -20.0], np.float32)       # hiç ele geçirilmemiş host: sabit temiz
+CONST_CLEAN = np.array([0.0, -20.0, -20.0], np.float32)       # host never compromised: constant clean
 
 
 def feature_matrix(store, idx, k, kind):
-    """(len(idx)·T, d) float32, bölüm-ana sıra (WindowData / predict_logits ile aynı)."""
+    """(len(idx)·T, d) float32, episode-major order (same as WindowData / predict_logits)."""
     obs = store.obs[np.asarray(idx)]
     if kind == 'tf':
         X = F.temporal_features(obs, k)
@@ -68,7 +68,7 @@ def quantile_matrix(store, idx, k, kind, chunk, max_bin, nthread, ref=None):
 
 
 class XGBHosts:
-    """12 hostun booster'ları (ya da None = sabit temiz)."""
+    """Boosters of the 12 hosts (or None = constant clean)."""
 
     def __init__(self, boosters, kind, k, chunk):
         self.boosters, self.kind, self.k, self.chunk = boosters, kind, k, chunk
@@ -84,17 +84,17 @@ class XGBHosts:
         return out
 
     def margins(self, store, idx):
-        """(E, T, 12, 3) ham skorlar (softmax öncesi; kalibrasyon ve sıcaklık için logit yerine geçer)."""
+        """(E, T, 12, 3) raw scores (before softmax; stand in for logits for calibration and temperature)."""
         idx = np.asarray(idx)
         parts = [self._margins_X(feature_matrix(store, idx[i:i + self.chunk], self.k, self.kind))
                  for i in range(0, len(idx), self.chunk)]
         return np.concatenate(parts).reshape(len(idx), store.T, len(self.boosters), D.N_CLASSES)
 
     def shap_summary(self, store, idx, hosts, rows=20000, seed=0):
-        """TreeSHAP (pred_contribs) özetleri: hangi hostun ve hangi özellik türünün katkısı (satır normalize).
+        """TreeSHAP (pred_contribs) summaries: contribution of which host and which feature type (row-normalized).
 
-        by_host[h][j]: label hostu h'nin tahmininde gözlem hostu j'nin özelliklerinin |SHAP| payı (13 sütun).
-        by_type[tür][h]: özellik türünün payı. Ham XGB'de ayrıca by_lag[h][gecikme] (0 = son gözlem)."""
+        by_host[h][j]: |SHAP| share of the features of observation host j in the prediction for label host h (13 columns).
+        by_type[type][h]: share of the feature type. For raw XGB also by_lag[h][lag] (0 = last observation)."""
         X = feature_matrix(store, idx, self.k, self.kind)
         X = X[np.random.default_rng(seed).choice(len(X), min(rows, len(X)), replace=False)]
         d = X.shape[1]
@@ -135,7 +135,7 @@ class XGBHosts:
 
 
 def train_xgb(cfg, store, log=print):
-    """Host başına booster eğitir. Dönüş: (XGBHosts, info)."""
+    """Trains one booster per host. Returns: (XGBHosts, info)."""
     cfg = {**DEFAULTS, **cfg, 'params': {**DEFAULTS['params'], **cfg.get('params', {})}}
     kind, k, p = KINDS[cfg['model']], cfg['k'], dict(cfg['params'])
     max_bin = p.pop('max_bin')

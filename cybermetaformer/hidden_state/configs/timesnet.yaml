@@ -1,6 +1,6 @@
-# Aşama 2 TimesNet (TSLib; k=1 N/A, k=4'te top_k=1). HPO: d_model, ff, layers, top_k, dropout + ortak.
-# compile kapalı: inductor rfft'nin karmaşık sayılı çıktısını derleyemiyor (stride hatası); periyot seçimi de her
-# batch'te CPU'ya senkron (TSLib FFT_for_Period).
+# Stage 2 TimesNet (TSLib; k=1 N/A, top_k=1 at k=4). HPO: d_model, ff, layers, top_k, dropout + shared.
+# compile off: inductor cannot compile the complex output of rfft (stride error); the period choice also syncs
+# with the CPU in every batch (TSLib FFT_for_Period).
 model: timesnet
 model_args: {d_model: 32, ff: 64, layers: 2, top_k: 3, kernels: 6, dropout: 0.1}
 scale: global

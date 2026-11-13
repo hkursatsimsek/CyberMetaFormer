@@ -1,31 +1,31 @@
-"""Adım 0.8: hesaplama benchmark'ı ve toplam bütçe tahmini; M2 başında TSLib modelleriyle yeniden.
+"""Compute benchmark and total budget estimate; repeated at the start of M2 with the TSLib models.
 
     venv_cyborg/bin/python -m cybermetaformer.hidden_state.bench --device cpu      # VM
     python -m cybermetaformer.hidden_state.bench --device mps                      # Mac (venv_ts)
-    python -m cybermetaformer.hidden_state.bench --device cpu                      # Mac CPU (kıyas için)
+    python -m cybermetaformer.hidden_state.bench --device cpu                      # Mac CPU (for comparison)
     python -m cybermetaformer.hidden_state.bench --device mps --m2                 # M2: 6 model, eager + compile
 
-Gerçek veri batch'leri (tembel pencere gather'ı dahil) ile model ailesi × k ∈ {8, 32} için eğitim adımı süresi,
-çıkarım verimi ve tek örnek gecikmesi ölçülür; planlanan deney ızgarasına (GRID) göre toplam süre hesaplanır.
-Çıktı: cybermetaformer/results/hidden_state/asama0/bench_<cihaz>_<makine>.json
+With real data batches (including the lazy window gather), the training step time, inference throughput and
+single-sample latency are measured for model family × k ∈ {8, 32}; the total time is computed from the planned grid (GRID).
+Output: cybermetaformer/results/hidden_state/asama0/bench_<device>_<machine>.json
 
-`--m2`: M2'nin 6 modeli temel konfigürasyonlarıyla (`configs/<model>.yaml` = kurucu varsayılanları), k ∈ {8, 32, 64}
-(k=64 uzatma kararı için), eğitim adımı hem eager hem `torch.compile` ile; çıkarım eager (train.py'deki gibi).
-Bütçe geçerlilik matrisiyle (N/A hücreler yok) ve model başına hızlı olan kiple hesaplanır.
-Çıktı: cybermetaformer/results/hidden_state/asama2/bench_m2_<cihaz>_<makine>.json
+`--m2`: the 6 M2 models with their base configurations (`configs/<model>.yaml` = constructor defaults), k ∈ {8, 32, 64}
+(for the k=64 extension decision), training step both eager and with `torch.compile`; inference eager (as in train.py).
+The budget uses the validity matrix (no N/A cells) and the faster mode per model.
+Output: cybermetaformer/results/hidden_state/asama2/bench_m2_<device>_<machine>.json
 
-`--m2-sizes`: ağır ikilinin (PatchTST, TimesNet) eğitim epoch süresi HPO uzayının uçlarında (`hpo.space_*`), yalnız
-eğitim, configs'teki kiple. Bütçenin HPO'nun seçeceği boyuta duyarlılığı. Çıktı:
-cybermetaformer/results/hidden_state/asama2/bench_m2_boyut_<cihaz>_<makine>.json
+`--m2-sizes`: training epoch time of the heavy pair (PatchTST, TimesNet) at the ends of the HPO space (`hpo.space_*`),
+training only, in the mode of configs. Sensitivity of the budget to the size HPO will choose. Output:
+cybermetaformer/results/hidden_state/asama2/bench_m2_boyut_<device>_<machine>.json
 
-`--m3`: bölüm kipi (tam geçmiş) modelleri, `train.py`'deki gibi 16 bölümlük batch: GRU tam (gerçek koşu süresiyle
-kıyas için referans), CyberMetaFormer'ın ana config'i, HPO uzayının uçları (`fit_width` ile B1'e sığdırılmış) ve
-ablasyon varyantları (`M3_BENCH`). Eğitim adımı, val değerlendirmesi (162 bölümlük parçalar) ve tek bölüm adım
-gecikmesi. Çıktı: cybermetaformer/results/hidden_state/asama3/bench_m3_<cihaz>_<makine>.json
+`--m3`: episode-mode (full-history) models, 16-episode batches as in `train.py`: full GRU (reference to compare with
+the real run time), the main CyberMetaFormer config, the ends of the HPO space (fitted to B1 with `fit_width`) and
+the ablation variants (`M3_BENCH`). Training step, val evaluation (162-episode chunks) and single-episode step
+latency. Output: cybermetaformer/results/hidden_state/asama3/bench_m3_<device>_<machine>.json
 
-`--compile-check`: compile eşdeğerlik denemesi (README Kararlar 2026-10-19). Vanilla Transformer k=8, temel
-konfigürasyon, tam train, yalnızca val: eager s0, eager s1 (seed gürültüsünün ölçeği) ve compile s0. Çıktı:
-cybermetaformer/results/hidden_state/asama2/compile_esdeger_<cihaz>.json
+`--compile-check`: compile equivalence trial. Vanilla Transformer k=8, base
+configuration, full train, val only: eager s0, eager s1 (scale of the seed noise) and compile s0. Output:
+cybermetaformer/results/hidden_state/asama2/compile_esdeger_<device>.json
 """
 import argparse
 import json
@@ -44,19 +44,19 @@ from cybermetaformer.hidden_state.train import release_device_memory, resolve_de
 OUT_DIR = os.path.join(D.ROOT, 'results', 'hidden_state', 'asama0')
 FAMILIES = ['mlp', 'cnn1d', 'lstm', 'gru', 'transformer']
 KS = [8, 32]
-N_TRAIN, N_VAL = 16000 * 100, 2000 * 100          # örnek (host-adım değil, pencere) sayıları
-GRID = {                                           # planlanan deney ızgarası
+N_TRAIN, N_VAL = 16000 * 100, 2000 * 100          # sample counts (windows, not host-steps)
+GRID = {                                           # planned experiment grid
     'k_values': [1, 4, 8, 16, 32], 'seeds': 5, 'max_epochs': 30, 'expected_epochs': 15,
     'hpo_trials': 25, 'hpo_k': [8, 32], 'hpo_train_frac': 0.25, 'hpo_max_epochs': 10, 'hpo_expected_epochs': 6,
     'm1_models': ['mlp', 'cnn1d', 'lstm', 'gru'],
-    # M2'nin 6 modeli henüz vendor edilmedi (TSLib); vanilla Transformer süresi × çarpan varsayımı
+    # the 6 M2 models are not vendored yet (TSLib); assumption: vanilla Transformer time × factor
     'm2_models': {'transformer': 1.0, 'patchtst': 1.0, 'itransformer': 1.0, 'tsmixer': 0.5, 'timemixer': 1.5, 'timesnet': 4.0},
 }
 M2_OUT_DIR = os.path.join(D.ROOT, 'results', 'hidden_state', 'asama2')
 M2_FAMILIES = ['transformer', 'patchtst', 'itransformer', 'tsmixer', 'timesnet', 'timemixer']
 M2_KS = [8, 32, 64]
-# (model, k, model_args yaması): temel konfigürasyon ve HPO uzayının uçları (ff = d_model × ff_mult); PatchTST'nin
-# süresi k'dan bağımsız (kanal başına ~4 yama), TimesNet'inki k ile büyür
+# (model, k, model_args patch): base configuration and the ends of the HPO space (ff = d_model × ff_mult); PatchTST's
+# time does not depend on k (~4 patches per channel), TimesNet's grows with k
 M2_SIZES = [
     ('patchtst', 8, {}),
     ('patchtst', 8, {'d_model': 32, 'ff': 64, 'layers': 1}),
@@ -80,8 +80,8 @@ def _sync(device):
 
 
 def bench_one(name, k, wd, device, bs=1024, warmup=5, steps=30, compile=False, infer=True, model_args=None):
-    """compile: eğitim ileri geçişi torch.compile ile (derleme ısınma adımlarında). infer=False: yalnız eğitim.
-    model_args: kurucu varsayılanları yerine (`--m2-sizes`)."""
+    """compile: training forward pass with torch.compile (compiled during the warm-up steps). infer=False: training only.
+    model_args: instead of the constructor defaults (`--m2-sizes`)."""
     model = build_model(name, k, **(model_args or {})).to(device)
     fwd = model
     if compile:
@@ -146,7 +146,7 @@ def run_hours(r, epochs, train_frac=1.0):
 def budget(res):
     g = res['grid']
 
-    def t(name, k):          # k=1,4 → k=8 ölçümü; k=16 → k=32 ölçümü (ihtiyatlı)
+    def t(name, k):          # k=1,4 → k=8 measurement; k=16 → k=32 measurement (conservative)
         return res['models'][name][str(8 if k <= 8 else 32)]
 
     out = {}
@@ -162,13 +162,13 @@ def budget(res):
 
 
 def _m2_k(k):
-    return str(8 if k <= 8 else 32 if k <= 32 else 64)          # k=1,4 → k=8 ölçümü; k=16 → k=32 (ihtiyatlı)
+    return str(8 if k <= 8 else 32 if k <= 32 else 64)          # k=1,4 → k=8 measurement; k=16 → k=32 (conservative)
 
 
 def budget_m2(res):
-    """M2 bütçesi (saat): model başına final (5 k × 5 seed, N/A hücreler hariç), HPO (k ∈ {8, 32} × 25 deneme) ve k=64
-    uzatması (5 seed; HPO k=32'den), eager ve compile ayrı. `secilen` = model başına final + HPO'su kısa olan kip;
-    compile hata verdiyse eager."""
+    """M2 budget (hours): per model final (5 k × 5 seeds, excluding N/A cells), HPO (k ∈ {8, 32} × 25 trials) and the k=64
+    extension (5 seeds; HPO from k=32), eager and compile separately. `secilen` = per model the final + the mode with the shorter HPO;
+    eager if compile failed."""
     g, out = res['grid'], {}
     for label, ek, hk in [('beklenen', 'expected_epochs', 'hpo_expected_epochs'),
                           ('ust_sinir', 'max_epochs', 'hpo_max_epochs')]:
@@ -207,7 +207,7 @@ def main_m2(device, wd, res):
             release_device_memory()
             try:
                 r['compile'] = bench_one(name, k, wd, device, compile=True, infer=False)
-            except Exception as e:                                    # derlenemeyen model eager kalır
+            except Exception as e:                                    # a model that fails to compile stays eager
                 r['compile'] = {'error': repr(e)[:500]}
             release_device_memory()
             res['models'][name][str(k)] = r
@@ -215,7 +215,7 @@ def main_m2(device, wd, res):
             ctxt = ('HATA ' + c['error'][:60] if 'error' in c
                     else f"{c['epoch_minutes']:6.2f} dk (×{e['epoch_minutes'] / c['epoch_minutes']:.2f})")
             print(f"{name:12s} k={k:<3d} param {e['params']:>8d}  epoch eager {e['epoch_minutes']:6.2f} dk  "
-                  f"compile {ctxt}  val {e['val_eval_minutes']:5.2f} dk  gecikme {e['latency_ms_bs1']:.2f} ms",
+                  f"compile {ctxt}  val {e['val_eval_minutes']:5.2f} dk  step_latency {e['latency_ms_bs1']:.2f} ms",
                   flush=True)
     res['budget'] = budget_m2(res)
     for label, b in res['budget'].items():
@@ -248,7 +248,7 @@ def sizes_m2(device, wd, res):
 
 M3_OUT_DIR = os.path.join(D.ROOT, 'results', 'hidden_state', 'asama3')
 N_TRAIN_EP, N_VAL_EP, EP_BATCH = 16000, 2000, 16
-# (etiket, model_args yaması; 'fit' = genişlik B1'e sığdırılır)
+# (label, model_args patch; 'fit' = width fitted to B1)
 M3_BENCH = [
     ('ana', {}),
     ('hpo_min', {'layers': 2, 'mlp_ratio': 2, 'state': 8, 'heads': 2, 'kernel': 3, 'fit': True}),
@@ -316,8 +316,8 @@ def main_m3(device, store, res):
         r = bench_episode(name, args, wd, device)
         release_device_memory()
         res['m3'].append({'label': label, 'model': name, 'model_args': args, **r})
-        print(f"{label:10s} param {r['params']:>8d}  adım {1000 * r['step_s']:6.1f} ms  epoch {r['epoch_minutes']:6.2f} dk  "
-              f"val {r['val_eval_minutes']:5.2f} dk", flush=True)
+        print(f"{label:10s} param {r['params']:>8d}  step {1000 * r['step_s']:6.1f} ms  epoch {r['epoch_minutes']:6.2f} min  "
+              f"val {r['val_eval_minutes']:5.2f} min", flush=True)
     os.makedirs(M3_OUT_DIR, exist_ok=True)
     path = os.path.join(M3_OUT_DIR, f"bench_m3_{device}_{res['machine']}.json")
     with open(path, 'w') as f:
@@ -339,9 +339,9 @@ def compile_check(device, store):
     out['fark_compile_eager'] = r['compile_s0'] - r['eager_s0']
     out['fark_seed'] = r['eager_s1'] - r['eager_s0']
     per_epoch = {n: v['train_seconds'] / v['epochs'] for n, v in out['kosular'].items()}
-    out['epoch_hizi'] = per_epoch['eager_s0'] / per_epoch['compile_s0']         # toplam süre erken durdurmaya bağlı
-    print(f"val host makro-F1: {r}  compile − eager {out['fark_compile_eager']:+.4f}  "
-          f"seed farkı {out['fark_seed']:+.4f}  epoch başına hız ×{out['epoch_hizi']:.2f}")
+    out['epoch_hizi'] = per_epoch['eager_s0'] / per_epoch['compile_s0']         # the total time depends on early stopping
+    print(f"val host macro-F1: {r}  compile − eager {out['fark_compile_eager']:+.4f}  "
+          f"seed difference {out['fark_seed']:+.4f}  speed per epoch ×{out['epoch_hizi']:.2f}")
     os.makedirs(M2_OUT_DIR, exist_ok=True)
     path = os.path.join(M2_OUT_DIR, f'compile_esdeger_{device}.json')
     with open(path, 'w') as f:
@@ -354,9 +354,9 @@ def main():
     p.add_argument('--device', default='auto')
     p.add_argument('--threads', type=int, default=None)
     p.add_argument('--m2', action='store_true', help="M2'nin 6 modeli, k ∈ {8, 32, 64}, eager + compile")
-    p.add_argument('--m2-sizes', action='store_true', help='PatchTST ve TimesNet, HPO uzayının uçlarında epoch süresi')
-    p.add_argument('--m3', action='store_true', help='M3: bölüm kipi modelleri (GRU tam, CyberMetaFormer varyantları)')
-    p.add_argument('--compile-check', action='store_true', help='compile eşdeğerlik denemesi (Transformer k=8)')
+    p.add_argument('--m2-sizes', action='store_true', help='PatchTST and TimesNet, epoch time at the ends of the HPO space')
+    p.add_argument('--m3', action='store_true', help='M3: episode-mode models (full GRU, CyberMetaFormer variants)')
+    p.add_argument('--compile-check', action='store_true', help='compile equivalence trial (Transformer k=8)')
     args = p.parse_args()
     device = resolve_device(args.device)
     if args.threads:
@@ -382,7 +382,7 @@ def main():
             r = bench_one(name, k, wd, device)
             res['models'][name][str(k)] = r
             print(f"{name:12s} k={k:<3d} param {r['params']:>8d}  epoch {r['epoch_minutes']:6.2f} dk  "
-                  f"val {r['val_eval_minutes']:5.2f} dk  gecikme {r['latency_ms_bs1']:.2f} ms", flush=True)
+                  f"val {r['val_eval_minutes']:5.2f} dk  step_latency {r['latency_ms_bs1']:.2f} ms", flush=True)
     res['budget'] = budget(res)
     for label, b in res['budget'].items():
         print(label, '  '.join(f'{k}={v:.1f}' for k, v in b.items()))

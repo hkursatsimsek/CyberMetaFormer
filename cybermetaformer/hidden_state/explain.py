@@ -1,39 +1,42 @@
-"""M2 analizleri: dikkat rollout'u, iTransformer'ın host dikkati, Integrated Gradients.
+"""M2 analyses: attention rollout, iTransformer host attention, Integrated Gradients.
 
-Hepsi test bölümlerinin rastgele bir alt kümesinde (`N_EP` bölüm, `subsample_episodes` seed 0; test bölümleri politikaya
-göre sıralı, ilk bölümler tek kırmızı politikadır), kaydedilmiş ağırlıklarla (`model.pt`), eager.
-Sessiz ihlal: host ele geçirilmiş, o adımda uyarı yok (`features.alerts`, 'export'); uyarı yaşı a = son uyarıdan bu
-yana geçen adım. Pencerenin son konumu şimdiki gözlem; a adım önceki uyarı k-1-a konumundadır. "Yakalandı" =
-kestirim > 0 (sessiz recall ile aynı).
+All on a random subset of the test episodes (`N_EP` episodes, `subsample_episodes` seed 0; the test episodes are sorted
+by policy, so the first episodes are a single Red policy), with the saved weights (`model.pt`), eager.
+Silent compromise: the host is compromised and has no alert at that step (`features.alerts`, 'export'); alert age a =
+steps since the last alert. The last window position is the current observation; an alert a steps back sits at
+position k-1-a. "Caught" = prediction > 0 (same as silent recall).
 
-1. **Rollout (vanilla Transformer, k=32 ve 64; Abnar & Zuidema 2020).** Katmanlar elle yürütülür (çıktının modelin
-   kendi ileri geçişiyle aynı olduğu ilk batch'te denetlenir); başlık ortalamalı dikkat 0.5·A + 0.5·I ile birleştirilir.
-   Okuma son adım olduğu için son satır girdiye düşen payı verir. Okuma token'ı 12 host için ortaktır: rollout host'a
-   özgü değildir, "dikkat uyarılı adımlara gidiyor mu"yu ölçer. Ölçü, bir konuma düşen payın o konumun bütün
-   pencerelerdeki ortalamasına oranı (konum önseli; model zaten son adımlara daha çok bakıyor). İki oran: herhangi bir
-   host'ta uyarı olan adımlar ve sessiz ihlalde ilgili host'un son uyarısının görüldüğü adım. PatchTST'de okuma token'ı
-   yok (bütün yamalar düzleştirilip başa giriyor), rollout çıktıya düşen payı vermez; ona yalnız IG ile bakılır.
-2. **iTransformer host dikkati (k=32 ve 64).** Token = 78 değişken; host başına 6 token (4 bit, tarama, decoy). Dikkat
-   (katman ve başlık ortalaması) host bloklarına toplanır: satır = sorgu host'u, sütun = anahtar host'u, satır toplamı
-   1. Tekdüze dikkatte her hücre 6/78. Kontrol: aynı ayarla eğitilmemiş model. Sorgu bağımlılığı: satırların ortalama
-   satırdan toplam varyasyon uzaklığının ortalaması (0 = her host aynı hostlara bakıyor, ilişki değil önem öğrenilmiş).
-3. **Integrated Gradients (captum; M2'nin altı modeli, k=32, seed 0).** Sessiz ihlal host-adımları: yarısı uyarı
-   pencere içinde (1 ≤ a < k), yarısı bölüm başından beri uyarısız. Çıktı ilgili host'un "ele geçirilmiş" log-olasılık
-   oranı log(p_user + p_root) − log(p_temiz), host'a özgü. Taban sıfır gözlem (uyarı, tarama, decoy yok). |IG| zaman
-   adımlarına ve özellik gruplarına (host'un kendisi / diğerleri; bit / tarama / decoy) toplanır; uyarı adımı oranı
-   uyarısız gruptaki konum profiline göre. IG CPU'da: MPS'te (torch 2.14.1) permute edilmiş girdide AvgPool1d'nin geri
-   geçişi yanlış (TimeMixer'ın parametresiz alt örneklemesi; yalnız girdi gradyanını bozar, eğitimi etkilemez).
-   TimesNet'in TSLib uygulaması periyotları batch'in ortalama genliğinden seçer, çıktısı batch'e bağlıdır; IG ona örnek
-   örnek uygulanır (yol noktaları aynı pencerenin ölçekli kopyaları, periyotlar pencerenin kendi periyotları). Adım
-   sayısı 32'den başlar; tamlık hatasının medyanı %5'in üstündeyse 128'e, sonra 256'ya çıkar (iTransformer'da yol
-   boyunca keskin geçişler var).
-4. **TimesNet'in batch bağımlılığı (k=8 ve 32, 3 seed; bütün test ve OOD).** Üç değerlendirme: resmi sıra (bölüm-ana,
-   batch 8192; test/OOD bölümleri politikaya göre sıralı olduğu için bir batch çoğunlukla tek politikadan), karışık
-   batch'ler (8192, eğitimdeki gibi politikalar karışık) ve tek tek (bs=1, çevrimiçi kullanım; her 19. pencere, T=100
-   ile aralarında asal olduğu için bütün zaman adımlarından). Üç kip ayrıca aynı alt kümede karşılaştırılır.
+1. **Rollout (vanilla Transformer, k=32 and 64; Abnar & Zuidema 2020).** The layers are run by hand (checked on the
+   first batch to match the model's own forward pass); head-averaged attention is combined as 0.5·A + 0.5·I.
+   The readout is the last step, so the last row gives the share that falls on the input. The readout token is shared
+   by the 12 hosts: rollout is not host-specific, it measures "does attention go to steps with alerts". The measure is
+   the share falling on a position divided by that position's mean over all windows (position prior; the model already
+   looks more at the last steps). Two ratios: steps with an alert on any host, and, for silent compromises, the step
+   where the host's last alert was seen. PatchTST has no readout token (all patches are flattened into the head), so
+   rollout gives no share on the output; it is examined only with IG.
+2. **iTransformer host attention (k=32 and 64).** Token = 78 variables; 6 tokens per host (4 bits, scan, decoy).
+   Attention (averaged over layers and heads) is summed into host blocks: row = query host, column = key host, row
+   sum 1. Under uniform attention each cell is 6/78. Control: the same configuration untrained. Query dependence: mean
+   total-variation distance of the rows from the mean row (0 = every host looks at the same
+   hosts: importance, not relations, was learned).
+3. **Integrated Gradients (captum; the six M2 models, k=32, seed 0).** Silent-compromise host-steps: half with the
+   alert inside the window (1 ≤ a < k), half never alerted since the episode start. Output: the host's "compromised"
+   log-odds log(p_user + p_root) − log(p_clean), host-specific. Baseline: zero observation (no alert, scan or decoy).
+   |IG| is summed over time steps and feature groups (own host / others; bits / scan / decoy); the alert-step ratio
+   is relative to the position profile of the no-alert group. IG runs on CPU: on MPS (torch 2.14.1) the backward pass
+   of AvgPool1d on a permuted input is wrong (TimeMixer's parameter-free downsampling;
+   it only corrupts the input gradient, not training).
+   The TSLib TimesNet picks its periods from the mean amplitude of the batch, so its output depends on the batch; IG
+   is applied to it sample by sample (path points are scaled copies of the same window, periods are the window's own).
+   The number of steps starts at 32; if the median completeness error is above 5% it goes to 128, then 256
+   (iTransformer has sharp transitions along the path).
+4. **Batch dependence of TimesNet (k=8 and 32, 3 seeds; all of test and OOD).** Three evaluations: official order
+   (episode-major, batch 8192; test/OOD episodes are sorted by policy, so a batch mostly holds one policy), shuffled
+   batches (8192, policies mixed as in training) and one by one (bs=1, online use; every 19th window, which covers
+   all time steps since 19 and T=100 are coprime). The three modes are also compared on the same subset.
 
-    python -m cybermetaformer.hidden_state.explain                  # asama2/analiz/ ve figürler
-    python -m cybermetaformer.hidden_state.explain --only timesnet  # yalnız 4. bölüm, diğerleri analiz.json'dan
+    python -m cybermetaformer.hidden_state.explain                  # asama2/analiz/ and figures
+    python -m cybermetaformer.hidden_state.explain --only timesnet  # only part 4, the rest from analiz.json
 """
 import argparse
 import json
@@ -57,11 +60,11 @@ from cybermetaformer.hidden_state.models import build_model                     
 HERE = os.path.dirname(os.path.abspath(__file__))
 STAGE_DIR = os.path.join(os.path.dirname(HERE), 'results', 'hidden_state', 'asama2')
 OUT_DIR, FIG_DIR = os.path.join(STAGE_DIR, 'analiz'), os.path.join(STAGE_DIR, 'figures')
-N_EP = 300                    # test alt kümesi (30 000 pencere)
-N_IG = 1000                   # IG örneği (sessiz ihlal host-adımı)
+N_EP = 300                    # test subset (30,000 windows)
+N_IG = 1000                   # IG samples (silent-compromise host-steps)
 SEEDS = (0, 1, 2)
 TOKEN_HOST = np.r_[np.arange(4 * D.NUM_HOSTS) // 4, np.arange(D.NUM_HOSTS), np.arange(D.NUM_HOSTS)]   # 78 → host
-TOKEN_KIND = np.r_[np.zeros(4 * D.NUM_HOSTS), np.ones(D.NUM_HOSTS), np.full(D.NUM_HOSTS, 2)]   # bit, tarama, decoy
+TOKEN_KIND = np.r_[np.zeros(4 * D.NUM_HOSTS), np.ones(D.NUM_HOSTS), np.full(D.NUM_HOSTS, 2)]   # bit, scan, decoy
 
 
 def load_model(name, k, seed, device, trained=True):
@@ -75,7 +78,7 @@ def load_model(name, k, seed, device, trained=True):
 
 
 class Subset:
-    """Test alt kümesi: etiketler, uyarılar, uyarı yaşı (hepsi (E, T, 12), hedef adımla hizalı)."""
+    """Test subset: labels, alerts, alert age (all (E, T, 12), aligned with the target step)."""
 
     def __init__(self, store, device):
         self.idx = D.subsample_episodes(store.split('test'), N_EP, seed=0)
@@ -87,13 +90,13 @@ class Subset:
         self.any_alert = np.c_[np.zeros((len(self.idx), 1), bool), self.alert.any(-1)]   # obs[0..T]
 
     def batches(self, k, bs=4096):
-        """(ep, t, x, mask): bölüm-ana sırayla bütün pencereler; ep yerel, t ∈ 1..T (numpy)."""
+        """(ep, t, x, mask): all windows in episode-major order; ep local, t ∈ 1..T (numpy)."""
         for ep, t in D.eval_indices(self.wd.n, self.wd.T, bs):
             x, mask = self.wd.windows(ep, t, k)
             yield ep.numpy(), t.numpy(), D.scale_obs(x), mask
 
     def window_alerts(self, ep, t, k):
-        """(B, k): pencerenin her konumunda herhangi bir host'ta uyarı var mı (dolgu hariç)."""
+        """(B, k): is there an alert on any host at each window position (padding excluded)."""
         pos = t[:, None] + np.arange(-k + 1, 1)[None]
         return self.any_alert[ep[:, None], pos.clip(0)] & (pos >= 0)
 
@@ -102,13 +105,13 @@ class Subset:
 
 @torch.no_grad()
 def rollout(model, x, mask, check=False):
-    """Vanilla Transformer (okuma 'last') → ((B, k) son adımın girdiye düşen rollout payı, logitler (B, 12, 3))."""
+    """Vanilla Transformer (readout 'last') → ((B, k) rollout share of the last step on the input, logits (B, 12, 3))."""
     assert model.readout == 'last' and not model.causal
     h, pad = model.inp(x) + model.pos[:, -x.shape[1]:], ~mask
     L = h.shape[1]
     eye = torch.eye(L, device=x.device)
     R = eye.expand(h.shape[0], L, L)
-    for layer in model.enc.layers:                       # norm_first=True, eval: dropout yok
+    for layer in model.enc.layers:                       # norm_first=True, eval: no dropout
         z = layer.norm1(h)
         a, w = layer.self_attn(z, z, z, key_padding_mask=pad, need_weights=True, average_attn_weights=True)
         h = h + a
@@ -122,9 +125,9 @@ def rollout(model, x, mask, check=False):
 
 
 def rollout_stats(model, sub, k):
-    """Konum önseli, uyarılı adımların oranı, sessiz ihlallerde uyarı adımının oranı."""
+    """Position prior, ratio of steps with alerts, ratio of the alert step for silent compromises."""
     pos_sum, pos_n, al_sum, al_n = (np.zeros(k) for _ in range(4))
-    pairs = []                                             # (a, pay, yakalandı mı)
+    pairs = []                                             # (a, share, caught or not)
     for i, (ep, t, x, mask) in enumerate(sub.batches(k)):
         r, out = rollout(model, x, mask, check=i == 0)
         r, pred, valid = r.cpu().numpy(), out.argmax(-1).cpu().numpy(), mask.cpu().numpy()
@@ -155,11 +158,11 @@ def rollout_stats(model, sub, k):
             'recall': float(hit.mean())}
 
 
-# ── 2. iTransformer host dikkati ────────────────────────────────────────
+# ── 2. iTransformer host attention ──────────────────────────────────────
 
 @torch.no_grad()
 def itransformer_host_attention(model, sub, k, max_windows=8192):
-    """(13, 13): sorgu host'u × anahtar host'u, satır toplamı 1 (katman, başlık ve pencere ortalaması)."""
+    """(13, 13): query host × key host, row sum 1 (mean over layers, heads and windows)."""
     net = model.net
     for layer in net.encoder.attn_layers:
         layer.attention.inner_attention.output_attention = True
@@ -190,7 +193,7 @@ def host_summary(H, hosts):
 # ── 3. Integrated Gradients ─────────────────────────────────────────────
 
 def ig_samples(sub, k, rng):
-    """N_IG sessiz ihlal host-adımı (ep, t ∈ 1..T, host): yarısı 1 ≤ a < k, yarısı a = hiç."""
+    """N_IG silent-compromise host-steps (ep, t ∈ 1..T, host): half 1 ≤ a < k, half a = never."""
     out = []
     for cond in [(sub.age >= 1) & (sub.age < k), sub.age == F.NEVER]:
         e, t0, h = np.nonzero(sub.silent & cond)
@@ -200,7 +203,7 @@ def ig_samples(sub, k, rng):
 
 
 class _Score(torch.nn.Module):
-    """Örnek başına ilgili host'un log(p_user + p_root) − log(p_temiz)'i."""
+    """Per sample, log(p_user + p_root) − log(p_clean) of the host in question."""
 
     def __init__(self, model):
         super().__init__()
@@ -212,7 +215,7 @@ class _Score(torch.nn.Module):
 
 
 def integrated_gradients(model, sub, k, samples, bs=100, n_steps=32):
-    """→ (|IG| (N, k, 78), |Σ IG − (f(x) − f(0))| / |f(x) − f(0)| medyanı)."""
+    """→ (|IG| (N, k, 78), median of |Σ IG − (f(x) − f(0))| / |f(x) − f(0)|)."""
     from captum.attr import IntegratedGradients
     score = _Score(model)
     ig = IntegratedGradients(score)
@@ -231,14 +234,14 @@ def integrated_gradients(model, sub, k, samples, bs=100, n_steps=32):
 
 
 def ig_summary(A, samples, sub, k):
-    """Zaman profili (adım geri), uyarı adımı oranı, özellik grubu payları."""
+    """Time profile (steps back), alert-step ratio, feature-group shares."""
     An = A / np.maximum(A.sum((1, 2), keepdims=True), 1e-12)
     time_prof, feat = An.sum(2), An.sum(1)                              # (N, k), (N, 78)
-    own = TOKEN_HOST[None, :] == np.asarray(D.LABEL_HOSTS)[samples[:, 2]][:, None]   # etiket → gözlem host'u
+    own = TOKEN_HOST[None, :] == np.asarray(D.LABEL_HOSTS)[samples[:, 2]][:, None]   # label → observation host
     own_share = (feat * own).sum(1)
     age = sub.age[samples[:, 0], samples[:, 1] - 1, samples[:, 2]]
     inside = (age >= 1) & (age < k)
-    prior = time_prof[~inside].mean(0)                                 # uyarısız grubun konum profili
+    prior = time_prof[~inside].mean(0)                                 # position profile of the no-alert group
     pos = k - 1 - age[inside]
     return {'time_by_steps_back': time_prof.mean(0)[::-1].tolist(),
             'time_by_steps_back_inside': time_prof[inside].mean(0)[::-1].tolist(),
@@ -252,15 +255,15 @@ def ig_summary(A, samples, sub, k):
             'decoy_share': float(feat[:, TOKEN_KIND == 2].sum(1).mean()), 'uniform_own_share': 6 / D.OBS_DIM}
 
 
-# ── 4. TimesNet'in batch bağımlılığı ─────────────────────────────────────
+# ── 4. Batch dependence of TimesNet ─────────────────────────────────────
 
-TN_MODES = ('resmi', 'karisik', 'tek')
-TN_EVERY = 19                 # tek tek alt kümesi: her 19. pencere (T=100 ile aralarında asal → her zaman adımı)
+TN_MODES = ('resmi', 'karisik', 'tek')    # official, shuffled, one by one (keys in analiz.json)
+TN_EVERY = 19                 # one-by-one subset: every 19th window (coprime with T=100 → every time step)
 
 
 @torch.no_grad()
 def timesnet_batch_preds(model, wd, k, mode, bs=8192):
-    """→ kestirimler (N, 12); 'tek' kipinde yalnız her `TN_EVERY`. pencere, diğerleri -1."""
+    """→ predictions (N, 12); in mode 'tek' only every `TN_EVERY`-th window, the others -1."""
     N = wd.n * wd.T
     order = {'resmi': torch.arange(N), 'karisik': torch.randperm(N, generator=torch.Generator().manual_seed(0)),
              'tek': torch.arange(0, N, TN_EVERY)}[mode]
@@ -276,7 +279,7 @@ def timesnet_batch_preds(model, wd, k, mode, bs=8192):
 
 
 def timesnet_batch(store, device):
-    """Host makro-F1: 'tum' = bütün pencereler (resmi, karışık); 'alt' = tek tek alt kümesi, üç kip aynı pencerelerde."""
+    """Host macro-F1: 'tum' = all windows (official, shuffled); 'alt' = one-by-one subset, three modes on the same windows."""
     from cybermetaformer.hidden_state import metrics as M
     out = {}
     with store.final_evaluation():
@@ -297,26 +300,26 @@ def timesnet_batch(store, device):
     return out
 
 
-# ── figürler ────────────────────────────────────────────────────────────
+# ── figures ─────────────────────────────────────────────────────────────
 
 def fig_rollout(res, path):
     fig, axes = plt.subplots(1, len(res), figsize=(6.2 * len(res), 4.2))
     for ax, (k, r) in zip(np.atleast_1d(axes), res.items()):
         s0 = r['seeds'][0]
         x = np.arange(int(k))
-        ax.plot(x, s0['prior_by_steps_back'], color=MUTED, lw=2, label='bütün pencereler (konum önseli)')
+        ax.plot(x, s0['prior_by_steps_back'], color=MUTED, lw=2, label='all windows (position prior)')
         w = np.array([np.nan if v is None else v for v in s0['alert_weight_by_age']])
         ax.plot(x, w, color=SLOT['transformer'], lw=0, marker='o', ms=4,
-                label='sessiz ihlal: host\'un son uyarısının adımı')
+                label="silent compromise: step of the host's last alert")
         ax.set_yscale('log')
-        ax.set_xlabel('adım geri (0 = şimdiki gözlem)')
-        ax.set_ylabel('rollout payı (s0)')
+        ax.set_xlabel('steps back (0 = current observation)')
+        ax.set_ylabel('rollout share (s0)')
         rs = [s['ratio_mean'] for s in r['seeds']]
-        ax.set_title(f"Transformer k={k}: uyarı adımı / önsel = {min(rs):.2f}–{max(rs):.2f} ({len(rs)} seed)",
+        ax.set_title(f"Transformer k={k}: alert step / prior = {min(rs):.2f}–{max(rs):.2f} ({len(rs)} seeds)",
                      loc='left', fontsize=10)
         _grid(ax)
         ax.legend(fontsize=8)
-    fig.suptitle('Sessiz ihlallerde dikkat son uyarının görüldüğü adıma gidiyor mu?', x=0.01, ha='left',
+    fig.suptitle('On silent compromises, does attention go to the step where the last alert was seen?', x=0.01, ha='left',
                  fontsize=11, fontweight='bold')
     fig.tight_layout(rect=(0, 0, 1, 0.94))
     fig.savefig(path, dpi=180)
@@ -339,9 +342,9 @@ def fig_hosts(mats, hosts, path):
         for s in ax.spines.values():
             s.set_visible(False)
         ax.set_title(title, loc='left', fontsize=10)
-        ax.set_xlabel('anahtar host (dikkat edilen)')
-    axes[0].set_ylabel('sorgu host')
-    fig.suptitle(f'iTransformer: değişken-token dikkati host bloklarına toplandı (hücre = satır payı, %; tekdüze '
+        ax.set_xlabel('key host (attended)')
+    axes[0].set_ylabel('query host')
+    fig.suptitle(f'iTransformer: variable-token attention summed into host blocks (cell = row share, %; uniform '
                  f'{600 / D.OBS_DIM:.1f})', x=0.01, ha='left', fontsize=11, fontweight='bold')
     fig.tight_layout(rect=(0, 0, 1, 0.94))
     fig.savefig(path, dpi=180)
@@ -354,24 +357,24 @@ def fig_ig(res, path):
         prof = r['time_by_steps_back']
         axes[0].plot(range(len(prof)), prof, color=SLOT[m], marker=MARKER[m], ms=3, lw=1.5, label=LABEL[m])
     axes[0].set_yscale('log')
-    axes[0].set_xlabel('adım geri (0 = şimdiki gözlem)')
-    axes[0].set_ylabel('|IG| payı')
-    axes[0].set_title('Zaman adımlarının payı (k=32)', loc='left', fontsize=10)
+    axes[0].set_xlabel('steps back (0 = current observation)')
+    axes[0].set_ylabel('|IG| share')
+    axes[0].set_title('Share of the time steps (k=32)', loc='left', fontsize=10)
     _grid(axes[0])
     axes[0].legend(fontsize=8)
-    groups = [('own_host_share', 'host\'un\nkendisi'), ('bits_share', 'aktivite/\ngüvenlik bitleri'),
-              ('scan_share', 'tarama\ngeçmişi'), ('decoy_share', 'decoy')]
+    groups = [('own_host_share', 'own\nhost'), ('bits_share', 'activity/\nsecurity bits'),
+              ('scan_share', 'scan\nhistory'), ('decoy_share', 'decoy')]
     xs = np.arange(len(groups))
     w = 0.8 / len(res)
     for i, (m, r) in enumerate(res.items()):
         axes[1].bar(xs + i * w, [r[g] for g, _ in groups], w, color=SLOT[m], label=LABEL[m])
     axes[1].plot([-0.1, 0.8], [6 / D.OBS_DIM] * 2, color=INK2, lw=1, ls=':')
-    axes[1].text(0.85, 6 / D.OBS_DIM, 'tekdüze (6/78)', va='center', fontsize=8, color=INK2)
+    axes[1].text(0.85, 6 / D.OBS_DIM, 'uniform (6/78)', va='center', fontsize=8, color=INK2)
     axes[1].set_xticks(xs + 0.4 - w / 2, [lab for _, lab in groups])
-    axes[1].set_ylabel('|IG| payı')
-    axes[1].set_title('Özellik grupları', loc='left', fontsize=10)
+    axes[1].set_ylabel('|IG| share')
+    axes[1].set_title('Feature groups', loc='left', fontsize=10)
     _grid(axes[1])
-    fig.suptitle('Integrated Gradients: sessiz ihlallerde "ele geçirilmiş" kestirimini ne taşıyor?', x=0.01,
+    fig.suptitle('Integrated Gradients: what carries the "compromised" prediction on silent compromises?', x=0.01,
                  ha='left', fontsize=11, fontweight='bold', color=INK)
     fig.tight_layout(rect=(0, 0, 1, 0.94))
     fig.savefig(path, dpi=180)
@@ -379,42 +382,42 @@ def fig_ig(res, path):
 
 
 def summary_md(out):
-    L = ['# M2 analizleri (dikkat, IG)', '',
-         f"Test alt kümesi: rastgele {out['n_episodes']} bölüm (seed 0), {out['n_silent']} sessiz ihlal host-adımı. Yöntem: "
-         '`hidden_state/explain.py` başlığı. Bütün sayılar `analiz.json`.', '',
+    L = ['# M2 analyses (attention, IG)', '',
+         f"Test subset: {out['n_episodes']} random episodes (seed 0), {out['n_silent']} silent-compromise host-steps. Method: "
+         'header of `hidden_state/explain.py`. All numbers in `analiz.json`.', '',
          '## Rollout (Transformer)', '',
-         'Oran = konuma düşen rollout payı / o konumun bütün pencerelerdeki ortalaması (1 = konum önseli).', '',
-         '| k | seed | uyarılı adımlar | uyarısız adımlar | sessiz ihlal: uyarı adımı (ort. / medyan) | önselin '
-         'üstünde | yakalanan | kaçan | çift |', '|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
+         'Ratio = rollout share on a position / mean of that position over all windows (1 = position prior).', '',
+         '| k | seed | steps with alerts | steps without alerts | silent compromise: alert step (mean / median) | above '
+         'prior | caught | missed | pairs |', '|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
     for k, r in out['rollout'].items():
         for s, x in zip(SEEDS, r['seeds']):
             L.append(f"| {k} | {s} | {x['alert_any_ratio']:.2f} | {x['no_alert_ratio']:.2f} | {x['ratio_mean']:.2f} / "
                      f"{x['ratio_median']:.2f} | {100 * x['share_above_prior']:.0f}% | {x['ratio_mean_hit']:.2f} | "
                      f"{x['ratio_mean_missed']:.2f} | {x['n_pairs']} |")
-    L += ['', '## iTransformer host dikkati', '',
-          f"Tekdüze hücre {6 / D.OBS_DIM:.3f}. Kendi host = köşegen ortalaması.", '',
-          '| k | model | kendi host | sorgu bağımlılığı (TV) | en büyük hücre | en güçlü çapraz (sorgu → anahtar) |',
+    L += ['', '## iTransformer host attention', '',
+          f"Uniform cell {6 / D.OBS_DIM:.3f}. Own host = mean of the diagonal.", '',
+          '| k | model | own host | query dependence (TV) | largest cell | strongest cross (query → key) |',
           '|---:|---|---:|---:|---:|---|']
     for k, r in out['itransformer'].items():
-        rows = [(f's{s}', x) for s, x in zip(SEEDS, r['seeds'])] + [('eğitilmemiş', r['untrained'])]
+        rows = [(f's{s}', x) for s, x in zip(SEEDS, r['seeds'])] + [('untrained', r['untrained'])]
         for name, x in rows:
             cross = ', '.join(f'{q}→{kk} {v:.2f}' for q, kk, v in x['top_cross'][:3])
             L.append(f"| {k} | {name} | {x['self_mean']:.3f} | {x['query_tv']:.3f} | {x['max_cell']:.3f} | {cross} |")
     ig = out['ig']
-    L += ['', f"## Integrated Gradients (k={ig['k']}, seed 0, {ig['n']} örnek)", '',
-          '| Model | kendi host (uyarı pencerede / hiç) | bit | tarama | decoy | son adım | son 4 adım | uyarı adımı '
-          'oranı | yakınsama (medyan göreli; adım) |', '|---|---:|---:|---:|---:|---:|---:|---:|---:|']
+    L += ['', f"## Integrated Gradients (k={ig['k']}, seed 0, {ig['n']} samples)", '',
+          '| Model | own host (alert in window / never) | bit | scan | decoy | last step | last 4 steps | alert step '
+          'ratio | convergence (median relative; steps) |', '|---|---:|---:|---:|---:|---:|---:|---:|---:|']
     for m, x in ig['models'].items():
         L.append(f"| {LABEL[m]} | {x['own_host_share']:.3f} ({x['own_host_share_inside']:.3f} / "
                  f"{x['own_host_share_never']:.3f}) | {x['bits_share']:.3f} | {x['scan_share']:.3f} | "
                  f"{x['decoy_share']:.3f} | {x['last_step_share']:.3f} | {x['last4_share']:.3f} | "
                  f"{x['alert_step_ratio']:.2f} | {x['convergence_rel_median']:.3f}; {x['n_steps']} |")
     if 'timesnet_batch' in out:
-        L += ['', '## TimesNet: değerlendirme batch\'ine bağımlılık', '',
-              'Host makro-F1, 3 seed ortalaması (aralık). Resmi = raporlanan değerlendirme sırası (bölüm-ana, batch '
-              f'8192); karışık = rastgele sıra, batch 8192; tek tek = bs=1 (çevrimiçi kullanım), yalnız her {TN_EVERY}. '
-              'pencerede. Alt küme sütunlarında üç kip aynı pencerelerde.', '',
-              '| k | küme | resmi | karışık | alt küme: resmi | alt küme: karışık | alt küme: tek tek |',
+        L += ['', '## TimesNet: dependence on the evaluation batch', '',
+              'Host macro-F1, mean over 3 seeds (range). Official = the reported evaluation order (episode-major, batch '
+              f'8192); shuffled = random order, batch 8192; one by one = bs=1 (online use), only every {TN_EVERY}th '
+              'window. In the subset columns the three modes use the same windows.', '',
+              '| k | set | official | shuffled | subset: official | subset: shuffled | subset: one by one |',
               '|---:|---|---:|---:|---:|---:|---:|']
         for k, r in out['timesnet_batch'].items():
             for split in ('test', 'ood_test'):
@@ -437,7 +440,7 @@ def write_outputs(out):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument('--only', choices=['timesnet'], help="yalnız bu bölüm yeniden hesaplanır; diğerleri analiz.json'dan")
+    p.add_argument('--only', choices=['timesnet'], help="only this part is recomputed; the rest from analiz.json")
     args = p.parse_args()
     os.makedirs(OUT_DIR, exist_ok=True)
     device = 'mps' if torch.backends.mps.is_available() else 'cpu'
@@ -466,12 +469,12 @@ def main():
             H = itransformer_host_attention(load_model('itransformer', k, seed, device), sub, k)
             res.append({'matrix': H.tolist(), **host_summary(H, hosts)})
             if seed == 0:
-                mats[f'eğitilmiş, k={k} (s0)'] = H
+                mats[f'trained, k={k} (s0)'] = H
         H0 = itransformer_host_attention(load_model('itransformer', k, 0, device, trained=False), sub, k)
         out['itransformer'][k] = {'seeds': res, 'untrained': {'matrix': H0.tolist(), **host_summary(H0, hosts)}}
         if k == 64:
-            mats['eğitilmemiş, k=64'] = H0
-        print(f"itransformer k={k}: kendi host {[round(r['self_mean'], 3) for r in res]}, eğitilmemiş "
+            mats['untrained, k=64'] = H0
+        print(f"itransformer k={k}: own host {[round(r['self_mean'], 3) for r in res]}, untrained "
               f"{out['itransformer'][k]['untrained']['self_mean']:.3f}", flush=True)
     fig_hosts(mats, hosts, os.path.join(FIG_DIR, 'fig_itransformer_host.png'))
 
@@ -481,7 +484,7 @@ def main():
     out['ig'] = {'k': k, 'n': int(len(samples)), 'models': {}}
     for m in M2_MODELS:
         if not os.path.exists(os.path.join(STAGE_DIR, f'{m}_k{k}_s0', 'model.pt')):
-            print(f'IG {m}: koşu yok, atlandı', flush=True)
+            print(f'IG {m}: no run, skipped', flush=True)
             continue
         model = load_model(m, k, 0, 'cpu')
         for n_steps in (32, 128, 256):
@@ -490,8 +493,8 @@ def main():
             if rel < 0.05:
                 break
         r = out['ig']['models'][m] = {**ig_summary(A, samples, sub, k), 'convergence_rel_median': rel, 'n_steps': n_steps}
-        print(f"IG {m}: kendi host {r['own_host_share']:.3f}, son adım {r['last_step_share']:.3f}, "
-              f"uyarı adımı oranı {r['alert_step_ratio']:.2f}, yakınsama {rel:.3f} ({n_steps} adım)", flush=True)
+        print(f"IG {m}: own host {r['own_host_share']:.3f}, last step {r['last_step_share']:.3f}, "
+              f"alert-step ratio {r['alert_step_ratio']:.2f}, convergence {rel:.3f} ({n_steps} steps)", flush=True)
     fig_ig(out['ig']['models'], os.path.join(FIG_DIR, 'fig_ig.png'))
     out['timesnet_batch'] = timesnet_batch(store, device)
     write_outputs(out)

@@ -1,4 +1,4 @@
-"""Model kaydı: build_model(ad, k, **argümanlar). Yalnızca torch modelleri; XGBoost `xgb.py`, kurallar `rules.py`."""
+"""Model registry: build_model(name, k, **arguments). Torch models only; XGBoost in `xgb.py`, rules in `rules.py`."""
 from functools import partial
 
 from cybermetaformer.hidden_state.models.baselines import MLP
@@ -22,19 +22,19 @@ REGISTRY = {
     'cybermetaformer': CyberMetaFormer,
 }
 
-# Geçerlilik matrisinin N/A hücreleri: (model, k) → neden. Tablolarda "—" olarak gösterilir.
+# N/A cells of the validity matrix: (model, k) → reason. Shown as "—" in the tables.
 NOT_APPLICABLE = {
-    ('patchtst', 1): 'tek yama: kanal-bağımsız tek bir skaler',
-    ('timesnet', 1): 'tek adımda FFT ile periyot bulunamaz',
-    # Matris "tek ölçek (TSMixer'a iner)" diyordu; MPS'in konvolüsyon çekirdeği bu hücrede assert ile süreci düşürüyor
-    # (eager ve compile; k=2 ve 4 sorunsuz). README Kararlar 2026-10-19.
-    ('timemixer', 1): "MPS çekirdek hatası (tek ölçekte TSMixer'a iner)",
+    ('patchtst', 1): 'single patch: a single channel-independent scalar',
+    ('timesnet', 1): 'no period can be found by FFT in a single step',
+    # The matrix said "single scale (reduces to TSMixer)"; the MPS convolution kernel kills the process with an assert
+    # in this cell (eager and compile; k=2 and 4 work), decided 2026-10-19.
+    ('timemixer', 1): "MPS kernel error (reduces to TSMixer at a single scale)",
 }
 
 
 def build_model(name, k, **kwargs):
     if name not in REGISTRY:
-        raise ValueError(f'Bilinmeyen model: {name} (mevcut: {sorted(REGISTRY)})')
+        raise ValueError(f'Unknown model: {name} (available: {sorted(REGISTRY)})')
     if (name, k) in NOT_APPLICABLE:
-        raise ValueError(f'{name} k={k} geçerlilik matrisinde N/A: {NOT_APPLICABLE[name, k]}')
+        raise ValueError(f'{name} k={k} is N/A in the validity matrix: {NOT_APPLICABLE[name, k]}')
     return REGISTRY[name](k=k, **kwargs)

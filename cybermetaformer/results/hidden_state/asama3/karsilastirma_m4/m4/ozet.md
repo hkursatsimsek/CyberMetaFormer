@@ -1,11 +1,11 @@
-# M4 revizyonu, madde 4 ikili sınamaları (eşli bölüm bootstrap'ı)
+# M4 revision, item 4 pairwise tests (paired episode bootstrap)
 
-100000 örnek, bootstrap seed 0. Her model belirtilen seed'lerinin ortalamasıyla girer (sütun: seed sayısı). a − b; GA %95. p Holm: çift içi ölçütler üzerinden; plan: bütün satırlar üzerinden. En küçük p 2 / (n + 1). Göreli düşüşte küçük daha iyi. `python -m cybermetaformer.hidden_state.compare --plan m4`.
-Plan geneli Holm ailesi: 35 satır; en küçük ham p 2e-05, plan geneli en küçük düzeltilmiş p 0.0007.
+100000 samples, bootstrap seed 0. Each model enters with the mean over the given seeds (column: number of seeds). a − b; 95% CI. p Holm: pair = over the criteria of the pair; plan = over all rows. Smallest p 2 / (n + 1). For the relative drop smaller is better. `python -m cybermetaformer.hidden_state.compare --plan m4`.
+Plan-wide Holm family: 35 rows; smallest raw p 2e-05, smallest plan-wide corrected p 0.0007.
 
-## A4: host-token GRU − CMF (M4 Pro, ana_m4'e karşı)
+## A4: host-token GRU − CMF (M4 Pro, against ana_m4)
 
-| a | b | seed a / b | ölçüt | a | b | a − b | %95 GA | p Holm (çift) | p Holm (plan) |
+| a | b | seeds a / b | criterion | a | b | a − b | 95% CI | p Holm (pair) | p Holm (plan) |
 |---|---|---|---|---:|---:|---:|---|---:|---:|
 | cybermetaformer-gru_host_topo_k101 | cybermetaformer-ana_m4_k101 | 5 / 5 | test_host_macro_f1 | 0.9803 | 0.9800 | +0.0002 | [+0.0001, +0.0004] | 0.0253 | 0.1179 |
 | cybermetaformer-gru_host_topo_k101 | cybermetaformer-ana_m4_k101 | 5 / 5 | ood_host_macro_f1 | 0.9419 | 0.9414 | +0.0005 | [+0.0001, +0.0009] | 0.0318 | 0.2064 |
@@ -22,9 +22,9 @@ Plan geneli Holm ailesi: 35 satır; en küçük ham p 2e-05, plan geneli en kü�
 | cybermetaformer-gru_host_attn_k101 | cybermetaformer-ana_m4_k101 | 5 / 5 | test_never_recall | 0.8762 | 0.8917 | -0.0155 | [-0.0208, -0.0105] | 0.0001 | 0.0007 |
 | cybermetaformer-gru_host_attn_k101 | cybermetaformer-ana_m4_k101 | 5 / 5 | ood_never_recall | 0.8142 | 0.8356 | -0.0214 | [-0.0257, -0.0170] | 0.0001 | 0.0007 |
 
-## A4: topoloji sapması, host-token GRU içinde (M4 Pro)
+## A4: topology bias within the host-token GRU (M4 Pro)
 
-| a | b | seed a / b | ölçüt | a | b | a − b | %95 GA | p Holm (çift) | p Holm (plan) |
+| a | b | seeds a / b | criterion | a | b | a − b | 95% CI | p Holm (pair) | p Holm (plan) |
 |---|---|---|---|---:|---:|---:|---|---:|---:|
 | cybermetaformer-gru_host_topo_k101 | cybermetaformer-gru_host_attn_k101 | 5 / 5 | test_host_macro_f1 | 0.9803 | 0.9801 | +0.0002 | [+0.0000, +0.0004] | 0.1526 | 0.4510 |
 | cybermetaformer-gru_host_topo_k101 | cybermetaformer-gru_host_attn_k101 | 5 / 5 | ood_host_macro_f1 | 0.9419 | 0.9413 | +0.0006 | [+0.0002, +0.0009] | 0.0053 | 0.0180 |
@@ -34,9 +34,9 @@ Plan geneli Holm ailesi: 35 satır; en küçük ham p 2e-05, plan geneli en kü�
 | cybermetaformer-gru_host_topo_k101 | cybermetaformer-gru_host_attn_k101 | 5 / 5 | test_never_recall | 0.8851 | 0.8762 | +0.0089 | [+0.0043, +0.0136] | 0.0013 | 0.0042 |
 | cybermetaformer-gru_host_topo_k101 | cybermetaformer-gru_host_attn_k101 | 5 / 5 | ood_never_recall | 0.8257 | 0.8142 | +0.0114 | [+0.0070, +0.0159] | 0.0001 | 0.0007 |
 
-## A4: host-token GRU − tam geçmiş GRU (makineler arası)
+## A4: host-token GRU − full-history GRU (across machines)
 
-| a | b | seed a / b | ölçüt | a | b | a − b | %95 GA | p Holm (çift) | p Holm (plan) |
+| a | b | seeds a / b | criterion | a | b | a − b | 95% CI | p Holm (pair) | p Holm (plan) |
 |---|---|---|---|---:|---:|---:|---|---:|---:|
 | cybermetaformer-gru_host_topo_k101 | gru_full_k101 | 5 / 5 | test_host_macro_f1 | 0.9803 | 0.9768 | +0.0035 | [+0.0030, +0.0040] | 0.0001 | 0.0007 |
 | cybermetaformer-gru_host_topo_k101 | gru_full_k101 | 5 / 5 | ood_host_macro_f1 | 0.9419 | 0.9264 | +0.0155 | [+0.0147, +0.0163] | 0.0001 | 0.0007 |

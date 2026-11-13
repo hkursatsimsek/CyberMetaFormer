@@ -9,11 +9,11 @@
     "bilinmiyor"
   ],
   "cause_text": {
-    "kacak_5": "İstismar %5 olasılıkla kaydedilmedi (SSH dışı istismar; minimal.py:1251)",
-    "green_maske": "Aynı adımda Green aynı hostu taradı, istismar görünmedi (minimal.py:1252)",
-    "remove_maske": "Blue 'remove' uyguladı; gözlem [1,0] 'kaldırıldı' gösterdi ama host hâlâ ele geçirilmiş (minimal.py:1308-1316)",
-    "restore": "Restore gözlemdeki bayrağı sildi ama host ele geçirilmiş kaldı",
-    "bilinmiyor": "Yukarıdakilerin hiçbiri"
+    "kacak_5": "Exploit not recorded, probability 5% (non-SSH exploit; minimal.py:1251)",
+    "green_maske": "Green scanned the same host at the same step; the exploit was not visible (minimal.py:1252)",
+    "remove_maske": "Blue applied 'remove'; the observation showed [1,0] 'removed' but the host is still compromised (minimal.py:1308-1316)",
+    "restore": "Restore cleared the flag in the observation but the host stayed compromised",
+    "bilinmiyor": "None of the above"
   },
   "genel": {
     "kacak_5": 0.30402464263444756,
@@ -367,14 +367,14 @@
     "restore_vs_exploit": {
       "deneme": 76000,
       "restore_sonrasi_ele_gecirilmis": 0,
-      "yorum": "restore, Red güncellemesinden SONRA uygulanır (update_blue updated_state üzerinde çalışır)"
+      "yorum": "restore is applied AFTER the Red update (update_blue works on updated_state)"
     },
     "remove_on_root": {
       "deneme": 112000,
       "root_kaldi": 112000,
       "gozlem_[1,0]_gosterdi": 112000,
       "blue_success_-1_iken": 112000,
-      "yorum": "remove root'a etkisiz (update_blue:741) ama _process_state remove'u logical_and(blue_success, remove) ile süzer; -1 doğru (truthy) sayıldığı için bayrak her durumda [1,0]"
+      "yorum": "remove has no effect on root (update_blue:741), but _process_state filters remove with logical_and(blue_success, remove); -1 counts as true (truthy), so the flag is [1,0] in every case"
     },
     "detection_overwrite": {
       "escalate": {

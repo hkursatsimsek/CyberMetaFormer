@@ -1,4 +1,4 @@
-# Ham XGBoost: düzleştirilmiş son k gözlem (k×78), host başına çok sınıflı. HPO: params.
+# Raw XGBoost: flattened last k observations (k×78), multi-class per host. HPO: params.
 model: xgb
 num_boost_round: 2000
 early_stopping_rounds: 50

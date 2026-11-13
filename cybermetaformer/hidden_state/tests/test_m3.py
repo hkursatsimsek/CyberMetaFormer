@@ -1,8 +1,8 @@
-"""M3: test-only Blue politikaları ve CyberMetaFormer.
+"""M3: test-only Blue policies and CyberMetaFormer.
 
-Politikalar: eski indeksler korunur; iki mekanizma politikası React_restore_minimal'dan yalnızca tanımlanan noktada
-ayrılır. Model: bütün zaman/host karıştırıcı türlerinde nedensellik, pencere sınırı, SSD'nin sıralı yinelemeye
-eşitliği, uyarı yaşı kanalı, B1 bütçesi."""
+Policies: the old indices are kept; the two mechanism policies differ from React_restore_minimal only at the
+defined point. Model: causality, the window limit, equivalence of the SSD with the sequential recurrence, the
+alert-age channel and the B1 budget, for every temporal/host mixer type."""
 import numpy as np
 import pytest
 import torch
@@ -14,12 +14,12 @@ from cybermetaformer.hidden_state.models import build_model
 from cybermetaformer.hidden_state.models import cybermetaformer as C
 
 
-try:                                                  # politikalar CybORG++ ister (M4 Pro'da klon yok)
+try:                                                  # the policies need CybORG++ (no clone on the M4 Pro)
     from CybORG_plus_plus.mini_CAGE import React_restore_minimal
     from minicage.dataset import policies as P
 except ImportError:
     P = None
-needs_cyborg = pytest.mark.skipif(P is None, reason='CybORG_plus_plus yok')
+needs_cyborg = pytest.mark.skipif(P is None, reason='CybORG_plus_plus not available')
 
 
 @needs_cyborg
@@ -36,7 +36,7 @@ def test_blue_policy_indices_preserved():
 
 
 def _react_restore_obs(raw):
-    """minicage_v1'in react_restore bölümlerinden gözlem dizisi: (T+1, n, 78)."""
+    """Observation sequence from the react_restore episodes of minicage_v1: (T+1, n, 78)."""
     idx = np.where(raw['blue_policy'] == P.BLUE_POLICIES.index('react_restore'))[0][:64]
     return np.swapaxes(raw['obs_blue'][idx], 0, 1).astype(np.int64)
 
@@ -66,7 +66,7 @@ def test_react_restore_analyse_fills_idle_steps(raw):
     assert (new != 0).all()
     hosts = new[idle] - P.ANALYSE
     assert ((hosts >= 0) & (hosts < P.NUM_HOSTS) & (hosts != P.USER0)).all()
-    for e in range(obs.shape[1]):                     # her ortamda boşta adımlar 12 hostu sırayla dolaşır
+    for e in range(obs.shape[1]):                     # in each environment the idle steps visit the 12 hosts in turn
         seq = new[idle[:, e], e] - P.ANALYSE
         expected = P.ReactRestoreAnalyse.HOSTS[np.arange(len(seq)) % 12]
         np.testing.assert_array_equal(seq, expected)
@@ -99,13 +99,13 @@ def test_config_within_budget_b1():
     cfg = yaml.safe_load(open(f'{D.ROOT}/hidden_state/configs/cybermetaformer.yaml'))
     model = build_model(cfg['model'], cfg['k'], **cfg['model_args'])
     n = sum(p.numel() for p in model.parameters())
-    assert 147_000 <= n <= 220_000, n                     # 183 588 ± %20
+    assert 147_000 <= n <= 220_000, n                     # 183 588 ± 20%
     assert model.episode_mode
 
 
-@pytest.mark.parametrize('kw', VARIANTS, ids=lambda kw: '-'.join(f'{k}={v}' for k, v in kw.items()) or 'ana')
+@pytest.mark.parametrize('kw', VARIANTS, ids=lambda kw: '-'.join(f'{k}={v}' for k, v in kw.items()) or 'main')
 def test_causal(store, small_idx, kw):
-    """t. çıktı yalnızca obs[0..t]'ye bağlı: t0'daki değişiklik öncesini değiştirmez, sonrasını değiştirir."""
+    """Output t depends only on obs[0..t]: a change at t0 leaves earlier outputs unchanged and changes later ones."""
     _, x = _episodes(store, small_idx)
     model = _small(**kw)
     t0 = 40
@@ -130,7 +130,7 @@ def test_episode_equals_unpadded_window(store, small_idx):
 
 @pytest.mark.parametrize('temporal', [['conv', 'attn'], ['ssd'], ['mlp', 'pool']])
 def test_window_limits_receptive_field(store, small_idx, temporal):
-    """window=w, L katman, uyarı yaşı kapalı: s'deki değişiklik ancak t ≤ s + L·(w − 1)'e ulaşır."""
+    """window=w, L layers, alert age off: a change at s reaches only t ≤ s + L·(w − 1)."""
     _, x = _episodes(store, small_idx)
     w, L, s = 6, 2, 30
     model = _small(temporal=temporal, window=w, kernel=w, layers=L, age=False)
@@ -152,7 +152,7 @@ def test_ssd_matches_recurrence():
     torch.manual_seed(0)
     m = C.SSD(16, heads=2, state=4).eval()
     with torch.no_grad():
-        m.dt_bias.add_(2.0)                               # belirgin bozunma: a_t gerçekten < 1
+        m.dt_bias.add_(2.0)                               # clear decay: a_t really < 1
         u = torch.randn(3, 20, 16)
         y = m(u)
         N, S, d = u.shape
@@ -176,13 +176,13 @@ def test_ssd_matches_recurrence():
                                 {'temporal': ['gru']}, {'temporal': ['gru'], 'host_mixer': 'attn'},   # gru_host_*
                                 {'temporal': ['conv', 'gru']}])                                         # konv_gru
 def test_step_matches_episode(store, small_idx, kw):
-    """Çevrimiçi adım kipi (efficiency.py'nin CMF gecikmesi) forward_episode ile aynı çıktıyı verir."""
+    """The online step mode (CMF latency in efficiency.py) gives the same output as forward_episode."""
     torch.manual_seed(0)
     model = C.CyberMetaFormer(**kw).eval()
     with torch.no_grad():
         for b in model.modules():
             if isinstance(b, C.SSD):
-                b.dt_bias.add_(2.0)                       # belirgin bozunma (test_ssd_matches_recurrence gibi)
+                b.dt_bias.add_(2.0)                       # clear decay (as in test_ssd_matches_recurrence)
         x =D.scale_obs(torch.as_tensor(store.obs[small_idx[:3]]))
         ref = model.forward_episode(x)
     state = model.init_state(3)
@@ -253,7 +253,7 @@ def test_hpo_space_stays_in_budget_b1(params):
     args = {**hpo.load_base('cybermetaformer')['model_args'], **over['model_args']}
     lo, hi = C.BUDGETS['b1']
     assert lo <= C.n_params(**args) <= hi
-    assert C.n_params(**{**args, 'd': args['d'] + 8}) > hi        # en büyük sığan genişlik
+    assert C.n_params(**{**args, 'd': args['d'] + 8}) > hi        # the widest width that fits
 
 
 def test_variants_names_and_budgets():
@@ -272,7 +272,7 @@ def test_variants_names_and_budgets():
         {**base['model_args'], 'd': C.fit_width('b1', **{k: v for k, v in base['model_args'].items() if k != 'd'})}
 
 
-# ── aksiyon girdisi, alan genelleme, artırma, (ii) ──────────────────────
+# ── action input, domain generalisation, augmentation, (ii) ─────────────
 
 def test_prev_action_alignment(store):
     from minicage.dataset import loaders as L
@@ -309,7 +309,7 @@ def test_alert_drop_removes_whole_runs(store, small_idx):
     assert dropped.any() and (a1 <= a0).all()
     start = a0 & ~torch.cat([torch.zeros_like(a0[:, :1]), a0[:, :-1]], 1)
     run = start.long().cumsum(1)
-    for e, h in zip(*torch.where(dropped.any(1))):           # silinen koşunun bütün adımları silinmiş
+    for e, h in zip(*torch.where(dropped.any(1))):           # every step of the dropped spell is dropped
         for r in torch.unique(run[e, :, h][dropped[e, :, h]]):
             m = (run[e, :, h] == r) & a0[e, :, h]
             assert dropped[e, :, h][m].all()
@@ -348,10 +348,10 @@ def test_domain_ids_cover_training_policies(store):
     assert not any('eps0.3' in n for n in names)
 
 
-def test_ood_paketi_sets_and_pairs():
-    """OOD paketi: kümeler temel kümelere ve politika adlarına bağlı; eşli sınama seed ortalamasıyla."""
+def test_ood_suite_sets_and_pairs():
+    """OOD package: sets depend on the base sets and policy names; paired test against the seed mean."""
     from cybermetaformer.hidden_state import metrics as M
-    from cybermetaformer.hidden_state import ood_paketi as O
+    from cybermetaformer.hidden_state import ood_suite as O
     from minicage.dataset.policies import BLUE_POLICIES
     assert all(b in O.BASE for b, _ in O.SETS.values())
     assert all(p is None or p in BLUE_POLICIES for _, p in O.SETS.values())
@@ -372,7 +372,7 @@ def test_ood_paketi_sets_and_pairs():
 
 @pytest.mark.parametrize('kind', ['topo', 'attn'])
 def test_explain_m3_attention_matches_host_mixer(kind):
-    """explain_m3'ün yeniden hesapladığı dikkat, HostMixer.forward'ın çıktısını verir (sapma ve maske dahil)."""
+    """The attention recomputed by explain_m3 equals the output of HostMixer.forward (bias and mask included)."""
     from cybermetaformer.hidden_state.explain_m3 import attention_probs
     torch.manual_seed(0)
     hm = C.HostMixer(16, kind, heads=4, topo_mask=kind == 'topo').eval()
@@ -386,4 +386,4 @@ def test_explain_m3_attention_matches_host_mixer(kind):
         torch.testing.assert_close(y, hm(x), rtol=1e-5, atol=1e-5)
     torch.testing.assert_close(P.sum(-1), torch.ones(2, 5, 4, D.NUM_HOSTS))
     if kind == 'topo':
-        assert P[..., C.host_relations() == C.REL_OTHER].max() == 0          # maskeli "diğer" ilişkisi
+        assert P[..., C.host_relations() == C.REL_OTHER].max() == 0          # masked "other" relation

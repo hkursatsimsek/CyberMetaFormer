@@ -1,27 +1,27 @@
-"""Gecikme ve maliyet (revizyon madde 10): CPU'da tek örnekli (bs = 1) çevrimiçi adım gecikmesi ve çalışma belleği.
+"""Latency and cost (revision item 10): single-sample (bs = 1) online step latency and working memory on CPU.
 
-gecikme.py'nin protokolü, model listesi genişletilerek (CMF B2, M2'nin en iyi iki pencere modeli Transformer k64 ve
-TimeMixer k64) ve bellek ölçümü eklenerek uygulanır:
-- Çevrimiçi adım: CMF varyantları `CyberMetaFormer.step` (Algoritma 1); GRU tam taşınan gizli durumla tek hücre
-  güncellemesi (gecikme.GRUStep); pencere modelleri son k gözlemlik tamponu her adımda kaydırıp ağı yeniden koşar
-  (WindowStep; tampon başta sıfır ve maskeli, değerlendirmedeki pencereyle aynı). Ölçümden önce her model 4 test
-  bölümünde adım kipini değerlendirme yoluyla karşılaştırır (CMF ve GRU: bölüm kipi; pencere modelleri:
-  evaluate.predict_logits; FP32, en büyük |Δ| < 1e-3).
-- Gecikme: her iş parçacığı ayarında (1 ve torch'un varsayılanı) ısınma, ardından ROUNDS tur; her turda modeller
-  dönüşümlü olarak EPISODES bölüm × 101 adım koşar. Medyan, p95, p99, ortalama ± sd ve tur medyanlarının sd'si.
-- Bellek: eğitilebilir parametre sayısı (makale tablolarındaki ve efficiency.py'deki tanım), bütün parametrelerin
-  baytı (FP32), çevrimiçi durum baytı (adım kipinin taşıdığı tensörler) ve çalışma belleği. Çalışma
-  belleği her model için ayrı bir alt süreçte ölçülür: torch ve veri yüklendikten sonraki tepe RSS ile model yüklenip
-  1 iş parçacığında ısınma + bir tur koşulduktan sonraki tepe RSS arasındaki fark (macOS ru_maxrss, bayt). Torch'un
-  ayırıcı önbelleğini de içerir; mutlak değer değil, modeller arası karşılaştırma içindir.
-- Ortam: CPU modeli, performans/verim çekirdekleri, mantıksal CPU, bellek, macOS, Python/torch/numpy sürümleri, ölçüm
-  öncesi ve sonrası yük ortalaması, ölçüm sırasında başka Python sürecinin olup olmadığı. Makine başka iş koşmazken
-  ölçülmelidir (betik başka bir ağır Python süreci görürse uyarır ve kaydeder).
+The protocol of step_latency.py, with the model list extended (CMF B2, the two best M2 window models Transformer k64 and
+TimeMixer k64) and a memory measurement added:
+- Online step: CMF variants `CyberMetaFormer.step` (Algorithm 1); full GRU a single cell update with the carried
+  hidden state (step_latency.GRUStep); window models shift a buffer of the last k observations at every step and rerun
+  the network (WindowStep; the buffer starts zero and masked, the same window as in evaluation). Before timing, each
+  model compares its step mode with the evaluation path on 4 test episodes (CMF and GRU: episode mode; window models:
+  evaluate.predict_logits; FP32, largest |Δ| < 1e-3).
+- Latency: in each thread setting (1 and the torch default) a warm-up, then ROUNDS rounds; in each round the models
+  run EPISODES episodes × 101 steps in turn. Median, p95, p99, mean ± sd and the sd of the round medians.
+- Memory: trainable parameter count (the definition of the paper tables and efficiency.py), bytes of all parameters
+  (FP32), online state bytes (tensors carried by the step mode) and working memory. Working
+  memory is measured for each model in a separate subprocess: the difference between the peak RSS after loading torch
+  and the data and the peak RSS after loading the model and running warm-up + one round on 1 thread (macOS ru_maxrss,
+  bytes). It includes the torch allocator cache; it is meant for comparison between models, not as an absolute value.
+- Environment: CPU model, performance/efficiency cores, logical CPUs, memory, macOS, Python/torch/numpy versions, load
+  average before and after timing, whether another Python process was running during timing. Measure while nothing
+  else runs on the machine (the script warns and records it if it sees another heavy Python process).
 
-Çıktı: results/hidden_state/makale/maliyet/{olcum.json, table.md}
+Output: results/hidden_state/makale/inference_cost/{olcum.json, table.md}
 
-    venv_ts/bin/python -m cybermetaformer.hidden_state.maliyet
-    venv_ts/bin/python -m cybermetaformer.hidden_state.maliyet --table     # kayıtlı olcum.json'dan yalnız tablo
+    venv_ts/bin/python -m cybermetaformer.hidden_state.inference_cost
+    venv_ts/bin/python -m cybermetaformer.hidden_state.inference_cost --table     # only the table, from the saved olcum.json
 """
 import argparse
 import json
@@ -37,14 +37,14 @@ import yaml
 
 from cybermetaformer.hidden_state import data as D
 from cybermetaformer.hidden_state import evaluate as E
-from cybermetaformer.hidden_state import gecikme as G
+from cybermetaformer.hidden_state import step_latency as G
 from cybermetaformer.hidden_state import train as T
 from cybermetaformer.hidden_state.models import build_model
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RESULTS = os.path.join(ROOT, 'results', 'hidden_state')
-OUT = os.path.join(RESULTS, 'makale', 'maliyet')
-# ad → (aşama, koşu klasörü, etiket); seed 0'ın ağırlıkları
+OUT = os.path.join(RESULTS, 'makale', 'inference_cost')
+# name → (stage, run folder, label); weights of seed 0
 MODELS = {
     'cybermetaformer': ('asama3', 'cybermetaformer_k101_s0', G.LABEL['cybermetaformer']),
     'cybermetaformer-b2': ('asama3', 'cybermetaformer-b2_k101_s0', 'CyberMetaFormer B2 (larger width budget)'),
@@ -63,7 +63,7 @@ WARM, ROUNDS, EPISODES, CHECK_EP = 202, 5, 10, 4
 
 
 class WindowStep:
-    """Pencere modelinin çevrimiçi adımı: son k ölçekli gözlemlik tampon + maske, her adımda tam ileri geçiş."""
+    """Online step of a window model: buffer of the last k scaled observations + mask, a full forward pass per step."""
 
     def __init__(self, model, k):
         self.model, self.k = model, k
@@ -83,7 +83,7 @@ def load(name):
     stage, run, _ = MODELS[name]
     d = os.path.join(RESULTS, stage, run)
     cfg = {**T.DEFAULTS, **yaml.safe_load(open(os.path.join(d, 'config.yaml')))}
-    assert cfg['scale'] == 'global', f'{name}: ölçekleme {cfg["scale"]}'
+    assert cfg['scale'] == 'global', f'{name}: scaling {cfg["scale"]}'
     torch.manual_seed(0)
     model = build_model(cfg['model'], cfg['k'], **(cfg.get('model_args') or {}))
     model.load_state_dict(torch.load(os.path.join(d, 'model.pt'), map_location='cpu'))
@@ -95,7 +95,7 @@ def load(name):
 
 @torch.no_grad()
 def check(name, st, model, cfg, obs_int8):
-    """Adım kipi ile değerlendirme yolunun en büyük mutlak logit farkı (CHECK_EP bölüm)."""
+    """Largest absolute logit difference between the step mode and the evaluation path (CHECK_EP episodes)."""
     x = D.scale_obs(torch.as_tensor(obs_int8[:CHECK_EP])).float()
     if isinstance(st, WindowStep):
         n = len(obs_int8[:CHECK_EP])
@@ -106,7 +106,7 @@ def check(name, st, model, cfg, obs_int8):
     else:
         return G.check(st, x)
     err = float((out - ref).abs().max())
-    assert err < 1e-3, f'{name}: adım kipi değerlendirme yolundan {err:.2e} sapıyor'
+    assert err < 1e-3, f'{name}: step mode deviates from the evaluation path by {err:.2e}'
     return err
 
 
@@ -119,7 +119,7 @@ class _Arrays:
 
 
 def other_python_processes():
-    """Bu süreç dışında %CPU'su yüksek Python süreçleri (ölçümün boş makinede yapıldığının kaydı)."""
+    """Python processes with high %CPU other than this one (record that the measurement ran on an idle machine)."""
     try:
         ps = subprocess.run(['ps', '-axo', 'pid=,pcpu=,comm='], capture_output=True, text=True, check=True).stdout
     except (OSError, subprocess.CalledProcessError):
@@ -133,7 +133,7 @@ def other_python_processes():
 
 
 def worker(name, x_path):
-    """Alt süreç: tek modelin çalışma belleği (tepe RSS artışı, bayt) → stdout'a JSON."""
+    """Subprocess: working memory of a single model (peak RSS increase, bytes) → JSON on stdout."""
     torch.set_num_threads(1)
     x = torch.load(x_path)
     base = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
@@ -147,7 +147,7 @@ def worker(name, x_path):
 def main():
     busy = other_python_processes()
     if busy:
-        print(f'UYARI: başka yoğun Python süreçleri var: {busy}', flush=True)
+        print(f'WARNING: other busy Python processes: {busy}', flush=True)
     env = G.environment()
     env['busy_python_processes_before'] = busy
     default_threads = env['torch_default_threads']
@@ -164,12 +164,12 @@ def main():
                         'param_bytes': sum(p.numel() * p.element_size() for p in model.parameters()),
                         'state_bytes': G.state_bytes(st.init_state(1, 'cpu')), 'window': cfg.get('k'),
                         'step_check_max_abs': check(name, st, model, cfg, obs)}
-        print(f"{name:32s} param {models[name]['params']:>9,}  durum {models[name]['state_bytes']:>9,} B  "
-              f"adım–değerlendirme |Δ| {models[name]['step_check_max_abs']:.1e}", flush=True)
+        print(f"{name:32s} param {models[name]['params']:>9,}  state {models[name]['state_bytes']:>9,} B  "
+              f"step–evaluation |Δ| {models[name]['step_check_max_abs']:.1e}", flush=True)
     results = {}
     for threads in sorted({1, default_threads}):
         torch.set_num_threads(threads)
-        for name in MODELS:                                                  # ısınma
+        for name in MODELS:                                                  # warm-up
             G.run_steps(models[name]['step'], x, max(1, WARM // S))
         rounds = {name: [] for name in MODELS}
         for _ in range(ROUNDS):
@@ -178,18 +178,18 @@ def main():
         for name in MODELS:
             res = G.summarize([v for rr in rounds[name] for v in rr], rounds[name])
             results.setdefault(name, {})[str(threads)] = res
-            print(f"{threads} iş parçacığı  {name:32s} medyan {res['median_ms']:.4f} ms  p95 {res['p95_ms']:.4f}  "
-                  f"p99 {res['p99_ms']:.4f}  tur sd {res['round_median_sd_ms']:.4f}", flush=True)
+            print(f"{threads} threads  {name:32s} median {res['median_ms']:.4f} ms  p95 {res['p95_ms']:.4f}  "
+                  f"p99 {res['p99_ms']:.4f}  round sd {res['round_median_sd_ms']:.4f}", flush=True)
     env['load_average_after'] = list(os.getloadavg())
     env['busy_python_processes_after'] = other_python_processes()
-    with tempfile.TemporaryDirectory() as tmp:                               # çalışma belleği, model başına süreç
+    with tempfile.TemporaryDirectory() as tmp:                               # working memory, one process per model
         x_path = os.path.join(tmp, 'x.pt')
         torch.save(x, x_path)
         for name in MODELS:
-            r = subprocess.run([sys.executable, '-m', 'cybermetaformer.hidden_state.maliyet', '--worker', name, x_path],
+            r = subprocess.run([sys.executable, '-m', 'cybermetaformer.hidden_state.inference_cost', '--worker', name, x_path],
                                capture_output=True, text=True, check=True, cwd=os.path.dirname(ROOT))
             models[name]['memory'] = json.loads(r.stdout.strip().splitlines()[-1])
-            print(f"{name:32s} çalışma belleği {models[name]['memory']['working_memory_bytes'] / 2 ** 20:.1f} MiB",
+            print(f"{name:32s} working memory {models[name]['memory']['working_memory_bytes'] / 2 ** 20:.1f} MiB",
                   flush=True)
     out = {'environment': env,
            'protocol': {'warmup_steps': max(1, WARM // S) * S, 'rounds': ROUNDS, 'steps_per_round': EPISODES * S,

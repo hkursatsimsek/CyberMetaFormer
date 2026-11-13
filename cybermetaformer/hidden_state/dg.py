@@ -1,19 +1,19 @@
-"""Eğitim zamanı OOD yöntemleri: alan genelleme ve mekanizma artırması. Bölüm kipi.
+"""Training-time OOD methods: domain generalization and mechanism augmentation. Episode mode.
 
-Alan = eğitim bölümünün (Red, Blue) politika çifti: 2 Red × 5 Blue = 10 alan (ood_test'in politikası eğitimde yok).
-Model seçimi eğitim alanlarının val'i ile (train.py; OOD hiçbir seçime girmez). DomainBed uyarlamaları:
+Domain = the (Red, Blue) policy pair of the training episode: 2 Red × 5 Blue = 10 domains (the ood_test policy is not in training).
+Model selection with the val of the training domains (train.py; OOD enters no selection). DomainBed adaptations:
 
-- `groupdro` (Sagawa vd. 2020): alan ağırlıkları q, q_g ← q_g · exp(η L_g); kayıp Σ q_g L_g (batch'te olan alanlar).
-- `vrex` (Krueger vd. 2021): ort(L_g) + λ var(L_g); ilk `anneal_steps` adımda λ = 1.
-- `coral` (Sun & Saenko 2016): son token özniteliklerinin alanlar arası ortalama ve kovaryans farkı, λ ağırlıkla.
-- `dann` (Ganin vd. 2016): (bölüm, adım) başına host ortalaması özniteliğinden alanı ayırt eden MLP, gradyan ters
-  çevirme; katsayı 2/(1 + e^(−10p)) − 1 (p eğitim ilerlemesi) × λ.
+- `groupdro` (Sagawa et al. 2020): domain weights q, q_g ← q_g · exp(η L_g); loss Σ q_g L_g (domains in the batch).
+- `vrex` (Krueger et al. 2021): mean(L_g) + λ var(L_g); λ = 1 in the first `anneal_steps` steps.
+- `coral` (Sun & Saenko 2016): difference in mean and covariance of the last-token features across domains, weighted by λ.
+- `dann` (Ganin et al. 2016): an MLP distinguishing the domain from the host-mean feature per (episode, step), gradient
+  reversal; coefficient 2/(1 + e^(−10p)) − 1 (p training progress) × λ.
 
-Artırma (yalnızca eğitimde; etiketler değişmez):
-- `alert_drop: p`: her (bölüm, host) için bütün bir uyarı koşusu (ardışık uyarılı adımlar; uyarı = istismar aktivitesi
-  ya da güvenlik g1, features 'export') p olasılıkla silinir: aktivite istismar biti ve iki güvenlik biti 0. Gerçek
-  kaçak (%5) da bir ele geçirmeyi hiç göstermez; adım adım silmek simülatörde olmayan titreme üretirdi.
-- `time_mask: p`: her adımın gözlemi (t ≥ 1) p olasılıkla tamamen sıfırlanır (eksik gözlem).
+Augmentation (training only; labels unchanged):
+- `alert_drop: p`: for each (episode, host) a whole alert run (consecutive alerted steps; alert = exploit activity
+  or safety g1, features 'export') is deleted with probability p: the activity exploit bit and both safety bits set to 0.
+  The real miss (5%) also never shows a compromise; deleting step by step would create flicker absent from the simulator.
+- `time_mask: p`: the observation of each step (t ≥ 1) is zeroed completely with probability p (missing observation).
 """
 import math
 
@@ -28,22 +28,22 @@ METHODS = ('groupdro', 'vrex', 'coral', 'dann')
 
 
 def domain_ids(store, idx):
-    """Bölüm başına alan kimliği (0..G−1) ve alan adları; sıra (red, blue) kimliğine göre."""
+    """Domain id per episode (0..G−1) and domain names; ordered by the (red, blue) ids."""
     combo = store.red_policy[idx] * 100 + store.blue_policy[idx]
     uniq, dom = np.unique(combo, return_inverse=True)
     names = [f"{store.meta['red_policies'][c // 100]}×{store.meta['blue_policies'][c % 100]}" for c in uniq]
     return dom.astype(np.int64), names
 
 
-# ── artırma ─────────────────────────────────────────────────────────────
+# ── augmentation ────────────────────────────────────────────────────────
 
 def alert_runs_drop(x, p, generator=None):
-    """Ölçekli gözlem (B, S, 78) → uyarı koşuları p olasılıkla silinmiş kopya."""
+    """Scaled observation (B, S, 78) → copy with alert runs deleted with probability p."""
     B, S, _ = x.shape
     bits = x[..., BITS].reshape(B, S, NUM_HOSTS, 4)
     alert = (bits[..., 1] > 0.5) | (bits[..., 3] > 0.5)
     start = alert & ~torch.cat([torch.zeros_like(alert[:, :1]), alert[:, :-1]], 1)
-    run = start.long().cumsum(1)                                                  # (B, S, 13), koşu numarası
+    run = start.long().cumsum(1)                                                  # (B, S, 13), run number
     table = torch.rand(B, S + 1, NUM_HOSTS, device=x.device, generator=generator) < p
     drop = alert & table.gather(1, run)
     keep = torch.ones_like(bits)
@@ -86,7 +86,7 @@ class _GradReverse(torch.autograd.Function):
 
 
 def episode_losses(out, y, weight):
-    """out (B, T, 12, 3), y (B, T, 12) → bölüm başına (ağırlıklı) CE toplamı ve ağırlık toplamı, (B,) ikişer."""
+    """out (B, T, 12, 3), y (B, T, 12) → per-episode (weighted) CE sum and weight sum, (B,) each."""
     ce = nnf.cross_entropy(out.reshape(-1, N_CLASSES), y.reshape(-1), weight=weight, reduction='none')
     w = torch.ones_like(ce) if weight is None else weight[y.reshape(-1)]
     B = y.shape[0]
@@ -94,14 +94,14 @@ def episode_losses(out, y, weight):
 
 
 def group_losses(num, den, dom):
-    """Batch'te bulunan alanların ortalama kaybı: (alanlar, kayıplar)."""
+    """Mean loss of the domains present in the batch: (domains, losses)."""
     present = torch.unique(dom)
     L = torch.stack([num[dom == g].sum() / den[dom == g].sum() for g in present])
     return present, L
 
 
 class DomainGeneralization(nn.Module):
-    """train.py'nin bölüm kipi kaybı yerine: loss(out, feats, y, dom, weight, progress) → skaler."""
+    """Replaces the episode-mode loss of train.py: loss(out, feats, y, dom, weight, progress) → scalar."""
 
     def __init__(self, spec, n_domains, d):
         super().__init__()
@@ -134,7 +134,7 @@ class DomainGeneralization(nn.Module):
             present, L = group_losses(num, den, dom)
             lam = self.spec.get('lam', 10.0) if self.step > self.spec.get('anneal_steps', 500) else 1.0
             return L.mean() + (lam * L.var(unbiased=False) if len(L) > 1 else 0.0)
-        f = feats[:, 1:]                                                       # hedef adımlar (t = 1..T)
+        f = feats[:, 1:]                                                       # target steps (t = 1..T)
         if self.method == 'coral':
             present = torch.unique(dom)
             stats = []

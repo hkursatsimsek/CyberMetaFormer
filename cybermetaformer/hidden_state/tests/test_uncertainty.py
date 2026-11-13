@@ -1,4 +1,4 @@
-"""Belirsizlik modülü: bootstrap bileşenleri raporlarla aynı, seçici tahmin tutarlı, MC dropout kipi ve tahmini."""
+"""Uncertainty: bootstrap parts match the reports, selective prediction is consistent, MC dropout mode and estimate."""
 from types import SimpleNamespace
 
 import numpy as np
@@ -15,7 +15,7 @@ def _probs_and_labels(seed=0, Ne=30, T=20, H=12, informative=True):
     rng = np.random.default_rng(seed)
     y = rng.choice(3, size=(Ne, T, H), p=[0.7, 0.1, 0.2])
     logits = rng.normal(size=(Ne, T, H, 3))
-    if informative:                                   # doğru sınıf öne çıkar; güven hataları ayırt eder
+    if informative:                                   # the true class stands out; confidence separates errors
         logits += 2.5 * np.eye(3)[y] * rng.random((Ne, T, H, 1))
     y[..., 0] = 0
     alert = rng.random((Ne, T, H)) < 0.4
@@ -38,7 +38,7 @@ def test_bootstrap_stats_resample_episodes():
     P, es = _probs_and_labels()
     fns = U.stat_fns(P, es)
     W = np.random.default_rng(0).integers(0, 3, (4, es.E)).astype(np.float64)
-    # ağırlıklı istatistik = bölümleri ağırlık kadar tekrarlayarak hesaplanan istatistik
+    # weighted statistic = the statistic computed by repeating each episode as many times as its weight
     rep = np.repeat(np.arange(es.E), W[0].astype(int))
     cal = M.calibration(P[rep], es.y[rep])
     assert fns['ece'](W)[0] == pytest.approx(cal['ece'], abs=1e-6)
@@ -49,8 +49,8 @@ def test_selective_prediction_is_consistent():
     P, es = _probs_and_labels()
     rep, ep_conf = U.evaluate_probs(P, es, curve=True)
     err = float((P.argmax(-1) != es.y).mean())
-    assert rep['err@0.8'] < rep['err@0.9'] < rep['err@0.95'] < err               # güven bilgilendirici: dışlamak hatayı azaltır
-    assert rep['curve']['risk'][-1] == pytest.approx(err, abs=1e-4)             # kapsama 1'de risk = genel hata
+    assert rep['err@0.8'] < rep['err@0.9'] < rep['err@0.95'] < err               # informative confidence: excluding lowers error
+    assert rep['curve']['risk'][-1] == pytest.approx(err, abs=1e-4)             # at coverage 1 the risk = overall error
     assert 0 < rep['aurc'] < err
     assert ep_conf.shape == (es.E, 12, 3, 3)
     assert sum(rep['reliability']['count']) == es.n
@@ -60,7 +60,7 @@ def test_confidence_is_uninformative_for_flat_probabilities():
     P, es = _probs_and_labels(informative=False)
     rep, _ = U.evaluate_probs(P, es)
     err = float((P.argmax(-1) != es.y).mean())
-    assert abs(rep['err@0.8'] - err) < 0.03                                      # güvenden hata öngörülemez
+    assert abs(rep['err@0.8'] - err) < 0.03                                      # confidence does not predict errors
 
 
 def test_rescale_is_temperature_scaling():
@@ -95,7 +95,7 @@ def test_mc_mode_keeps_attention_dropout_off():
     drops = [m for m in model.modules() if isinstance(m, torch.nn.Dropout)]
     assert attn and not any(m.training for m in attn)       # MPS: SDPA dropout desteklenmiyor
     assert drops and all(m.training for m in drops)
-    out = model(torch.randn(4, 5, 16))                       # eğitim kipinde dikkat dropout'suz ileri geçiş çalışır
+    out = model(torch.randn(4, 5, 16))                       # training mode runs without attention dropout
     assert out.shape == (4, 5, 16)
 
 

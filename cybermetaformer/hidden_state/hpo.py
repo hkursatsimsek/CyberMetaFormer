@@ -1,22 +1,22 @@
-"""Hiperparametre araması: Optuna TPE + MedianPruner, yalnızca val.
+"""Hyperparameter search: Optuna TPE + MedianPruner, val only.
 
-Adil bütçe: her model için k ∈ {8, 32}'de 25'er deneme, train'in %25'i (4000 bölüm, seed 0), en fazla 10 epoch
-(sabır 3). XGBoost aynı veri bütçesiyle aranır (budama yok; val mlogloss ile erken durdurma). Sonuç
-`results/hidden_state/<asama>/hpo/<model>_k<k>/best.yaml`; run_grid.py k ≤ 8 için k=8'in, k ≥ 16 (ve uzatmalar)
-için k=32'nin konfigürasyonunu kullanır. Çalışma sqlite'ta tutulur; kesilirse aynı komut kaldığı yerden sürer.
+Fair budget: 25 trials per model at each k ∈ {8, 32}, 25% of train (4000 episodes, seed 0), at most 10 epochs
+(patience 3). XGBoost is searched with the same data budget (no pruning; early stopping on val mlogloss). Result
+`results/hidden_state/<asama>/hpo/<model>_k<k>/best.yaml`; run_grid.py uses the k=8 configuration for k ≤ 8 and the
+k=32 configuration for k ≥ 16 (and extensions). The study is kept in sqlite; if interrupted, the same command resumes.
 
     python -m cybermetaformer.hidden_state.hpo --models mlp cnn1d lstm gru --device mps
     python -m cybermetaformer.hidden_state.hpo --models xgb_tf xgb --nthread 8
-    python -m cybermetaformer.hidden_state.hpo --models mlp --smoke          # 2 deneme, 200 bölüm, 2 epoch
-    python -m cybermetaformer.hidden_state.hpo --models transformer --stage asama2 --device mps       # Aşama 2
+    python -m cybermetaformer.hidden_state.hpo --models mlp --smoke          # 2 trials, 200 episodes, 2 epochs
+    python -m cybermetaformer.hidden_state.hpo --models transformer --stage asama2 --device mps       # Stage 2
 
-Aşama 2 uzayları M1'dekilerle aynı ölçekte: model başına 3–5 mimari parametre + ortak (lr, weight decay,
-sınıf ağırlığı). k'ya bağlı ayarlar (PatchTST yaması, TimesNet top_k üst sınırı, TimeMixer ölçek sayısı) aranmaz,
-geçerlilik matrisinden gelir (`models/tslib_adapter.py`).
+Stage 2 spaces are on the same scale as in M1: 3–5 architecture parameters per model + shared ones (lr,
+weight decay, class weight). k-dependent settings (PatchTST patch, TimesNet top_k upper bound, TimeMixer number of
+scales) are not searched; they come from the validity matrix (`models/tslib_adapter.py`).
 
-M2 bütçesi (README Kararlar 2026-10-19): Aşama 2'de 15 deneme. PatchTST ve TimesNet'in genişliği sabit
-(d_model 32 ve 16, en fazla 2 katman; PatchTST yama oranı 0.5), parametre sayıları M1 modelleriyle aynı ölçekte.
-Geniş ayarları epoch başına 26–156 dk sürüyor.
+M2 budget: 15 trials in Stage 2. The widths of PatchTST and TimesNet are fixed
+(d_model 32 and 16, at most 2 layers; PatchTST patch ratio 0.5), parameter counts on the same scale as the M1 models.
+Their wide settings take 26–156 min per epoch.
 """
 import argparse
 import csv
@@ -33,7 +33,7 @@ from cybermetaformer.hidden_state.train import RESULTS, release_device_memory, t
 CONFIGS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs')
 PROTOCOL = {'n_trials': 25, 'ks': [8, 32], 'train_episodes': 4000, 'epochs': 10, 'patience': 3, 'seed': 0,
             'sampler_seed': 0, 'pruner': {'n_startup_trials': 5, 'n_warmup_steps': 2}}
-STAGE_PROTOCOL = {'asama2': {'n_trials': 15}, 'asama3': {'n_trials': 15}}   # M2 bütçesi; M3 aynı
+STAGE_PROTOCOL = {'asama2': {'n_trials': 15}, 'asama3': {'n_trials': 15}}   # M2 budget; M3 the same
 SMOKE = {'n_trials': 2, 'train_episodes': 200, 'epochs': 2, 'val_episodes': 200}
 TORCH_MODELS = ['mlp', 'cnn1d', 'lstm', 'gru', 'transformer', 'patchtst', 'itransformer', 'tsmixer', 'timesnet',
                 'timemixer', 'cybermetaformer']
@@ -82,8 +82,8 @@ def space_itransformer(t):
 
 
 def space_patchtst(t):
-    # kanal-bağımsız: her örnek 78 ayrı dizi (batch başına 1024 × 78 × 4 yama). Bütçe: d 32, ≤ 2 katman, yama oranı
-    # temeldeki 0.5 (0.25 yamaları ikiye katlıyor); genişlik PatchTST makalesindeki aralıkta (16–128)
+    # channel-independent: each sample is 78 separate series (1024 × 78 × 4 patches per batch). Budget: d 32, ≤ 2 layers,
+    # base patch ratio 0.5 (0.25 doubles the patches); width within the range of the PatchTST paper (16–128)
     return {'model_args': _attention(t, [32], [4, 8], 2), **_common(t)}
 
 
@@ -94,7 +94,7 @@ def space_tsmixer(t):
 
 
 def space_timesnet(t):
-    d = t.suggest_categorical('d_model', [16])          # bütçe: d 32'de epoch ×2, d 64'te ×4–6.6
+    d = t.suggest_categorical('d_model', [16])          # budget: epoch ×2 at d 32, ×4–6.6 at d 64
     return {'model_args': {'d_model': d, 'ff': d * t.suggest_categorical('ff_mult', [1, 2]),
                            'layers': t.suggest_int('layers', 1, 2), 'top_k': t.suggest_int('top_k', 2, 3),
                            'dropout': t.suggest_float('dropout', 0.0, 0.3)}, **_common(t)}
@@ -109,9 +109,9 @@ def space_timemixer(t):
 
 
 def space_cybermetaformer(t):
-    # Bileşenler (zaman kolları, host karıştırıcı, hafıza) config'ten ve ablasyondan gelir; burada derinlik ve
-    # düzenlileştirme aranır. Genişlik aranmaz: d, B1'in üst sınırına sığan en büyük 8'in katı,
-    # böylece her deneme aynı bütçede. Bölüm kipi, k = 101 (`--ks 101`).
+    # The components (temporal branches, host mixer, memory) come from the config and the ablation; depth and
+    # regularization are searched here. Width is not: d is the largest multiple of 8 within the B1 upper bound,
+    # so every trial has the same budget. Episode mode, k = 101 (`--ks 101`).
     from cybermetaformer.hidden_state.models.cybermetaformer import fit_width
     arch = {'layers': t.suggest_int('layers', 2, 4), 'mlp_ratio': t.suggest_categorical('mlp_ratio', [2, 3, 4]),
             'state': t.suggest_categorical('state', [8, 16, 32]), 'heads': t.suggest_categorical('heads', [2, 4]),
@@ -149,7 +149,7 @@ def load_base(model):
 
 
 def overrides_from_params(model, params):
-    """En iyi denemenin düz parametreleri → konfigürasyon yaması (aynı uzay fonksiyonuyla)."""
+    """Flat parameters of the best trial → configuration patch (with the same space function)."""
     return SPACES[model](optuna.trial.FixedTrial(params))
 
 
@@ -226,7 +226,7 @@ def run_study(model, k, store, stage, device, nthread, smoke, log=lambda s: prin
     remaining = prot['n_trials'] - sum(t.state in finished for t in study.trials)
 
     def report(study, trial):
-        log(f"[{model} k={k}] deneme {trial.number}: {trial.state.name} değer {trial.value} "
+        log(f"[{model} k={k}] trial {trial.number}: {trial.state.name} value {trial.value} "
             f"({trial.user_attrs.get('seconds', 0):.0f} s)")
         export(study, out_dir, model, k, prot)
         release_device_memory()
@@ -235,7 +235,7 @@ def run_study(model, k, store, stage, device, nthread, smoke, log=lambda s: prin
                        callbacks=[report], catch=(RuntimeError,))
     best = export(study, out_dir, model, k, prot)
     if best:
-        log(f"[{model} k={k}] en iyi val host makro-F1 {best['value']:.4f} (deneme {best['trial']}): {best['params']}")
+        log(f"[{model} k={k}] best val host macro-F1 {best['value']:.4f} (trial {best['trial']}): {best['params']}")
     return best
 
 
@@ -244,7 +244,7 @@ def main():
     p.add_argument('--models', nargs='+', required=True, choices=sorted(SPACES))
     p.add_argument('--ks', type=int, nargs='+', default=PROTOCOL['ks'])
     p.add_argument('--device', default='auto')
-    p.add_argument('--nthread', type=int, default=0, help='XGBoost iş parçacığı (0 = hepsi)')
+    p.add_argument('--nthread', type=int, default=0, help='XGBoost threads (0 = all)')
     p.add_argument('--stage', default='asama1')
     p.add_argument('--smoke', action='store_true')
     args = p.parse_args()

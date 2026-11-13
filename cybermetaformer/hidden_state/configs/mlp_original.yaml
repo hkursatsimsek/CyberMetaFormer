@@ -1,4 +1,4 @@
-# Orijinal MLP protokolü (minicage/dataset/baselines.py). repro_mlp.py ile aynı; yalnızca kıyas içindir.
+# Original MLP protocol (minicage/dataset/baselines.py). Same as repro_mlp.py; for comparison only.
 model: mlp
 model_args: {}
 scale: none

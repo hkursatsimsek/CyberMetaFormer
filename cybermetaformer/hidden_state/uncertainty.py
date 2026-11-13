@@ -1,28 +1,29 @@
-"""Belirsizlik ve kalibrasyon (M3 hazırlığı): derin topluluk, MC dropout, seçici tahmin.
+"""Uncertainty and calibration (M3 preparation): deep ensemble, MC dropout, selective prediction.
 
-M2'nin kaydedilmiş ağırlıklarıyla (`model.pt`), yeniden eğitim olmadan. Hafif dörtlü (Transformer, iTransformer, TSMixer,
-TimeMixer; val'e göre en iyi k = 64), 3 seed. TimesNet dışarıda: çıktısı değerlendirme batch'ine bağlı,
-üyelerin olasılıkları aynı pencere için tanımlı değil. PatchTST yeniden koşusu bitince eklenir.
+With the saved M2 weights (`model.pt`), no retraining. The light four (Transformer, iTransformer, TSMixer,
+TimeMixer; best k by val = 64), 3 seeds. TimesNet is left out: its output depends on the evaluation batch,
+so the member probabilities are not defined per window. PatchTST is added once its rerun finishes.
 
-Beş değerlendirme kümesi (hepsi `minicage_v1`'de eğitilmiş modellerle; sıcaklık yalnız v1 val'inde):
-    val, test, ood (v1 `ood_test`), bug_test, bug_ood (`minicage_v1_bugged`; simülatör sürümü kayması)
+Five evaluation sets (all with models trained on `minicage_v1`; temperature only on the v1 val):
+    val, test, ood (v1 `ood_test`), bug_test, bug_ood (`minicage_v1_bugged`; simulator version shift)
 
-Yapılandırmalar (her biri için host makro-F1, ihlal F1, sessiz recall, ECE/Brier/NLL, seçici tahmin):
-    uye            üye başına, kendi val sıcaklığıyla (M2'de raporlanan); seed ortalaması
-    topluluk_ham   üyelerin softmax'ları (T=1) ortalaması
-    topluluk       üyelerin kendi sıcaklığıyla ölçeklenmiş softmax'ları ortalaması
-    topluluk_T     topluluk_ham + topluluğun kendi val sıcaklığı (log olasılıklar üzerinde)
-    mc             tek seed (0), N geçişli MC dropout (dropout açık, BatchNorm eval) + kendi val sıcaklığı
-    capraz         4 mimari × 3 seed = 12 üyenin topluluğu (topluluk_T gibi)
-Eşli bölüm bootstrap'ı (`metrics.paired_bootstrap`): topluluk_T − uye için ECE, NLL, host makro-F1.
+Configurations (each with host macro-F1, breach F1, silent recall, ECE/Brier/NLL, selective prediction;
+the names are keys in ozet.json):
+    uye            per member, with its own val temperature (as reported in M2); seed mean
+    topluluk_ham   mean of the member softmaxes (T=1)
+    topluluk       mean of the member softmaxes, each scaled by its own temperature
+    topluluk_T     topluluk_ham + the ensemble's own val temperature (on the log-probabilities)
+    mc             single seed (0), N-pass MC dropout (dropout on, BatchNorm eval) + its own val temperature
+    capraz         ensemble of 4 architectures × 3 seeds = 12 members (like topluluk_T)
+Paired episode bootstrap (`metrics.paired_bootstrap`): topluluk_T − uye for ECE, NLL, host macro-F1.
 
-Seçici tahmin: güven = en olası sınıfın olasılığı (host-adım başına); en az güvenli host-adımlar dışlanır. Rapor: hata
-oranı-kapsama eğrisinin altındaki alan (AURC), kapsama 0.95/0.9/0.8'de hata oranı ve kalan host-adımlarda host makro-F1.
+Selective prediction: confidence = probability of the most likely class (per host-step); the least confident host-steps
+are dropped. Report: area under the risk–coverage curve (AURC), risk at coverage 0.95/0.9/0.8 and host macro-F1 on the rest.
 
-    python -m cybermetaformer.hidden_state.uncertainty collect            # asama2/belirsizlik/logits/ (git dışı)
+    python -m cybermetaformer.hidden_state.uncertainty collect            # asama2/belirsizlik/logits/ (outside git)
     python -m cybermetaformer.hidden_state.uncertainty mc --passes 16     # MC dropout (seed 0)
-    python -m cybermetaformer.hidden_state.uncertainty analyze            # ozet.json, tablolar.md ve figürler
-    python -m cybermetaformer.hidden_state.uncertainty figures            # yalnız figürler (ozet.json'dan)
+    python -m cybermetaformer.hidden_state.uncertainty analyze            # ozet.json, tablolar.md and figures
+    python -m cybermetaformer.hidden_state.uncertainty figures            # figures only (from ozet.json)
 """
 import argparse
 import itertools
@@ -58,7 +59,7 @@ SETS = {'val': ('v1', 'val'), 'test': ('v1', 'test'), 'ood': ('v1', 'ood_test'),
 EVAL_SETS = ['test', 'ood', 'bug_test', 'bug_ood']
 COVERAGES = (0.95, 0.9, 0.8)
 N_BINS = 15
-LOGIT_FLOOR = -40.0           # MC ortalamasında sıfır olasılığa karşı (float16 log-olasılık)
+LOGIT_FLOOR = -40.0           # against zero probability in the MC mean (float16 log-probability)
 
 
 def run_name(name, k, seed, mc=0):
@@ -70,17 +71,17 @@ def open_stores():
 
 
 def set_indices(stores):
-    """{küme: bölüm indeksleri}; ood_test'e erişim için nihai değerlendirme kilidi açılır."""
+    """{set: episode indices}; the final-evaluation lock is opened for access to ood_test."""
     with stores['v1'].final_evaluation(), stores['bug'].final_evaluation():
         return {s: stores[src].split(split) for s, (src, split) in SETS.items()}
 
 
-# ── tahmin ───────────────────────────────────────────────────────────────
+# ── prediction ───────────────────────────────────────────────────────────
 
 def mc_mode(model):
-    """Dropout açık; BatchNorm eval (batch istatistiği değil koşu istatistiği). `nn.MultiheadAttention` da eval:
-    MPS'te `scaled_dot_product_attention` dropout'u desteklemiyor (NotImplementedError), yani vanilla Transformer'da
-    dikkat ağırlıklarının dropout'u MC'ye girmez; artık bağlantı ve FFN dropout'ları (nn.Dropout) açıktır."""
+    """Dropout on; BatchNorm eval (running statistics, not batch statistics). `nn.MultiheadAttention` is eval too:
+    `scaled_dot_product_attention` on MPS does not support dropout (NotImplementedError), so in the vanilla Transformer
+    the dropout of the attention weights does not enter MC; residual and FFN dropouts (nn.Dropout) are on."""
     model.train()
     for m in model.modules():
         if isinstance(m, (torch.nn.modules.batchnorm._BatchNorm, torch.nn.MultiheadAttention)):
@@ -89,7 +90,7 @@ def mc_mode(model):
 
 @torch.no_grad()
 def predict_mc(model, wd, k, passes, scale='global', batch_size=65536):
-    """MC dropout: pencere başına `passes` geçişin softmax ortalamasının logaritması (n, T, 12, 3)."""
+    """MC dropout: log of the softmax mean over `passes` passes per window (n, T, 12, 3)."""
     mc_mode(model)
     batch_size = min(batch_size, max(2048, batch_size * 8 // max(k, 8)))
     out = []
@@ -102,7 +103,7 @@ def predict_mc(model, wd, k, passes, scale='global', batch_size=65536):
 
 
 def collect_run(name, k, seed, stores, idx, device, mc=0):
-    """Beş kümenin logitleri (float16) → belirsizlik/logits/<koşu>.npz. mc > 0: MC dropout log-olasılıkları."""
+    """Logits of the five sets (float16) → belirsizlik/logits/<run>.npz. mc > 0: MC dropout log-probabilities."""
     path = os.path.join(LOGIT_DIR, run_name(name, k, seed, mc) + '.npz')
     if os.path.exists(path):
         return path
@@ -129,10 +130,10 @@ def load_logits(name, k, seed, mc=0):
         return {s: z[s] for s in z.files}
 
 
-# ── değerlendirme kümesi ve metrikler ────────────────────────────────────
+# ── evaluation set and metrics ───────────────────────────────────────────
 
 class EvalSet:
-    """Bir kümenin etiketleri ve uyarıları (hepsi (E, T, 12)); bölüm sayısı ve host-adım sayısı."""
+    """Labels and alerts of a set (all (E, T, 12)); number of episodes and of host-steps."""
 
     def __init__(self, store, idx):
         self.y = store.labels[idx].astype(np.int64)
@@ -142,7 +143,7 @@ class EvalSet:
 
 
 def selective(P, pred, es):
-    """Güvene göre sıralı host-adımlarda hata oranı–kapsama eğrisi: AURC, kapsama başına hata ve host makro-F1."""
+    """Risk–coverage curve over host-steps sorted by confidence: AURC, risk and host macro-F1 per coverage."""
     conf = P.max(-1).reshape(-1)
     err = (pred != es.y).reshape(-1)
     order = np.argsort(-conf, kind='stable')
@@ -169,7 +170,7 @@ def reliability(P, y, n_bins=N_BINS):
 
 
 def evaluate_probs(P, es, curve=False):
-    """P (E, T, 12, 3) olasılık → (rapor, bölüm karışıklığı (E, 12, 3, 3))."""
+    """P (E, T, 12, 3) probabilities → (report, per-episode confusion (E, 12, 3, 3))."""
     pred = P.argmax(-1)
     H = es.y.shape[-1]
     rep = {'host_macro_f1': M.host_macro_f1(es.y.reshape(-1, H), pred.reshape(-1, H)), 'breach_f1': M.breach_f1(es.y, pred),
@@ -185,7 +186,7 @@ def evaluate_probs(P, es, curve=False):
 
 
 def episode_calibration_stats(P, y, n_bins=N_BINS):
-    """Bölüm başına ECE/NLL bileşenleri (bootstrap için): kutu başına doğruluk ve güven toplamları, NLL toplamı."""
+    """Per-episode ECE/NLL components (for the bootstrap): per-bin accuracy and confidence sums, NLL sum."""
     Ne = P.shape[0]
     conf, correct = P.max(-1).reshape(Ne, -1), (P.argmax(-1) == y).reshape(Ne, -1)
     bins = np.minimum((conf * n_bins).astype(np.int64), n_bins - 1)
@@ -197,7 +198,7 @@ def episode_calibration_stats(P, y, n_bins=N_BINS):
 
 
 def stat_fns(P, es):
-    """Bir olasılık dizisi için W (n, E) bölüm ağırlıklarından ECE, NLL ve host makro-F1 hesaplayan işlevler."""
+    """Functions computing ECE, NLL and host macro-F1 of a probability array from episode weights W (n, E)."""
     cal = episode_calibration_stats(P, es.y)
     ep_conf = M.episode_confusion(es.y, P.argmax(-1))
     return {'ece': lambda W: np.abs(W @ cal['acc'] - W @ cal['conf']).sum(1) / (W.sum(1) * cal['n']),
@@ -205,7 +206,7 @@ def stat_fns(P, es):
             'host_macro_f1': lambda W: M.host_macro_f1_batch(np.tensordot(W, ep_conf, axes=1))}
 
 
-# ── olasılıklar ──────────────────────────────────────────────────────────
+# ── probabilities ────────────────────────────────────────────────────────
 
 def probs(logits, temperature=1.0):
     return M.softmax(logits.astype(np.float32), temperature).astype(np.float32)
@@ -216,20 +217,20 @@ def val_temperature(logits_val, store_v1, idx_val):
 
 
 def rescale(P, temperature):
-    """Olasılıkların logaritması logit gibi ölçeklenir (topluluk sıcaklığı)."""
+    """The log of the probabilities is scaled like a logit (ensemble temperature)."""
     return probs(np.log(np.clip(P, 1e-12, None)), temperature)
 
 
 def mc_passes(name):
-    """Diskte bulunan MC dropout koşusunun geçiş sayısı (yoksa 0)."""
+    """Number of passes of the MC dropout run on disk (0 if none)."""
     prefix = f'{name}_k{K}_s0_mc'
     found = [f for f in (os.listdir(LOGIT_DIR) if os.path.isdir(LOGIT_DIR) else []) if f.startswith(prefix)]
     return int(found[0][len(prefix):-len('.npz')]) if found else 0
 
 
 def analyze_group(name, members, mc, stores, idx, sets, n_boot, log=print):
-    """members: üyelerin logit sözlükleri; mc: seed 0'ın MC dropout log-olasılık sözlüğü ya da None.
-    Dönüş: {'temperatures', küme: {yapılandırma: rapor}}."""
+    """members: logit dicts of the members; mc: MC dropout log-probability dict of seed 0, or None.
+    Returns: {'temperatures', set: {configuration: report}}."""
     v1, idx_val = stores['v1'], idx['val']
     temps = [val_temperature(lg['val'], v1, idx_val) for lg in members]
     ham_val = np.mean([probs(lg['val']) for lg in members], 0)
@@ -250,22 +251,23 @@ def analyze_group(name, members, mc, stores, idx, sets, n_boot, log=print):
         if mc is not None:
             out['mc_ham'] = evaluate_probs(probs(mc[s]), es)[0]
             out['mc'] = evaluate_probs(probs(mc[s], res['temperatures']['mc']), es, curve=True)[0]
-        # topluluk_T − uye (üyelerin ortalaması): eşli bölüm bootstrap'ı
+        # topluluk_T − uye (mean of the members): paired episode bootstrap
         fns_ens, fns_members = stat_fns(P_ens, es), [stat_fns(P, es) for P in per]
         out['fark'] = {stat: M.paired_bootstrap(
             lambda W, f=fns_ens[stat]: f(W['s']),
             lambda W, st=stat: np.mean([f[st](W['s']) for f in fns_members], 0),
             {'s': es.E}, n_boot=n_boot) for stat in ('ece', 'nll', 'host_macro_f1')}
         res[s] = out
-        log(f'  {name:12s} {s:9s} üye F1 {np.mean(out["uye"]["host_macro_f1"]):.4f} ECE {np.mean(out["uye"]["ece"]):.4f}  '
+        log(f'  {name:12s} {s:9s} member F1 {np.mean(out["uye"]["host_macro_f1"]):.4f} ECE {np.mean(out["uye"]["ece"]):.4f}  '
             f'topluluk_T F1 {out["topluluk_T"]["host_macro_f1"]:.4f} ECE {out["topluluk_T"]["ece"]:.4f}')
     return res
 
 
 def diversity_control(stores, idx, sets, n_draw=30, seed=0, log=print):
-    """Topluluk kazancı üye sayısından mı, mimari çeşitliliğinden mi? Boyut 3: aynı mimarinin 3 seed'i (4 topluluk) ve
-    üç farklı mimariden birer üye (rastgele `n_draw` çekiliş, 108 olası üçlüden; üçlüler üye paylaştığı için bağımsız
-    değil, yalnızca ortalama ve aralık). Her topluluk kendi val sıcaklığıyla ölçeklenir. Boyut 1 ve 12 karşılaştırma için."""
+    """Does the ensemble gain come from the number of members or from architectural diversity? Size 3: the 3 seeds of
+    one architecture (4 ensembles) and one member from each of three architectures (`n_draw` random draws out of 108
+    possible triples; triples share members, so they are not independent: mean and range only). Each ensemble is scaled
+    by its own val temperature. Sizes 1 and 12 for comparison."""
     names = [(n, s) for n in MODELS for s in SEEDS]
     cache = {}
     for n, s in names:
@@ -296,7 +298,7 @@ def diversity_control(stores, idx, sets, n_draw=30, seed=0, log=print):
                              'min': float(np.min([r[s][stat] for r in rows])), 'max': float(np.max([r[s][stat] for r in rows]))}
                       for stat in ('host_macro_f1', 'ece', 'nll')} for s in ('ood', 'bug_ood')}
         out[g]['n_topluluk'] = len(ensembles)
-        log(f'  çeşitlilik {g:16s} ({len(ensembles):3d} topluluk) OOD F1 {out[g]["ood"]["host_macro_f1"]["mean"]:.4f} '
+        log(f'  diversity {g:16s} ({len(ensembles):3d} ensembles) OOD F1 {out[g]["ood"]["host_macro_f1"]["mean"]:.4f} '
             f'ECE {out[g]["ood"]["ece"]["mean"]:.4f}')
     return out
 
@@ -318,11 +320,11 @@ def analyze(n_boot=4000, log=print):
     return out
 
 
-# ── tablolar ─────────────────────────────────────────────────────────────
+# ── tables ───────────────────────────────────────────────────────────────
 
-SET_LABEL = {'test': 'test (v1, görülen savunmacılar)', 'ood': 'OOD (v1 `ood_test`, ε=0.3)',
-             'bug_test': 'bug\'lı simülatör, görülen savunmacılar', 'bug_ood': 'bug\'lı simülatör, OOD (ε=0.3)'}
-GROUP_LABEL = {**{m: A.LABEL[m] for m in MODELS}, 'capraz': '4 mimari × 3 seed (12 üye)'}
+SET_LABEL = {'test': 'test (v1, seen defenders)', 'ood': 'OOD (v1 `ood_test`, ε=0.3)',
+             'bug_test': 'bugged simulator, seen defenders', 'bug_ood': 'bugged simulator, OOD (ε=0.3)'}
+GROUP_LABEL = {**{m: A.LABEL[m] for m in MODELS}, 'capraz': '4 architectures × 3 seeds (12 members)'}
 
 
 def _delta(d, digits=4):
@@ -333,14 +335,14 @@ def _delta(d, digits=4):
 def tables_md(res):
     groups = [g for g in (*MODELS, 'capraz') if g in res]
     mean = np.mean
-    out = ['# Belirsizlik ve kalibrasyon: derin topluluk, MC dropout, seçici tahmin (otomatik üretildi)', '',
-           f"`uncertainty.py analyze`. Hafif dörtlü, k={res['k']}, seed {list(res['seeds'])}; bölüm sayıları "
-           f"{res['episodes']}. *üye*: üyelerin kendi val sıcaklığıyla ölçeklenmiş metriklerinin seed ortalaması; "
-           f"*topl.*: `topluluk_T` (üyelerin T=1 softmax ortalaması + topluluğun val sıcaklığı). Δ = topl. − üye, "
-           f"eşli bölüm bootstrap'ı %95 GA; `*`: GA 0'ı içermiyor.", '']
+    out = ['# Uncertainty and calibration: deep ensemble, MC dropout, selective prediction (generated)', '',
+           f"`uncertainty.py analyze`. The light four, k={res['k']}, seeds {list(res['seeds'])}; episode counts "
+           f"{res['episodes']}. *member*: seed mean of the metrics of the members scaled by their own val temperature; "
+           f"*ens.*: `topluluk_T` (mean of the member T=1 softmaxes + the ensemble's val temperature). Δ = ens. − member, "
+           f"paired episode bootstrap 95% CI; `*`: the CI excludes 0.", '']
     for s in EVAL_SETS:
         out += [f'## {SET_LABEL[s]}', '',
-                '| Model | F1 üye | F1 topl. | ΔF1 | ECE üye | ECE topl. | ΔECE | NLL üye | NLL topl. | ΔNLL |',
+                '| Model | F1 member | F1 ens. | ΔF1 | ECE member | ECE ens. | ΔECE | NLL member | NLL ens. | ΔNLL |',
                 '|---|---|---|---|---|---|---|---|---|---|']
         for g in groups:
             r = res[g][s]
@@ -349,17 +351,17 @@ def tables_md(res):
                        f"{_delta(r['fark']['ece'])} | {mean(r['uye']['nll']):.4f} | {r['topluluk_T']['nll']:.4f} | "
                        f"{_delta(r['fark']['nll'])} |")
         out.append('')
-    out += ['## Sessiz recall ve ihlal F1 (üye / topl.)', '',
-            '| Model | ' + ' | '.join(f'{s} sessiz' for s in EVAL_SETS) + ' | ' + ' | '.join(f'{s} ihlal F1' for s in EVAL_SETS) + ' |',
+    out += ['## Silent recall and breach F1 (member / ens.)', '',
+            '| Model | ' + ' | '.join(f'{s} silent' for s in EVAL_SETS) + ' | ' + ' | '.join(f'{s} breach F1' for s in EVAL_SETS) + ' |',
             '|---|' + '---|' * (2 * len(EVAL_SETS))]
     for g in groups:
         cells = [f"{mean(res[g][s]['uye'][key]):.4f} / {res[g][s]['topluluk_T'][key]:.4f}"
                  for key in ('silent_recall', 'breach_f1') for s in EVAL_SETS]
         out.append(f'| {GROUP_LABEL[g]} | ' + ' | '.join(cells) + ' |')
-    out += ['', '## Kalibrasyon yapılandırmaları: ECE', '',
-            'Sıcaklıksız topluluk (`ham`), üyelerin kendi sıcaklığıyla ölçeklenmiş topluluk (`T_üye`), topluluk sıcaklığı '
-            '(`T_topl.`); MC dropout tek seed (0), `üye s0` onunla aynı seed.', '',
-            '| Model | Küme | üye (T) | üye s0 | topl. ham | topl. T_üye | topl. T_topl. | MC ham | MC T |',
+    out += ['', '## Calibration configurations: ECE', '',
+            'Ensemble without temperature (`ham`), ensemble scaled by the member temperatures (`T_member`), ensemble '
+            'temperature (`T_ens.`); MC dropout single seed (0), `member s0` the same seed.', '',
+            '| Model | Set | member (T) | member s0 | ens. ham | ens. T_member | ens. T_ens. | MC ham | MC T |',
             '|---|---|---|---|---|---|---|---|---|']
     for g in groups:
         for s in ('ood', 'bug_ood'):
@@ -368,11 +370,11 @@ def tables_md(res):
             out.append(f"| {GROUP_LABEL[g]} | {s} | {mean(r['uye']['ece']):.4f} | {r['uye_seed0']['ece']:.4f} | "
                        f"{r['topluluk_ham']['ece']:.4f} | {r['topluluk']['ece']:.4f} | {r['topluluk_T']['ece']:.4f} | "
                        f"{mc[0]} | {mc[1]} |")
-    out += ['', '## Seçici tahmin (OOD ve bug\'lı OOD)', '',
-            'Güven en olası sınıfın olasılığı; en az güvenli host-adımlar dışlanır. AURC: hata oranı–kapsama eğrisinin '
-            'altındaki alan (küçük iyi). F1@c: kapsama c iken kalan host-adımlarda host makro-F1. Üç yapılandırma: '
-            '`üye s0` / `topl.` / `MC` (MC yoksa —).', '',
-            '| Model | Küme | AURC | hata@0.9 | F1@0.95 | F1@0.9 | F1@0.8 |', '|---|---|---|---|---|---|---|']
+    out += ['', '## Selective prediction (OOD and bugged OOD)', '',
+            'Confidence is the probability of the most likely class; the least confident host-steps are dropped. AURC: area '
+            'under the risk–coverage curve (smaller is better). F1@c: host macro-F1 on the remaining host-steps at coverage c. '
+            'Three configurations: `member s0` / `ens.` / `MC` (— if no MC).', '',
+            '| Model | Set | AURC | risk@0.9 | F1@0.95 | F1@0.9 | F1@0.8 |', '|---|---|---|---|---|---|---|']
     for g in groups:
         for s in ('ood', 'bug_ood'):
             r = res[g][s]
@@ -384,20 +386,21 @@ def tables_md(res):
                        f"{triple('f1@0.9')} | {triple('f1@0.8')} |")
     if 'cesitlilik' in res:
         c = res['cesitlilik']
-        out += ['', '## Kazanç üye sayısından mı, çeşitlilikten mi?', '',
-                'Her topluluk kendi val sıcaklığıyla ölçeklenir. Hücre: ortalama [en küçük, en büyük] (topluluk '
-                'başına). Aynı mimari: bir mimarinin 3 seed\'i (4 topluluk). Farklı mimari: üç farklı mimariden birer '
-                f"üye ({c['capraz_mimari_3']['n_topluluk']} rastgele çekiliş, 108 olası üçlüden; üçlüler üye paylaştığı için "
-                'aralık bağımsız bir güven aralığı değildir).', '',
-                '| Topluluk | Boyut | OOD F1 | OOD ECE | bug\'lı OOD F1 | bug\'lı OOD ECE |', '|---|---|---|---|---|---|']
-        for g, label, size in (('tek', 'tek üye (12 üyenin ortalaması)', 1), ('ayni_mimari_3', 'aynı mimari', 3),
-                               ('capraz_mimari_3', 'farklı mimariler', 3), ('capraz_12', 'dört mimari × 3 seed', 12)):
+        out += ['', '## Does the gain come from the number of members or from diversity?', '',
+                'Each ensemble is scaled by its own val temperature. Cell: mean [min, max] (per ensemble). '
+                "Same architecture: the 3 seeds of one architecture (4 ensembles). Different architectures: one member "
+                f"from each of three architectures ({c['capraz_mimari_3']['n_topluluk']} random draws out of 108 possible triples; "
+                "triples share members, "
+                'so the range is not an independent confidence interval).', '',
+                '| Ensemble | Size | OOD F1 | OOD ECE | bugged OOD F1 | bugged OOD ECE |', '|---|---|---|---|---|---|']
+        for g, label, size in (('tek', 'single member (mean over 12)', 1), ('ayni_mimari_3', 'same architecture', 3),
+                               ('capraz_mimari_3', 'different architectures', 3), ('capraz_12', 'four architectures × 3 seeds', 12)):
             def cell(s, stat):
                 d = c[g][s][stat]
                 return f"{d['mean']:.4f}" + ('' if g == 'capraz_12' else f" [{d['min']:.4f}, {d['max']:.4f}]")
             out.append(f"| {label} | {size} | {cell('ood', 'host_macro_f1')} | {cell('ood', 'ece')} | "
                        f"{cell('bug_ood', 'host_macro_f1')} | {cell('bug_ood', 'ece')} |")
-    out += ['', '## Sıcaklıklar (val)', '', '| Model | üye (seed 0, 1, 2 ...) | topluluk | MC |', '|---|---|---|---|']
+    out += ['', '## Temperatures (val)', '', '| Model | member (seed 0, 1, 2 ...) | ensemble | MC |', '|---|---|---|---|']
     for g in groups:
         t = res[g]['temperatures']
         mc = f"{t['mc']:.3f}" if 'mc' in t else '—'
@@ -405,10 +408,10 @@ def tables_md(res):
     return '\n'.join(out) + '\n'
 
 
-# ── figürler ─────────────────────────────────────────────────────────────
+# ── figures ──────────────────────────────────────────────────────────────
 
 FIG_DIR = os.path.join(STAGE_DIR, 'figures')
-MIN_BIN = 200                         # güvenilirlik grafiğinde bir kutunun gösterilmesi için en az host-adım
+MIN_BIN = 200                         # minimum host-steps for a bin to be shown in the reliability plot
 
 
 def _color(g):
@@ -420,7 +423,7 @@ def _panels(res, title, subtitle, fig_name, draw, legend, ylabel=None, sharey=Tr
     fig, axes = plt.subplots(1, len(groups), figsize=(3.0 * len(groups) + 0.5, 4.2), sharey=sharey)
     for ax, g in zip(axes, groups):
         draw(ax, g, res[g])
-        ax.set_title(GROUP_LABEL[g] if g != 'capraz' else '4 mimari × 3 seed', loc='left', fontsize=10, color=A.INK)
+        ax.set_title(GROUP_LABEL[g] if g != 'capraz' else '4 architectures × 3 seeds', loc='left', fontsize=10, color=A.INK)
         A._grid(ax)
     if ylabel:
         axes[0].set_ylabel(ylabel)
@@ -434,7 +437,7 @@ def _panels(res, title, subtitle, fig_name, draw, legend, ylabel=None, sharey=Tr
 
 
 def _legend_pair(second, dashed=None):
-    h = [Line2D([], [], color=A.INK2, lw=1.2, marker='o', ms=6, mfc=A.SURFACE, mec=A.INK2, mew=1.5, label='üye (seed 0)'),
+    h = [Line2D([], [], color=A.INK2, lw=1.2, marker='o', ms=6, mfc=A.SURFACE, mec=A.INK2, mew=1.5, label='member (seed 0)'),
          Line2D([], [], color=A.INK, lw=2, marker='o', ms=6, mec=A.SURFACE, label=second)]
     if dashed:
         h.append(Line2D([], [], color=A.INK, lw=1.5, ls=':', label=dashed))
@@ -442,7 +445,7 @@ def _legend_pair(second, dashed=None):
 
 
 def fig_reliability(res, s='ood'):
-    """Doğruluk − güven (kutu başına): negatif = aşırı güvenli. Üye (seed 0) ve topluluk."""
+    """Accuracy − confidence (per bin): negative = overconfident. Member (seed 0) and ensemble."""
     def draw(ax, g, r):
         ax.axhline(0, color=A.MUTED, lw=1, ls='--')
         for key, kw in (('uye_seed0', dict(color=A.INK2, mfc=A.SURFACE, mec=A.INK2, mew=1.5, lw=1.2)),
@@ -451,12 +454,12 @@ def fig_reliability(res, s='ood'):
             cnt, acc, conf = (np.array(rel[x]) for x in ('count', 'accuracy', 'confidence'))
             show = cnt >= MIN_BIN
             ax.plot(conf[show], (acc - conf)[show], marker='o', ms=6, zorder=3, **kw)
-        ax.set_xlabel('güven (en olası sınıfın olasılığı)')
-    _panels(res, f'Kalibrasyon farkı, {SET_LABEL[s]}'.replace('`', ''),
-            f'Kutu başına doğruluk − güven (15 eşit kutu; ≥ {MIN_BIN} host-adımı olan kutular). 0 = kalibre, negatif = '
-            'aşırı güvenli. Her ikisi de val sıcaklığıyla ölçekli.',
-            f'fig_belirsizlik_guvenilirlik_{s}.png', draw, _legend_pair('topluluk (modelin rengi)'),
-            ylabel='doğruluk − güven')
+        ax.set_xlabel('confidence (probability of the most likely class)')
+    _panels(res, f'Calibration gap, {SET_LABEL[s]}'.replace('`', ''),
+            f'Accuracy − confidence per bin (15 equal bins; bins with ≥ {MIN_BIN} host-steps). 0 = calibrated, negative = '
+            'overconfident. Both scaled by the val temperature.',
+            f'fig_belirsizlik_guvenilirlik_{s}.png', draw, _legend_pair('ensemble (model colour)'),
+            ylabel='accuracy − confidence')
 
 
 def fig_risk_coverage(res, s='ood'):
@@ -466,17 +469,17 @@ def fig_risk_coverage(res, s='ood'):
             if key in r[s]:
                 c = r[s][key]['curve']
                 ax.plot(c['coverage'], 100 * np.array(c['risk']), **kw)
-        ax.set_xlabel('kapsama (tutulan host-adım payı)')
-    _panels(res, f'Seçici tahmin, {SET_LABEL[s]}'.replace('`', ''),
-            'En az güvenli host-adımlar dışlanır; kalan adımlardaki hata oranı. Aşağıdaki eğri daha iyi.',
-            f'fig_belirsizlik_secici_{s}.png', draw, _legend_pair('topluluk (modelin rengi)', 'MC dropout (seed 0)'),
-            ylabel='hata oranı (%)')
+        ax.set_xlabel('coverage (share of host-steps kept)')
+    _panels(res, f'Selective prediction, {SET_LABEL[s]}'.replace('`', ''),
+            'The least confident host-steps are dropped; risk on the remaining steps. Lower curve is better.',
+            f'fig_belirsizlik_secici_{s}.png', draw, _legend_pair('ensemble (model colour)', 'MC dropout (seed 0)'),
+            ylabel='risk (%)')
 
 
 def fig_shift_ladder(res):
-    """ECE'nin dört küme boyunca değişimi: üye (seed aralığı) ve topluluk."""
+    """Change of ECE across the four sets: member (seed range) and ensemble."""
     order = ['test', 'bug_test', 'ood', 'bug_ood']
-    names = ['test', 'bug\'lı\ntest', 'OOD', 'bug\'lı\nOOD']
+    names = ['test', 'bugged\ntest', 'OOD', 'bugged\nOOD']
 
     def draw(ax, g, r):
         x = np.arange(len(order))
@@ -488,13 +491,13 @@ def fig_shift_ladder(res):
         ax.plot(x, mid, ls='none', marker='o', ms=7, mfc=A.SURFACE, mec=A.INK2, mew=1.5, zorder=3)
         ax.plot(x, ens, color=_color(g), lw=2, marker='o', ms=7, mec=A.SURFACE, zorder=4)
         ax.set_xticks(x, names, fontsize=8.5)
-    _panels(res, 'Kalibrasyon kayma altında: ECE',
-            'Üye: 3 seed ortalaması ve aralığı; topluluk: modelin rengi. Test → bug\'lı test: simülatör kayması; '
-            'test → OOD: savunmacı kayması; bug\'lı OOD: ikisi birden.',
+    _panels(res, 'Calibration under shift: ECE',
+            'Member: mean and range over 3 seeds; ensemble: the model colour. Test → bugged test: simulator shift; '
+            'test → OOD: defender shift; bugged OOD: both.',
             'fig_belirsizlik_kayma_ece.png', draw,
             [Line2D([], [], ls='none', marker='o', ms=7, mfc=A.SURFACE, mec=A.INK2, mew=1.5,
-                    label='üye (seed ortalaması, çubuk = aralık)'),
-             Line2D([], [], color=A.INK, lw=2, marker='o', ms=7, mec=A.SURFACE, label='topluluk (modelin rengi)')],
+                    label='member (mean over seeds, bar = range)'),
+             Line2D([], [], color=A.INK, lw=2, marker='o', ms=7, mec=A.SURFACE, label='ensemble (model colour)')],
             ylabel='ECE')
 
 

@@ -1,8 +1,8 @@
-"""Keşifsel veri analizi istatistikleri ve sessiz ihlal ön ölçümü (numpy; figürler figures.py'de).
+"""Exploratory data analysis statistics and preliminary silent-compromise measurement (numpy; figures in figures.py).
 
     venv_cyborg/bin/python -m cybermetaformer.hidden_state.eda
-Çıktı: cybermetaformer/results/hidden_state/asama0/eda.json
-Sessiz ihlal neden payları için önce silent_cause.py koşmuş olmalı (minicage/data/minicage_v1_aux/).
+Output: cybermetaformer/results/hidden_state/asama0/eda.json
+For the silent-compromise cause shares, silent_cause.py must have been run first (minicage/data/minicage_v1_aux/).
 """
 import json
 import os
@@ -19,7 +19,7 @@ GAP_KS = [1, 4, 8, 16, 32, 64]
 
 
 def silent_table(y, alert):
-    """Sessiz ihlal ön ölçüm tablosu (makaledeki sessiz ihlal tablosuyla aynı tanımlar)."""
+    """Preliminary silent-compromise table (same definitions as the silent-compromise table in the paper)."""
     comp = y > 0
     silent = comp & ~alert
     age = F.alert_age(alert)
@@ -29,9 +29,9 @@ def silent_table(y, alert):
         'ele_gecirilmis_orani': float(comp.mean()),
         'sessiz_orani': float(silent.sum() / comp.sum()),
         'sessizlerde_root_payi': float((y[silent] == 2).mean()),
-        'hic_uyari_gorulmemis': float((g == F.NEVER).mean()),
+        'no_alert_gorulmemis': float((g == F.NEVER).mean()),
         **{f'son_uyari_lt_{k}': float((prev < k).mean()) for k in GAP_KS},
-        # tüm sessizler içinde son uyarının k'lık pencereye (t-k+1..t) düştüğü oran: gap ≤ k-1
+        # share, among all silent cases, of those whose last alert falls in the k-step window (t-k+1..t): gap ≤ k-1
         **{f'pencere_kapsami_k{k}': float(((g != F.NEVER) & (g <= k - 1)).mean()) for k in GAP_KS + [100]},
     }
 
@@ -78,20 +78,20 @@ def main():
         res['cause_by_blue'] = {
             bn: np.bincount(cause[store.blue_policy == b].reshape(-1), minlength=len(names)).tolist()
             for b, bn in enumerate(meta['blue_policies'])}
-        res['cause_age'] = {}      # neden × uyarı yaşı ('hiç' ya da pencere k=8/32 dışında mı)
+        res['cause_age'] = {}      # cause × alert age ('never' or outside the window k=8/32)
         c = cause[silent]
         for i, nm in enumerate(names[1:], start=1):
             m = c == i
             if m.any():
-                res['cause_age'][nm] = {'hic_uyari': float((g[m] == F.NEVER).mean()),
+                res['cause_age'][nm] = {'no_alert': float((g[m] == F.NEVER).mean()),
                                         'k8_disinda': float(((g[m] == F.NEVER) | (g[m] > 7)).mean()),
                                         'k32_disinda': float(((g[m] == F.NEVER) | (g[m] > 31)).mean())}
 
-    # örnek bölüm: test, bline × react_restore, en uzun sessiz root'a sahip bölüm
+    # example episode: test, bline × react_restore, the episode with the longest silent root
     te = sp['test']
     rr = te[(store.red_policy[te] == 0) & (store.blue_policy[te] == meta['blue_policies'].index('react_restore'))]
     score = (silent[rr] & (y_all[rr] == 2)).sum((1, 2))
-    e = int(rr[np.argsort(score)[len(score) // 2]])      # medyan bölüm (uç değil, tipik)
+    e = int(rr[np.argsort(score)[len(score) // 2]])      # median episode (typical, not extreme)
     acts = L.load_raw(D.DEFAULT_DATA, fields=['act_red', 'act_blue'])[0]
     res['example_episode'] = {
         'episode': e, 'red': meta['red_policies'][store.red_policy[e]], 'blue': meta['blue_policies'][store.blue_policy[e]],

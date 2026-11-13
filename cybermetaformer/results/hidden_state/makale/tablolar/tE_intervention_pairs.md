@@ -25,4 +25,4 @@
 |  |  | CMF − Full-history GRU | N_hist recall | −0.051 [−0.065, −0.038] | 0.0023 |
 |  |  | CMF − CMF, no topology bias | N_hist recall | −0.012 [−0.018, −0.005] | 0.0122 |
 
-Note. Difference between two models of the intervention effect Δ = intervened − original (Table @tbl:mudahale); a positive value means that A loses less than B. Paired episode bootstrap of the seed mean (100,000 resamples, Algorithm 2), Holm over all m = 114 rows of this analysis (smallest attainable adjusted p = 0.0023).
+Note. Difference between two models of the intervention effect Δ = intervened − original (Table @tbl:interventions); a positive value means that A loses less than B. Paired episode bootstrap of the seed mean (100,000 resamples, Algorithm 2), Holm over all m = 114 rows of this analysis (smallest attainable adjusted p = 0.0023).

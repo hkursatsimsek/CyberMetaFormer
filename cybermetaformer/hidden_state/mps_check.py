@@ -1,20 +1,20 @@
-"""MPS doğrulaması: modellerin ileri geçişi ve parametre gradyanları MPS'te CPU ile aynı mı? (2026-10-21)
+"""MPS validation: are the forward passes and parameter gradients of the models on MPS the same as on CPU? (2026-10-21)
 
-PatchTST'nin bütün M2 koşularının bozuk gradyanla eğitildiği IG'nin tamlık denetiminden fark edildi (README Kararlar,
-PatchTST maddesi). Bu betik o denetimi bütün modellere yayar ve iki MPS hatasını ayrıca kayda geçirir:
+That all M2 runs of PatchTST were trained with a broken gradient was noticed through the completeness check of IG.
+This script extends that check to all models and records two MPS bugs separately:
 
-1. **Modeller.** Her öğrenen pencere modeli için seed 0 config'i (M1: MLP, 1D-CNN, LSTM, GRU; M2: altısı), k ∈ {8, 32,
-   64}. Eğitim batch'i (1024 pencere, train bölümlerinden), aynı başlangıç ağırlıkları, eval kipi (dropout kapalı).
-   CPU eager referans; MPS eager ve eğitimdeki gibi `torch.compile` (M2, TimesNet hariç). Ölçüler: çıktının en büyük
-   mutlak farkı, bütün parametre gradyanlarının göreli farkı ve kosinüsü.
-2. **Conv1d, batch 2^16 sınırı.** Batch 65 536 ve 65 537 satır; ileri, girdi ve ağırlık gradyanı.
-3. **AvgPool1d, permute edilmiş girdi.** TimeMixer'ın alt örneklemesindeki biçim; ileri ve girdi gradyanı.
+1. **Models.** For every learning window model, the seed 0 config (M1: MLP, 1D-CNN, LSTM, GRU; M2: all six), k ∈ {8, 32,
+   64}. A training batch (1024 windows from the train episodes), the same initial weights, eval mode (dropout off).
+   CPU eager is the reference; MPS eager and `torch.compile` as in training (M2, except TimesNet). Measures: the largest
+   absolute difference of the output, the relative difference and cosine of all parameter gradients.
+2. **Conv1d, batch 2^16 limit.** Batches of 65 536 and 65 537 rows; forward, input and weight gradients.
+3. **AvgPool1d, permuted input.** The layout in TimeMixer's downsampling; forward and input gradient.
 
     python -m cybermetaformer.hidden_state.mps_check     # asama2/mps_dogrulama.json
 
-4. **Bölüm kipi (M3; `--m3`).** Tam geçmiş GRU ve CyberMetaFormer'ın ana config'i ile bütün zaman/host karıştırıcı
-   türlerini kapsayan varyantlar (`M3_VARIANTS`); 16 train bölümü, `forward_episode`, aynı ölçüler. Bir M3 modeli MPS'te
-   ilk kez eğitilmeden önce koşulur.
+4. **Episode mode (M3; `--m3`).** The full-history GRU and the main CyberMetaFormer config together with variants that
+   cover all temporal/host mixer types (`M3_VARIANTS`); 16 train episodes, `forward_episode`, the same measures. Run before
+   an M3 model is trained on MPS for the first time.
 
     python -m cybermetaformer.hidden_state.mps_check --m3   # asama3/mps_dogrulama.json
 """
@@ -32,7 +32,7 @@ from cybermetaformer.hidden_state.models import build_model
 HERE = os.path.dirname(os.path.abspath(__file__))
 RESULTS = os.path.join(os.path.dirname(HERE), 'results', 'hidden_state')
 WINDOW_M1 = ('mlp', 'cnn1d', 'lstm', 'gru')
-NO_COMPILE = ('timesnet',)                 # train.py: TimesNet compile'sız (FFT)
+NO_COMPILE = ('timesnet',)                 # train.py: TimesNet without compile (FFT)
 
 
 def _diff(a, b):
@@ -40,7 +40,7 @@ def _diff(a, b):
 
 
 def compare_model(cfg, x, m, y, compile_mps):
-    """→ {cihaz kipi: {out, grad_rel, grad_cos}}; referans CPU eager. m None ise bölüm kipi (forward_episode)."""
+    """→ {device mode: {out, grad_rel, grad_cos}}; reference CPU eager. If m is None, episode mode (forward_episode)."""
     name, k = cfg['model'], int(cfg['k'])
     torch.manual_seed(0)
     init = build_model(name, k, **(cfg.get('model_args') or {})).state_dict()
@@ -119,7 +119,7 @@ def check_ops():
     return out
 
 
-M3_VARIANTS = [                            # configs/cybermetaformer.yaml'ın model_args'ına yama
+M3_VARIANTS = [                            # patch to the model_args of configs/cybermetaformer.yaml
     {},
     {'temporal': ['conv', 'attn']},
     {'temporal': ['conv', 'attn'], 'window': 32},
@@ -149,13 +149,13 @@ def check_episode_models():
 
 
 def y_episode(y):
-    """WindowData.episodes hedefleri (B, T, 12) → forward_episode(...)[:, 1:] ile hizalamak için başa yok sayılan satır."""
+    """WindowData.episodes targets (B, T, 12) → a leading ignored row to align with forward_episode(...)[:, 1:]."""
     return torch.cat([torch.full_like(y[:, :1], -100), y], 1)
 
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument('--m3', action='store_true', help='yalnızca bölüm kipi modelleri (asama3/mps_dogrulama.json)')
+    p.add_argument('--m3', action='store_true', help='episode-mode models only (asama3/mps_dogrulama.json)')
     args = p.parse_args()
     if args.m3:
         res = {'torch': torch.__version__, 'episode_models': check_episode_models()}

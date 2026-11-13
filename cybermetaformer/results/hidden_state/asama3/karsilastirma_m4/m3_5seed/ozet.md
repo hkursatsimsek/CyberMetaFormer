@@ -1,11 +1,11 @@
-# M3, 5 seed (M4 revizyonu, madde 5) ikili sınamaları (eşli bölüm bootstrap'ı)
+# M3, 5 seeds (M4 revision, item 5) pairwise tests (paired episode bootstrap)
 
-100000 örnek, bootstrap seed 0. Her model belirtilen seed'lerinin ortalamasıyla girer (sütun: seed sayısı). a − b; GA %95. p Holm: çift içi ölçütler üzerinden; plan: bütün satırlar üzerinden. En küçük p 2 / (n + 1). Göreli düşüşte küçük daha iyi. `python -m cybermetaformer.hidden_state.compare --plan m3_5seed`.
-Plan geneli Holm ailesi: 116 satır; en küçük ham p 2e-05, plan geneli en küçük düzeltilmiş p 0.0023.
+100000 samples, bootstrap seed 0. Each model enters with the mean over the given seeds (column: number of seeds). a − b; 95% CI. p Holm: pair = over the criteria of the pair; plan = over all rows. Smallest p 2 / (n + 1). For the relative drop smaller is better. `python -m cybermetaformer.hidden_state.compare --plan m3_5seed`.
+Plan-wide Holm family: 116 rows; smallest raw p 2e-05, smallest plan-wide corrected p 0.0023.
 
-## RQ3: ana model − çıtalar
+## RQ3: main model − baselines
 
-| a | b | seed a / b | ölçüt | a | b | a − b | %95 GA | p Holm (çift) | p Holm (plan) |
+| a | b | seeds a / b | criterion | a | b | a − b | 95% CI | p Holm (pair) | p Holm (plan) |
 |---|---|---|---|---:|---:|---:|---|---:|---:|
 | cybermetaformer_k101 | gru_full_k101 | 5 / 5 | test_host_macro_f1 | 0.9801 | 0.9768 | +0.0034 | [+0.0029, +0.0039] | 0.0001 | 0.0023 |
 | cybermetaformer_k101 | gru_full_k101 | 5 / 5 | ood_host_macro_f1 | 0.9417 | 0.9264 | +0.0153 | [+0.0145, +0.0162] | 0.0001 | 0.0023 |
@@ -27,9 +27,9 @@ Plan geneli Holm ailesi: 116 satır; en küçük ham p 2e-05, plan geneli en kü
 | cybermetaformer_k101 | patchtst_k32 | 5 / 3 | ood_rel_drop | 0.0392 | 0.1090 | -0.0698 | [-0.0725, -0.0670] | 0.0001 | 0.0023 |
 | cybermetaformer_k101 | patchtst_k32 | 5 / 3 | ood_silent_recall | 0.7716 | 0.4877 | +0.2840 | [+0.2747, +0.2932] | 0.0001 | 0.0023 |
 
-## Ablasyon çekirdeği (M3 Pro, ana modele karşı)
+## Ablation core (M3 Pro, against the main model)
 
-| a | b | seed a / b | ölçüt | a | b | a − b | %95 GA | p Holm (çift) | p Holm (plan) |
+| a | b | seeds a / b | criterion | a | b | a − b | 95% CI | p Holm (pair) | p Holm (plan) |
 |---|---|---|---|---:|---:|---:|---|---:|---:|
 | cybermetaformer-duz78_k101 | cybermetaformer_k101 | 3 / 3 | test_host_macro_f1 | 0.9720 | 0.9801 | -0.0081 | [-0.0091, -0.0071] | 0.0001 | 0.0023 |
 | cybermetaformer-duz78_k101 | cybermetaformer_k101 | 3 / 3 | ood_host_macro_f1 | 0.8984 | 0.9417 | -0.0433 | [-0.0451, -0.0415] | 0.0001 | 0.0023 |
@@ -59,9 +59,9 @@ Plan geneli Holm ailesi: 116 satır; en küçük ham p 2e-05, plan geneli en kü
 | cybermetaformer-konum_yok_k101 | cybermetaformer_k101 | 3 / 3 | ood_host_macro_f1 | 0.9424 | 0.9417 | +0.0007 | [+0.0004, +0.0011] | 0.0006 | 0.0090 |
 | cybermetaformer-konum_yok_k101 | cybermetaformer_k101 | 3 / 3 | ood_silent_recall | 0.7655 | 0.7761 | -0.0107 | [-0.0131, -0.0083] | 0.0001 | 0.0023 |
 
-## Ablasyon eki (M3 Pro, ana modele karşı)
+## Ablation extension (M3 Pro, against the main model)
 
-| a | b | seed a / b | ölçüt | a | b | a − b | %95 GA | p Holm (çift) | p Holm (plan) |
+| a | b | seeds a / b | criterion | a | b | a − b | 95% CI | p Holm (pair) | p Holm (plan) |
 |---|---|---|---|---:|---:|---:|---|---:|---:|
 | cybermetaformer-kol_konv_k101 | cybermetaformer_k101 | 3 / 3 | test_host_macro_f1 | 0.9656 | 0.9801 | -0.0145 | [-0.0156, -0.0133] | 0.0001 | 0.0023 |
 | cybermetaformer-kol_konv_k101 | cybermetaformer_k101 | 3 / 3 | ood_host_macro_f1 | 0.8842 | 0.9417 | -0.0575 | [-0.0596, -0.0555] | 0.0001 | 0.0023 |
@@ -76,9 +76,9 @@ Plan geneli Holm ailesi: 116 satır; en küçük ham p 2e-05, plan geneli en kü
 | cybermetaformer-havuz_mlp_k101 | cybermetaformer_k101 | 3 / 3 | ood_host_macro_f1 | 0.9354 | 0.9417 | -0.0063 | [-0.0069, -0.0057] | 0.0001 | 0.0023 |
 | cybermetaformer-havuz_mlp_k101 | cybermetaformer_k101 | 3 / 3 | ood_silent_recall | 0.7514 | 0.7761 | -0.0247 | [-0.0282, -0.0212] | 0.0001 | 0.0023 |
 
-## RQ4 (H4): hiç uyarı görülmemiş dilim
+## RQ4 (H4): never-alerted slice
 
-| a | b | seed a / b | ölçüt | a | b | a − b | %95 GA | p Holm (çift) | p Holm (plan) |
+| a | b | seeds a / b | criterion | a | b | a − b | 95% CI | p Holm (pair) | p Holm (plan) |
 |---|---|---|---|---:|---:|---:|---|---:|---:|
 | cybermetaformer_k101 | cybermetaformer-host_yok_k101 | 3 / 3 | test_never_recall | 0.8871 | 0.6795 | +0.2076 | [+0.1873, +0.2282] | 0.0000 | 0.0023 |
 | cybermetaformer_k101 | cybermetaformer-host_yok_k101 | 3 / 3 | ood_never_recall | 0.8298 | 0.4537 | +0.3761 | [+0.3573, +0.3949] | 0.0000 | 0.0023 |
@@ -89,9 +89,9 @@ Plan geneli Holm ailesi: 116 satır; en küçük ham p 2e-05, plan geneli en kü
 | cybermetaformer-host_gcn_k101 | cybermetaformer-host_yok_k101 | 3 / 3 | test_never_recall | 0.8856 | 0.6795 | +0.2061 | [+0.1859, +0.2268] | 0.0000 | 0.0023 |
 | cybermetaformer-host_gcn_k101 | cybermetaformer-host_yok_k101 | 3 / 3 | ood_never_recall | 0.8091 | 0.4537 | +0.3554 | [+0.3365, +0.3745] | 0.0000 | 0.0023 |
 
-## Alan genelleme ve artırma (M4 Pro, ana_m4'e karşı)
+## Domain generalisation and augmentation (M4 Pro, against ana_m4)
 
-| a | b | seed a / b | ölçüt | a | b | a − b | %95 GA | p Holm (çift) | p Holm (plan) |
+| a | b | seeds a / b | criterion | a | b | a − b | 95% CI | p Holm (pair) | p Holm (plan) |
 |---|---|---|---|---:|---:|---:|---|---:|---:|
 | cybermetaformer-dg_groupdro_k101 | cybermetaformer-ana_m4_k101 | 3 / 3 | test_host_macro_f1 | 0.9756 | 0.9799 | -0.0043 | [-0.0047, -0.0039] | 0.0001 | 0.0023 |
 | cybermetaformer-dg_groupdro_k101 | cybermetaformer-ana_m4_k101 | 3 / 3 | ood_host_macro_f1 | 0.9299 | 0.9413 | -0.0114 | [-0.0122, -0.0107] | 0.0001 | 0.0023 |
@@ -118,9 +118,9 @@ Plan geneli Holm ailesi: 116 satır; en küçük ham p 2e-05, plan geneli en kü
 | cybermetaformer-art_zaman_k101 | cybermetaformer-ana_m4_k101 | 3 / 3 | ood_rel_drop | 0.0386 | 0.0394 | -0.0008 | [-0.0013, -0.0003] | 0.0012 | 0.0162 |
 | cybermetaformer-art_zaman_k101 | cybermetaformer-ana_m4_k101 | 3 / 3 | ood_silent_recall | 0.7677 | 0.7884 | -0.0207 | [-0.0230, -0.0185] | 0.0001 | 0.0023 |
 
-## Aksiyon girdisi
+## Action input
 
-| a | b | seed a / b | ölçüt | a | b | a − b | %95 GA | p Holm (çift) | p Holm (plan) |
+| a | b | seeds a / b | criterion | a | b | a − b | 95% CI | p Holm (pair) | p Holm (plan) |
 |---|---|---|---|---:|---:|---:|---|---:|---:|
 | cybermetaformer-aksiyon_k101 | cybermetaformer-ana_m4_k101 | 3 / 3 | test_host_macro_f1 | 0.9810 | 0.9799 | +0.0010 | [+0.0007, +0.0014] | 0.0001 | 0.0023 |
 | cybermetaformer-aksiyon_k101 | cybermetaformer-ana_m4_k101 | 3 / 3 | ood_host_macro_f1 | 0.9497 | 0.9413 | +0.0084 | [+0.0075, +0.0093] | 0.0001 | 0.0023 |
@@ -131,9 +131,9 @@ Plan geneli Holm ailesi: 116 satır; en küçük ham p 2e-05, plan geneli en kü
 | gru_full-aksiyon_k101 | gru_full_k101 | 3 / 3 | ood_silent_recall | 0.7461 | 0.7364 | +0.0097 | [+0.0051, +0.0144] | 0.0001 | 0.0023 |
 | gru_full-aksiyon_k101 | gru_full_k101 | 3 / 3 | test_silent_recall | 0.9080 | 0.9028 | +0.0052 | [+0.0027, +0.0078] | 0.0001 | 0.0031 |
 
-## Ölçek ve makineler arası tekrar
+## Scale and cross-machine replication
 
-| a | b | seed a / b | ölçüt | a | b | a − b | %95 GA | p Holm (çift) | p Holm (plan) |
+| a | b | seeds a / b | criterion | a | b | a − b | 95% CI | p Holm (pair) | p Holm (plan) |
 |---|---|---|---|---:|---:|---:|---|---:|---:|
 | cybermetaformer-b2_k101 | cybermetaformer-ana_m4_k101 | 3 / 3 | test_host_macro_f1 | 0.9788 | 0.9799 | -0.0012 | [-0.0015, -0.0009] | 0.0001 | 0.0023 |
 | cybermetaformer-b2_k101 | cybermetaformer-ana_m4_k101 | 3 / 3 | ood_host_macro_f1 | 0.9378 | 0.9413 | -0.0035 | [-0.0041, -0.0030] | 0.0001 | 0.0023 |
@@ -142,9 +142,9 @@ Plan geneli Holm ailesi: 116 satır; en küçük ham p 2e-05, plan geneli en kü
 | cybermetaformer-ana_m4_k101 | cybermetaformer_k101 | 5 / 5 | ood_host_macro_f1 | 0.9414 | 0.9417 | -0.0003 | [-0.0006, -0.0000] | 0.0557 | 0.5293 |
 | cybermetaformer-ana_m4_k101 | cybermetaformer_k101 | 5 / 5 | ood_silent_recall | 0.7854 | 0.7716 | +0.0138 | [+0.0120, +0.0155] | 0.0001 | 0.0023 |
 
-## (ii) saldırgan kayması: yalnız bline ile eğitim
+## (ii) attacker shift: trained only on bline
 
-| a | b | seed a / b | ölçüt | a | b | a − b | %95 GA | p Holm (çift) | p Holm (plan) |
+| a | b | seeds a / b | criterion | a | b | a − b | 95% CI | p Holm (pair) | p Holm (plan) |
 |---|---|---|---|---:|---:|---:|---|---:|---:|
 | cybermetaformer-saldirgan_bline_k101 | gru_full-saldirgan_bline_k101 | 3 / 3 | test_shift_host_macro_f1 | 0.8286 | 0.5753 | +0.2534 | [+0.2486, +0.2583] | 0.0001 | 0.0023 |
 | cybermetaformer-saldirgan_bline_k101 | gru_full-saldirgan_bline_k101 | 3 / 3 | ood_test_shift_host_macro_f1 | 0.7237 | 0.5132 | +0.2105 | [+0.2075, +0.2134] | 0.0001 | 0.0023 |
@@ -153,9 +153,9 @@ Plan geneli Holm ailesi: 116 satır; en küçük ham p 2e-05, plan geneli en kü
 | cybermetaformer-saldirgan_bline_k101 | timemixer-saldirgan_bline_k64 | 3 / 3 | ood_test_shift_host_macro_f1 | 0.7237 | 0.4627 | +0.2609 | [+0.2577, +0.2640] | 0.0001 | 0.0023 |
 | cybermetaformer-saldirgan_bline_k101 | timemixer-saldirgan_bline_k64 | 3 / 3 | ood_test_shift_silent_recall | 0.2066 | 0.0976 | +0.1090 | [+0.0996, +0.1184] | 0.0001 | 0.0023 |
 
-## (ii) saldırgan kayması: yalnız meander ile eğitim
+## (ii) attacker shift: trained only on meander
 
-| a | b | seed a / b | ölçüt | a | b | a − b | %95 GA | p Holm (çift) | p Holm (plan) |
+| a | b | seeds a / b | criterion | a | b | a − b | 95% CI | p Holm (pair) | p Holm (plan) |
 |---|---|---|---|---:|---:|---:|---|---:|---:|
 | cybermetaformer-saldirgan_meander_k101 | gru_full-saldirgan_meander_k101 | 3 / 3 | test_shift_host_macro_f1 | 0.8409 | 0.8498 | -0.0088 | [-0.0118, -0.0057] | 0.0001 | 0.0023 |
 | cybermetaformer-saldirgan_meander_k101 | gru_full-saldirgan_meander_k101 | 3 / 3 | ood_test_shift_host_macro_f1 | 0.7377 | 0.7254 | +0.0123 | [+0.0084, +0.0165] | 0.0001 | 0.0023 |

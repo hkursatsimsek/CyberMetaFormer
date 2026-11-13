@@ -1,27 +1,28 @@
-"""Remove bayrağı kusuru: aynı modellerin kusurlu (v1) ve düzeltilmiş gözlemli eşli kopyalarda karşılaştırılması.
+"""Remove-flag defect: the same models compared on the defective (v1) and the corrected-observation paired copies.
 
-Yeniden eğitim yok: v1'de eğitilmiş `model.pt` (CMF ve GRU tam, asama3, s0–s4).
+No retraining: the `model.pt` trained on v1 (CMF and full GRU, asama3, s0–s4).
 
-Veri: `minicage_v1_fixedobs` ve `minicage_v1_shift_fixedobs` (minicage/dataset/resimulate.py, FixedObsCAGE). Gerçek durum,
-Red gözlemi, aksiyonlar ve bölüm kimlikleri v1 ile aynıdır, yalnız Blue gözlemi farklıdır: başarısız remove "kaldırıldı"
-basmaz, geçersiz user0 restore'u user0'ın bayraklarını silmez. Etiketlerin ve politikaların aynı olduğu denetlenir.
+Data: `minicage_v1_fixedobs` and `minicage_v1_shift_fixedobs` (minicage/dataset/resimulate.py, FixedObsCAGE). True state,
+Red observation, actions and episode identities are the same as in v1, only the Blue observation differs: a failed
+remove does not print "removed", an invalid user0 restore does not clear user0's flags. Identical labels and policies
+are checked.
 
-Kümeler (ood_paketi ile aynı): test, ood (ε = 0.3), eps0.5, eps0.7, remove (react_remove).
-Dilimler kusurlu veriden tanımlanır (birincil), böylece iki sürümde birebir aynı host-adımları karşılaştırılır:
-    sessiz        y > 0 ∧ kusurlu gözlemde uyarı yok
-    N_geçmiş      sessiz ∧ kusurlu gözlemde bölüm başından beri o hostta hiç uyarı yok (uyarı yaşı 'hiç')
-    remove maskesi  sessiz ihlal nedeni 'remove_maske' (*_aux/silent_cause.npz): uyarıyı başarısız remove'un "kaldırıldı"
-                  bayrağı silmiş
-İkincil: sessiz ve N_geçmiş, her sürümün kendi gözleminden (düzeltilmiş sürümde başka host-adımları).
-Üye başına kendi v1 val sıcaklığı (ood_paketi 'uye'), seed ortalaması. Eşli bölüm bootstrap'ı compare.py ile aynı (her
-model seed ortalamasıyla, kümenin bölümleri örneklenir): (i) her model için düzeltilmiş − kusurlu, (ii) her sürümde
-CMF − GRU tam. Holm bütün satırlar üzerinden.
+Sets (as in ood_suite): test, ood (ε = 0.3), eps0.5, eps0.7, remove (react_remove).
+The slices are defined on the defective data (primary), so that the same host-steps are compared in both versions:
+    silent        y > 0 ∧ no alert in the defective observation
+    N_hist        silent ∧ no alert on that host since the episode start in the defective observation (alert age 'never')
+    remove mask   silent-compromise cause 'remove_maske' (*_aux/silent_cause.npz): the "removed" flag of a failed remove
+                  erased the alert
+Secondary: silent and N_hist from each version's own observation (other host-steps in the corrected version).
+Each member with its own v1 val temperature (ood_suite 'uye'), seed mean. The paired episode bootstrap is the same as
+in compare.py (each model with its seed mean, the set's episodes are resampled): (i) corrected − defective for each
+model, (ii) CMF − full GRU in each version. Holm over all rows.
 
-collect, değişmeyen bölümlerde (gözlemi iki sürümde aynı olanlar) yeni logitlerin kayıtlı kusurlu logitlerle aynı tahmini
-verdiğini denetler.
+collect checks that on the unchanged episodes (observation identical in both versions) the new logits give the same
+predictions as the saved defective logits.
 
-    python -m cybermetaformer.hidden_state.duzeltilmis_gozlem collect     # asama3/duzeltilmis_gozlem/logits/ (git dışı)
-    python -m cybermetaformer.hidden_state.duzeltilmis_gozlem analyze     # makale/duzeltilmis_gozlem/{ozet.json, tablolar.md}
+    python -m cybermetaformer.hidden_state.corrected_obs collect     # asama3/corrected_obs/logits/ (outside git)
+    python -m cybermetaformer.hidden_state.corrected_obs analyze     # makale/corrected_obs/{ozet.json, tablolar.md}
 """
 import argparse
 import json
@@ -35,22 +36,22 @@ from cybermetaformer.hidden_state import data as D
 from cybermetaformer.hidden_state import evaluate as E
 from cybermetaformer.hidden_state import features as F
 from cybermetaformer.hidden_state import metrics as M
-from cybermetaformer.hidden_state import ood_paketi as O
+from cybermetaformer.hidden_state import ood_suite as O
 from cybermetaformer.hidden_state import uncertainty as U
 
 RESULTS = os.path.join(D.ROOT, 'results', 'hidden_state')
-LOGIT_DIR = os.path.join(RESULTS, 'asama3', 'duzeltilmis_gozlem', 'logits')
-OUT_DIR = os.path.join(RESULTS, 'makale', 'duzeltilmis_gozlem')
+LOGIT_DIR = os.path.join(RESULTS, 'asama3', 'corrected_obs', 'logits')
+OUT_DIR = os.path.join(RESULTS, 'makale', 'corrected_obs')
 FIXED = {'v1': os.path.join(D.DATA_ROOT, 'minicage_v1_fixedobs'),
          'shift': os.path.join(D.DATA_ROOT, 'minicage_v1_shift_fixedobs')}
-BASE = {b: O.BASE[b] for b in ('test', 'ood', 'shift')}          # temel küme → (veri, split)
+BASE = {b: O.BASE[b] for b in ('test', 'ood', 'shift')}          # base set → (data, split)
 SETS = {s: O.SETS[s] for s in ('test', 'ood', 'eps0.5', 'eps0.7', 'remove')}
 SET_LABEL = {'test': 'Test', 'ood': 'OOD (ε = 0.3)', 'eps0.5': 'ε = 0.5', 'eps0.7': 'ε = 0.7', 'remove': 'react_remove'}
 MODELS = {'cybermetaformer': 'CyberMetaFormer', 'gru_full': 'GRU (full history)'}
 SEEDS = (0, 1, 2, 3, 4)
 VERSIONS = ('flawed', 'corrected')
 VERSION_LABEL = {'flawed': 'flawed', 'corrected': 'corrected'}
-# ölçüt → (kayıt anahtarı, etiket); 'conf' host makro-F1'dir, diğerleri (n, isabet) sayımları
+# criterion → (record key, label); 'conf' is host macro-F1, the others are (n, hits) counts
 CRITERIA = {'host_macro_f1': ('conf', 'Host macro-F1'),
             'silent_recall': ('silent', 'Silent recall'),
             'never_recall': ('never', 'N_hist recall'),
@@ -66,12 +67,12 @@ def open_stores():
 
 
 def check_pairing(stores):
-    """İki sürüm aynı bölümleri taşımalı: etiketler, politikalar ve split'ler aynı."""
+    """Both versions must carry the same episodes: identical labels, policies and splits."""
     for src in FIXED:
         a, b = stores['flawed'][src], stores['corrected'][src]
         for attr in ('labels', 'red_policy', 'blue_policy', 'prev_action'):
-            assert np.array_equal(getattr(a, attr), getattr(b, attr)), f'{src}: {attr} farklı'
-        assert all(np.array_equal(a._splits[k], b._splits[k]) for k in a._splits), f'{src}: split farklı'
+            assert np.array_equal(getattr(a, attr), getattr(b, attr)), f'{src}: {attr} differs'
+        assert all(np.array_equal(a._splits[k], b._splits[k]) for k in a._splits), f'{src}: split differs'
 
 
 def base_indices(stores):
@@ -95,7 +96,7 @@ def logit_path(name, seed):
 # ── toplama ──────────────────────────────────────────────────────────────
 
 def collect(device, models=tuple(MODELS), seeds=SEEDS):
-    """Düzeltilmiş kopyalardaki logitler (float16). Var olan dosya atlanır."""
+    """Logits on the corrected copies (float16). Existing files are skipped."""
     stores = open_stores()
     check_pairing(stores)
     idx = base_indices(stores)
@@ -118,25 +119,25 @@ def collect(device, models=tuple(MODELS), seeds=SEEDS):
                 same = ~changed[b]
                 agree = float((out[b][same].argmax(-1) == ref[b][same].argmax(-1)).mean())
                 diff = float(np.abs(out[b][same].astype(np.float32) - ref[b][same].astype(np.float32)).max())
-                assert agree > 0.9999, f'{name} s{seed} {b}: değişmeyen bölümlerde tahmin uyumu {agree}'
-                notes.append(f'{b} uyum {agree:.6f} en büyük fark {diff:.4f} ({int(same.sum())} bölüm)')
+                assert agree > 0.9999, f'{name} s{seed} {b}: prediction agreement on unchanged episodes {agree}'
+                notes.append(f'{b} agreement {agree:.6f} largest difference {diff:.4f} ({int(same.sum())} episodes)')
             np.savez_compressed(path, **out)
-            print(f'{name} s{seed}: {time.time() - t0:.0f} s; değişmeyen bölümler: ' + '; '.join(notes), flush=True)
+            print(f'{name} s{seed}: {time.time() - t0:.0f} s; unchanged episodes: ' + '; '.join(notes), flush=True)
             del model
             if device == 'mps':
                 torch.mps.empty_cache()
 
 
-# ── analiz ───────────────────────────────────────────────────────────────
+# ── analysis ─────────────────────────────────────────────────────────────
 
 def _member_records(lg, t, y, alert_f, age_f, alert_v, age_v, cause, cause_names):
     pred = U.probs(lg, t).argmax(-1)
     cnt, names = M.episode_slice_counts(y, pred, alert_f, age_f, cause, cause_names)
     own, own_names = M.episode_slice_counts(y, pred, alert_v, age_v)
     return {'conf': M.episode_confusion(y, pred),
-            'silent': cnt[:, names.index('sessiz')], 'never': cnt[:, names.index('hiç')],
+            'silent': cnt[:, names.index('sessiz')], 'never': cnt[:, names.index('never')],
             'remove_mask': cnt[:, names.index('remove_maske')],
-            'silent_own': own[:, own_names.index('sessiz')], 'never_own': own[:, own_names.index('hiç')]}
+            'silent_own': own[:, own_names.index('sessiz')], 'never_own': own[:, own_names.index('never')]}
 
 
 def _value(rec, key):
@@ -170,7 +171,7 @@ def analyze(n_boot=10_000, models=tuple(MODELS), seeds=SEEDS, log=print):
                     for seed, m in ms.items()} for name, ms in members.items()}
 
     res = {'seeds': list(seeds), 'n_boot': n_boot, 'temperature': temps, 'sets': {}, 'models': {}, 'rows': []}
-    runs = {}                                   # (küme, model, sürüm) → üye kayıtları
+    runs = {}                                   # (set, model, version) → member records
     for s, (b, pol) in SETS.items():
         src = BASE[b][0]
         st_f, st_c = stores['flawed'][src], stores['corrected'][src]
@@ -189,7 +190,7 @@ def analyze(n_boot=10_000, models=tuple(MODELS), seeds=SEEDS, log=print):
             'source': [b, pol], 'n_episodes': len(ep), 'n_episodes_changed': int(changed[b][pos].sum()),
             'n_host_steps': int(y.size), 'n_silent': int(silent.sum()), 'n_never': int(never.sum()),
             'n_remove_mask': int(rmask.sum()),
-            # kusurlu tanımla sessiz olup düzeltilmiş gözlemde uyarı gören host-adımlarının payı
+            # share of host-steps silent under the defective definition that see an alert in the corrected observation
             'silent_alerted_when_corrected': float((silent & alert['corrected']).sum() / max(silent.sum(), 1)),
             'never_alerted_when_corrected': float((never & alert['corrected']).sum() / max(never.sum(), 1)),
             'remove_mask_alerted_when_corrected': float((rmask & alert['corrected']).sum() / max(rmask.sum(), 1)),
@@ -210,14 +211,14 @@ def analyze(n_boot=10_000, models=tuple(MODELS), seeds=SEEDS, log=print):
 
     for s in SETS:
         E_ = res['sets'][s]['n_episodes']
-        for name in models:                                  # (i) düzeltilmiş − kusurlu
+        for name in models:                                  # (i) corrected − defective
             for c, (key, _) in CRITERIA.items():
                 if c not in res['models'][name][s]['flawed']:
                     continue
                 r = M.paired_bootstrap(_stat(runs[s, name, 'corrected'], key, s), _stat(runs[s, name, 'flawed'], key, s),
                                        {s: E_}, n_boot=n_boot, seed=0)
                 res['rows'].append({'kind': 'corrected_minus_flawed', 'set': s, 'model': name, 'criterion': c, **r})
-        if {'cybermetaformer', 'gru_full'} <= set(models):   # (ii) CMF − GRU tam, sürüm başına
+        if {'cybermetaformer', 'gru_full'} <= set(models):   # (ii) CMF − full GRU, per version
             for v in VERSIONS:
                 for c in PRIMARY:
                     if c not in res['models']['gru_full'][s][v]:
@@ -237,7 +238,7 @@ def analyze(n_boot=10_000, models=tuple(MODELS), seeds=SEEDS, log=print):
     return res
 
 
-# ── çıktılar ─────────────────────────────────────────────────────────────
+# ── outputs ──────────────────────────────────────────────────────────────
 
 def _ms(d):
     return f"{d['mean']:.3f} ± {d['sd']:.3f}" if d else ''

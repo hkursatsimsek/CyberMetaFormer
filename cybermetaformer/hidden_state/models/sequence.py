@@ -1,6 +1,6 @@
-"""Dizi modelleri (Aşama 1–2 temsilcileri). Ortak arayüz: forward(x, mask) → logits (B, 12, 3).
+"""Sequence models (representatives of stages 1–2). Common interface: forward(x, mask) → logits (B, 12, 3).
 
-M0'da hesap bütçesi ölçümü (bench.py) için yazıldı; HPO uzayları M1/M2'de kesinleşir.
+Written in M0 for the compute budget measurement (bench.py); the HPO spaces are fixed in M1/M2.
 """
 import math
 
@@ -18,13 +18,13 @@ def _head(d):
 
 
 class CNN1D(nn.Module):
-    """Nedensel 1D konvolüsyon blokları (k ≥ 8'de dilate, TCN tarzı) + maskeli ortalama havuzlama.
-    k=1'de 1×1 konvolüsyona iner (MLP'ye denk)."""
+    """Causal 1D convolution blocks (dilated for k ≥ 8, TCN style) + masked mean pooling.
+    Reduces to a 1×1 convolution at k=1 (equivalent to an MLP)."""
 
     def __init__(self, k, channels=128, layers=3, kernel=3, dropout=0.1, dilated=None):
         super().__init__()
         dilated = k >= 8 if dilated is None else dilated
-        self.inp = nn.Linear(OBS_DIM, channels)            # 1×1 konvolüsyonun eşdeğeri (CPU'da çok daha hızlı)
+        self.inp = nn.Linear(OBS_DIM, channels)            # equivalent of a 1×1 convolution (much faster on CPU)
         self.blocks = nn.ModuleList()
         self.pads = []
         for i in range(layers):
@@ -44,7 +44,7 @@ class CNN1D(nn.Module):
 
 
 class RNN(nn.Module):
-    """LSTM / GRU; son gizli durum → 12×3 başlık. Baştaki dolgu adımları sıfırdır."""
+    """LSTM / GRU; last hidden state → 12×3 head. Leading padding steps are zero."""
 
     def __init__(self, k, cell='lstm', hidden=128, layers=1, dropout=0.0):
         super().__init__()
@@ -58,11 +58,12 @@ class RNN(nn.Module):
 
 
 class RNNFull(RNN):
-    """Tam geçmiş varyantı: bölüm boyunca durumlu, her adımda tahmin (çoktan-çoğa).
+    """Full-history variant: stateful over the episode, a prediction at every step (many-to-many).
 
-    train.py'de `mode: episode` ile eğitilir; t. konumdaki çıktı obs[0..t]'yi görür, yani k = t+1 dolgusuz pencereyle
-    aynı bilgiyi kullanır. Pencere arayüzü (forward) RNN ile aynıdır (test ve şekil kontrolleri için).
-    action_input (M3 aksiyon ablasyonu): önceki Blue aksiyonunun 16 boyutlu gömmesi gözleme eklenir."""
+    Trained in train.py with `mode: episode`; the output at position t sees obs[0..t], i.e. it uses the same
+    information as an unpadded window with k = t+1. The window interface (forward) is the same as RNN (for tests and
+    shape checks). action_input (M3 action ablation): a 16-dim embedding of the previous Blue action is added
+    to the observation."""
     episode_mode = True
     ACT_DIM = 16
 
@@ -76,7 +77,7 @@ class RNNFull(RNN):
                            dropout=dropout if layers > 1 else 0.0)
 
     def forward_episode(self, x, act=None):
-        """(B, S, 78) [+ (B, S) önceki aksiyon] → (B, S, 12, 3)."""
+        """(B, S, 78) [+ (B, S) previous action] → (B, S, 12, 3)."""
         if self.action_input:
             x = torch.cat([x, self.act_emb(act)], -1)
         out, _ = self.rnn(x)
@@ -84,9 +85,10 @@ class RNNFull(RNN):
 
 
 class Transformer(nn.Module):
-    """Yalnızca kodlayıcı; token = gözlem adımı; öğrenilen ya da sinüzoidal konum (vanilla Transformer).
-    Okuma: son adım (`last`) ya da dizinin sonuna eklenen öğrenilen CLS token'ı (`cls`; nedensel maskede de bütün
-    adımları görür). Dolgu adımları key_padding_mask ile dışlanır. causal=True nedensel maske ekler (ablasyon)."""
+    """Encoder only; token = observation step; learned or sinusoidal positions (vanilla Transformer).
+    Readout: the last step (`last`) or a learned CLS token appended at the end of the sequence (`cls`; it sees all
+    steps even under the causal mask). Padding steps are excluded with key_padding_mask. causal=True adds a causal
+    mask (ablation)."""
 
     def __init__(self, k, d_model=128, heads=4, layers=2, ff=256, dropout=0.1, pos='learned', causal=False,
                  readout='last'):
@@ -118,9 +120,9 @@ class Transformer(nn.Module):
             pad = torch.cat([pad, pad.new_zeros(pad.shape[0], 1)], 1)
         attn = None
         if self.causal:
-            # Dolgu ile nedensel maske birleşince bölüm başındaki dolgu sorgularının bütün anahtarları maskeli kalır ve
-            # softmax NaN verir; NaN sonraki katmanda değerler üzerinden geçerli adımlara taşınır. Her adım kendine
-            # bakabilir; geçerli adımlar dolguyu yine görmez.
+            # When padding and the causal mask are combined, all keys of the padding queries at the episode start stay
+            # masked and softmax gives NaN; the NaN is carried to valid steps through the values in the next layer. Every
+            # step may attend to itself; valid steps still do not see the padding.
             L = h.shape[1]
             eye = torch.eye(L, dtype=torch.bool, device=x.device)
             attn = (torch.triu(torch.ones(L, L, dtype=torch.bool, device=x.device), 1)[None] | pad[:, None]) & ~eye

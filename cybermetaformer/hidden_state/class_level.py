@@ -1,20 +1,22 @@
-"""M4 revizyonu, madde 3: güvenlik açısından kritik sınıfların ayrı raporu.
+"""M4 revision, item 3: separate report for the security-critical classes.
 
-Karışıklık tabanlı ölçütler koşuların `episode_confusion.npz` dosyalarından (bölüm × 12 host × 3 × 3; eğitim sonundaki
-float32 tahminler; bütün seed'ler; çıkarım yok). Değerlendirilen hostlar host makro-F1 kuralıyla aynı: kümede en az bir
-pozitif (user/root) gerçek etiketi olan hostlar (pratikte def hariç 11 host; user0 etiket dışı, Red'in dayanağı).
+Confusion-based criteria from the runs' `episode_confusion.npz` files (episode × 12 hosts × 3 × 3; float32 predictions
+at the end of training; all seeds; no inference). The evaluated hosts follow the host macro-F1 rule: hosts with at
+least one positive (user/root) true label in the set (in practice 11 hosts without def; user0 is not labelled, Red's
+foothold).
 
-- havuzlanmış 3×3 karışıklık (11 host, bütün host-adımlar): sayım ve satır normalize; seed ortalaması
-- sınıf başına precision / recall / F1: havuzlanmış ve host ortalamalı (sınıfın bulunduğu hostlar üzerinden)
-- root → user, root → clean, user → clean oranları; temiz host-adımlarda yanlış alarm P(ŷ > 0 | y = 0)
-- host başına makro-F1 (metrics.host_macro_f1 ile aynı tanım), en kötü ve en iyi host
+- pooled 3×3 confusion (11 hosts, all host-steps): counts and row-normalised; seed mean
+- per-class precision / recall / F1: pooled and host-averaged (over the hosts where the class occurs)
+- root → user, root → clean, user → clean rates; false alarms on clean host-steps P(ŷ > 0 | y = 0)
+- per-host macro-F1 (same definition as metrics.host_macro_f1), worst and best host
 
-Tahmin gerektirenler (kayıtlı float16 logitlerden: `asama3/ood_paketi/logits`; bulunan seed'ler):
-- sessiz host-adımlarda karışıklık (gerçek user/root × tahmin)
-- tespit gecikmesi: ihlal dönemi (y > 0'ın kesintisiz koşusu) başlangıcından ilk ŷ > 0'a ve ilk ŷ = y'ye kadar geçen
-  adım; dönem başlangıcı uyarılı (A(h, t₀)) ve sessiz olarak ayrı; medyan, p90, ortalama, tespit edilen dönem oranı.
+Those that need predictions (from the saved float16 logits: `asama3/ood_suite/logits`; the seeds found):
+- confusion on silent host-steps (true user/root × prediction)
+- detection latency: steps from the start of a compromise spell (an unbroken run of y > 0) to the first ŷ > 0 and to
+  the first ŷ = y; spells starting with an alert (A(h, t₀)) and silent ones separately; median, p90, mean, share
+  detected.
 
-    python -m cybermetaformer.hidden_state.sinif_duzeyi     # results/hidden_state/makale/sinif_duzeyi/
+    python -m cybermetaformer.hidden_state.class_level     # results/hidden_state/makale/class_level/
 """
 import json
 import os
@@ -26,12 +28,12 @@ from cybermetaformer.hidden_state import features as F
 from cybermetaformer.hidden_state import metrics as M
 
 RESULTS = os.path.join(D.ROOT, 'results', 'hidden_state')
-OUT_DIR = os.path.join(RESULTS, 'makale', 'sinif_duzeyi')
-LOGIT_DIR = os.path.join(RESULTS, 'asama3', 'ood_paketi', 'logits')
+OUT_DIR = os.path.join(RESULTS, 'makale', 'class_level')
+LOGIT_DIR = os.path.join(RESULTS, 'asama3', 'ood_suite', 'logits')
 CLASSES = ['clean', 'user', 'root']
 SPLITS = {'test': 'test', 'ood': 'ood_test'}
-# ad → (aşama klasörü, koşu öneki, logit öneki); GRU'nun 5 seed'i asama1'de (compare.py'deki RQ3 referansı; logitleri
-# asama3'teki yeniden eğitimden, metrikleri asama1 ile birebir aynı). gru_host_*: M4 madde 4 referansları.
+# name → (stage folder, run prefix, logit prefix); the 5 GRU seeds are in asama1 (the RQ3 reference of compare.py; its
+# logits from the retraining in asama3, metrics identical to asama1). gru_host_*: item 4 references of M4.
 MODELS = {'CyberMetaFormer': ('asama3', 'cybermetaformer_k101', 'cybermetaformer_k101'),
           'Full-history GRU': ('asama1', 'gru_full_k101', 'gru_full_k101'),
           'Host-token GRU + topo attention': ('asama3', 'cybermetaformer-gru_host_topo_k101',
@@ -47,7 +49,7 @@ def run_seeds(stage, prefix):
 
 
 def class_metrics(C):
-    """C (3, 3) [gerçek, tahmin] → sınıf başına precision, recall, F1 ve oranlar."""
+    """C (3, 3) [true, predicted] → per-class precision, recall, F1 and rates."""
     C = C.astype(np.float64)
     tp = np.diag(C)
     prec = tp / np.maximum(C.sum(0), 1)
@@ -61,7 +63,7 @@ def class_metrics(C):
 
 
 def host_class_f1(Ch):
-    """(H, 3, 3) → (3,) sınıf başına F1'in hostlar üzerinden ortalaması (sınıfın bulunduğu hostlar)."""
+    """(H, 3, 3) → (3,) per-class F1 averaged over hosts (the hosts where the class occurs)."""
     out = []
     for c in range(3):
         vals = [2 * Ch[h, c, c] / max(Ch[h, c].sum() + Ch[h, :, c].sum(), 1) for h in range(len(Ch)) if Ch[h, c].sum() > 0]
@@ -84,7 +86,7 @@ def confusion_part(stage, prefix, seeds, split, hosts):
 
 
 def spells(y, p, alert):
-    """(E, T, H) → dönem kayıtları: başlangıçta uyarı var mı, ilk ŷ>0 gecikmesi, ilk ŷ=y gecikmesi (yoksa -1)."""
+    """(E, T, H) → spell records: alert at the start or not, latency to the first ŷ>0, to the first ŷ=y (-1 if none)."""
     E, T, H = y.shape
     pos = y > 0
     out = []
@@ -124,7 +126,7 @@ def latency_summary(rec):
 
 
 def prediction_part(store, idx, logit_prefix, split_key):
-    """Kayıtlı logitlerin bulunduğu seed'ler: sessiz karışıklık ve gecikme."""
+    """Seeds with saved logits: silent confusion and latency."""
     y = store.labels[idx].astype(np.int64)
     alert = F.episode_alerts(store.obs[idx])
     silent = (y > 0) & ~alert
@@ -175,7 +177,7 @@ def main():
             rows = confusion_part(stage, prefix, seeds, s, hosts)
             ref = [json.load(open(os.path.join(RESULTS, stage, f'{prefix}_s{r["seed"]}', 'metrics.json')))
                    ['reports'][s]['host_macro_f1'] for r in rows]
-            assert np.allclose([r['host_macro_f1'] for r in rows], ref, atol=1e-9), f'{label} {s}: host makro-F1 tutmuyor'
+            assert np.allclose([r['host_macro_f1'] for r in rows], ref, atol=1e-9), f'{label} {s}: macro-F1 mismatch'
             ph = summarize([{'v': list(r['per_host_macro_f1'].values())} for r in rows], ['v'])['v']
             names = list(rows[0]['per_host_macro_f1'])
             pred_rows = prediction_part(store, idx[k], lprefix, k)

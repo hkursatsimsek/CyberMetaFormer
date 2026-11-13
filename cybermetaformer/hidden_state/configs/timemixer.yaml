@@ -1,5 +1,5 @@
-# Aşama 2 TimeMixer (TSLib; ölçek sayısı k'dan, k=1'de tek ölçek). HPO: d_model, ff, layers, moving_avg,
-# dropout + ortak.
+# Stage 2 TimeMixer (TSLib; number of scales from k, a single scale at k=1). HPO: d_model, ff, layers,
+# moving_avg, dropout + shared.
 model: timemixer
 model_args: {d_model: 32, ff: 64, layers: 2, moving_avg: 5, dropout: 0.1}
 scale: global

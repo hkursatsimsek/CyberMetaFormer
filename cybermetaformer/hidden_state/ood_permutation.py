@@ -1,41 +1,43 @@
-"""Host permütasyonu OOD'si (revizyon madde 6 (a)): host sırası ve kimliği değişince modellerin tahmini.
+"""Host-permutation OOD (revision item 6 (a)): model predictions when host order and identity change.
 
-Yeniden eğitim yok: v1'de eğitilmiş `model.pt` (asama3, s0–s4). Kümeler: v1 test (eğitim politikaları) ve ood_test
+No retraining: the `model.pt` trained on v1 (asama3, s0–s4). Sets: v1 test (training policies) and ood_test
 (ε = 0.3).
 
-Permütasyonlar (π[i]: slot i'ye verisi gelen host; def ve user0 sabit):
-    P1  topolojide eşdeğer hostlar içinde: user1↔user2, user3↔user4, ophost0←ophost1←ophost2←ophost0. Saldırı grafı
-        kenarları ve alt ağlar korunur.
-    P2  sınıflar arası: user1↔user3, user2↔user4. Alt ağlar korunur, kenar hizası bozulur: slot user1/2 artık ent1'e
-        bağlı hostların verisini taşır (yeniden bağlanmış topolojinin veri içindeki karşılığı; gerçek simülasyonu
-        ood_topoloji.py).
-    P1s, P2s  aynı permütasyonlar, ama decoy sayısı sütunları slotta kalır (yalnız 4 bit, tarama geçmişi ve etiketler
-        taşınır).
-    P3  yalnız model tarafında: host gömmesi E_host'un satırları π2 ile karıştırılır, veri değişmez. Yalnız host-token
-        modelleri.
-P1 ve P2'de gözlem sütunları (4 bit, tarama geçmişi, decoy sayısı) ve etiketler birlikte permüte edilir. Decoy
-kapasitesi hosta bağlıdır (başlangıçta user1/2: 4, user3: 2, user4: 1), yani verisiyle birlikte taşınır. Böylece
-permüte slotta eğitimde görülmemiş bir değer oluşabilir (P1'de user3↔user4, P2'de bütün user'lar). P1s ve P2s bu
-etkiyi ayırır: decoy kapasitesi slotun özelliği olarak kalır, gerçek yeniden bağlamada (ood_topoloji) olduğu gibi.
-Decoy sayısının değiştiği politikalarda (restore_decoys, random, ε'lu politikaların rastgele aksiyonları) decoy geçmişi
-slotta, etkinlik ise taşınan hostta kalır. Bu küçük tutarsızlık tanılama amacıyla kabul edilir.
+Permutations (π[i]: the host whose data goes to slot i; def and user0 fixed):
+    P1  within topologically equivalent hosts: user1↔user2, user3↔user4, ophost0←ophost1←ophost2←ophost0. The
+        attack-graph edges and the subnets are kept.
+    P2  across classes: user1↔user3, user2↔user4. Subnets are kept, the edge alignment is broken: slot user1/2 now
+        carries the data of hosts linked to ent1 (the in-data counterpart of a rewired topology; its real simulation is
+        ood_topology.py).
+    P1s, P2s  the same permutations, but the decoy-count columns stay in the slot (only the 4 bits, scan history and
+        labels move).
+    P3  model side only: the rows of the host embedding E_host are shuffled with π2, the data do not change. Host-token
+        models only.
+In P1 and P2 the observation columns (4 bits, scan history, decoy count) and the labels are permuted together. Decoy
+capacity belongs to the host (at the start user1/2: 4, user3: 2, user4: 1), so it moves with its data. A permuted
+slot can therefore hold a value never seen in training (user3↔user4 in P1, all users in P2). P1s and P2s separate this
+effect: decoy capacity stays a property of the slot, as in a real rewiring (ood_topology).
+In policies where the decoy count changes (restore_decoys, random, the random actions of the ε policies) the decoy
+history stays in the slot while the activity stays with the moved host. This small inconsistency is accepted for the
+diagnostic purpose.
 
-Eşdeğerlikler (testte doğrulanır; P1 ve P2 için): host-token modellerinde veri permütasyonu, E_host'un ve ilişki matrisinin (topoloji
-sapması) aynı permütasyonuna denktir. P1 ilişkileri korur, yani P1 ≡ E_host'un sınıf içinde karıştırılması. Sapmasız
-(attn) modellerde P2 ≡ P3. Topoloji sapmalı modellerde P2 − P3 farkı, yanlış hizalanmış topoloji önselinin etkisidir.
+Equivalences (verified in the tests; for P1 and P2): in host-token models a data permutation equals the same
+permutation of E_host and of the relation matrix (topology bias). P1 keeps the relations, so P1 ≡ shuffling E_host
+within classes. In models without bias (attn) P2 ≡ P3. In topology-biased models the P2 − P3 difference is the effect
+of the misaligned topology prior.
 
-Modeller: CMF (conv+SSD, topoloji sapması), CMF host_tam (tam dikkat), gru_host_topo, gru_host_attn ve GRU tam. GRU tam
-düz 78 boyutlu girdiyle çalışır, permüte veriyi aynen görür; P3 onda tanımsızdır. Ölçütler argmax üzerinden
-hesaplanır; sıcaklık argmax'ı değiştirmez. Ana ölçütler: host makro-F1, sessiz recall, N_geçmiş recall. Ek olarak hata
-türleri (root→clean, root→user, user→clean, temiz yanlış alarm) ve host grubu başına sessiz recall (slot düzeyinde).
-Dilimler her koşulun kendi gözleminden hesaplanır. Permütasyon yalnız slotları değiştirdiği için bunlar aynı
-host-adımlarıdır (sayılar denetlenir).
+Models: CMF (conv+SSD, topology bias), CMF host_tam (full attention), gru_host_topo, gru_host_attn and the full GRU. The
+full GRU works on the flat 78-dim input and sees the permuted data as they are; P3 is undefined for it. Criteria are
+computed on the argmax; temperature does not change the argmax. Main criteria: host macro-F1, silent recall, N_hist
+recall. Also the error types (root→clean, root→user, user→clean, clean false alarm) and silent recall per host group
+(at slot level). The slices are computed from each condition's own observation. The permutation only changes the slots,
+so these are the same host-steps (the counts are checked).
 
-Eşli bölüm bootstrap'ı: (i) her model için Pk − özdeş; (ii) her koşulda model çiftleri (PAIRS); (iii) çiftlerin
-permütasyon düşüşü farkı, yani (a_Pk − a_id) − (b_Pk − b_id). Holm bütün satırlar üzerinden.
+Paired episode bootstrap: (i) Pk − identity for each model; (ii) model pairs in each condition (PAIRS); (iii) the
+difference of the pairs' permutation drops, i.e. (a_Pk − a_id) − (b_Pk − b_id). Holm over all rows.
 
-    python -m cybermetaformer.hidden_state.ood_permutasyon collect    # asama3/ood_permutasyon/preds/ (git dışı)
-    python -m cybermetaformer.hidden_state.ood_permutasyon analyze    # makale/ood_permutasyon/{ozet.json, tablolar.md}
+    python -m cybermetaformer.hidden_state.ood_permutation collect    # asama3/ood_permutation/preds/ (outside git)
+    python -m cybermetaformer.hidden_state.ood_permutation analyze    # makale/ood_permutation/{ozet.json, tablolar.md}
 """
 import argparse
 import contextlib
@@ -50,13 +52,13 @@ from cybermetaformer.hidden_state import data as D
 from cybermetaformer.hidden_state import evaluate as E
 from cybermetaformer.hidden_state import features as F
 from cybermetaformer.hidden_state import metrics as M
-from cybermetaformer.hidden_state import ood_paketi as O
-from cybermetaformer.hidden_state.duzeltilmis_gozlem import _stat as member_stat, _value as member_value
+from cybermetaformer.hidden_state import ood_suite as O
+from cybermetaformer.hidden_state.corrected_obs import _stat as member_stat, _value as member_value
 from cybermetaformer.hidden_state.models.cybermetaformer import HOSTS
 
 RESULTS = os.path.join(D.ROOT, 'results', 'hidden_state')
-PRED_DIR = os.path.join(RESULTS, 'asama3', 'ood_permutasyon', 'preds')
-OUT_DIR = os.path.join(RESULTS, 'makale', 'ood_permutasyon')
+PRED_DIR = os.path.join(RESULTS, 'asama3', 'ood_permutation', 'preds')
+OUT_DIR = os.path.join(RESULTS, 'makale', 'ood_permutation')
 MODELS = {'cybermetaformer': 'CyberMetaFormer',
           'cybermetaformer-host_tam': 'CMF, full attention (no topology bias)',
           'cybermetaformer-gru_host_topo': 'Host-token GRU, topology-biased attention',
@@ -70,7 +72,7 @@ SETS = {'test': 'test', 'ood': 'ood_test'}
 SET_LABEL = {'test': 'Test', 'ood': 'OOD (ε = 0.3)'}
 CRITERIA = {'host_macro_f1': ('conf', 'Host macro-F1'), 'silent_recall': ('silent', 'Silent recall'),
             'never_recall': ('never', 'N_hist recall')}
-# hata türü → (gerçek sınıf, tahmin edilen sınıflar); oran gerçek sınıfın host-adımları içinde
+# error type → (true class, predicted classes); rate within the host-steps of the true class
 ERRORS = {'root_to_clean': (2, (0,)), 'root_to_user': (2, (1,)), 'user_to_clean': (1, (0,)),
           'clean_false_alarm': (0, (1, 2))}
 ERROR_LABEL = {'root_to_clean': 'root→clean', 'root_to_user': 'root→user', 'user_to_clean': 'user→clean',
@@ -81,7 +83,7 @@ GROUPS = {'user1–2': ('user1', 'user2'), 'user3–4': ('user3', 'user4'), 'ent
 
 
 def _perm(*cycles):
-    """Döngülerden host permütasyonu (13 host, HOSTS sırası): döngüdeki her slot bir sonraki hostun verisini alır."""
+    """Host permutation from cycles (13 hosts, HOSTS order): each slot in a cycle takes the data of the next host."""
     pi = list(range(len(HOSTS)))
     for cyc in cycles:
         idx = [HOSTS.index(h) for h in cyc]
@@ -93,7 +95,7 @@ def _perm(*cycles):
 PERMS = {'P1': _perm(('user1', 'user2'), ('user3', 'user4'), ('ophost0', 'ophost1', 'ophost2')),
          'P2': _perm(('user1', 'user3'), ('user2', 'user4'))}
 P3_PERM = PERMS['P2']
-# veri koşulu → (permütasyon, decoy sütunları da taşınır mı)
+# data condition → (permutation, whether the decoy columns move too)
 DATA_CONDITIONS = {'P1': (PERMS['P1'], True), 'P1s': (PERMS['P1'], False),
                    'P2': (PERMS['P2'], True), 'P2s': (PERMS['P2'], False)}
 CONDITIONS = ('id', 'P1', 'P1s', 'P2', 'P2s', 'P3')
@@ -102,17 +104,17 @@ COND_LABEL = {'id': 'identity', 'P1': 'P1 (within class)', 'P1s': 'P1, decoy cou
 
 
 def obs_columns(pi, move_decoys=True):
-    """Permüte gözlem = obs[..., obs_columns(π)]: slot i'nin 4 biti, tarama geçmişi ve (move_decoys ise) decoy sayısı
-    host π(i)'den; move_decoys=False ise decoy sayısı slotta kalır."""
+    """Permuted observation = obs[..., obs_columns(π)]: the 4 bits, scan history and (if move_decoys) decoy count of
+    slot i come from host π(i); with move_decoys=False the decoy count stays in the slot."""
     pi, n = np.asarray(pi), len(pi)
     bits = (4 * pi[:, None] + np.arange(4)).reshape(-1)
     return np.concatenate([bits, 4 * n + pi, 5 * n + (pi if move_decoys else np.arange(n))])
 
 
 def label_columns(pi):
-    """Permüte etiket = labels[..., label_columns(π)] (12 etiket hostu; user0 sabit olmalı)."""
+    """Permuted labels = labels[..., label_columns(π)] (12 label hosts; user0 must stay fixed)."""
     lh = list(D.LABEL_HOSTS)
-    assert all(int(pi[h]) in lh for h in lh), 'permütasyon user0 ile etiket hostlarını karıştırmamalı'
+    assert all(int(pi[h]) in lh for h in lh), 'the permutation must not mix user0 with the label hosts'
     return np.array([lh.index(int(pi[h])) for h in lh])
 
 
@@ -121,7 +123,7 @@ def permute(obs, labels, pi, move_decoys=True):
 
 
 class ArrayStore:
-    """WindowData'ya dizilerden store: obs (E, T+1, 78), labels (E, T, 12), prev_action (E, T+1)."""
+    """Store from arrays for WindowData: obs (E, T+1, 78), labels (E, T, 12), prev_action (E, T+1)."""
 
     def __init__(self, obs, labels, prev_action):
         self.obs, self.labels, self.prev_action = obs, labels, prev_action
@@ -129,7 +131,7 @@ class ArrayStore:
 
 @contextlib.contextmanager
 def shuffled_host_emb(model, pi):
-    """P3: slot i, host π(i)'nin gömmesini alır; çıkışta ağırlık geri konur."""
+    """P3: slot i gets the embedding of host π(i); the weight is restored on exit."""
     saved = model.host_emb.data.clone()
     model.host_emb.data = saved[torch.as_tensor(np.asarray(pi), device=saved.device)]
     try:
@@ -151,7 +153,7 @@ def pred_path(name, seed, pred_dir=PRED_DIR):
 
 
 def check_against_record(name, seed, y_test, pred_test, y_ood=None, pred_ood=None):
-    """Özdeş koşulun test (ve OOD) F1'i koşunun metrics.json'undakiyle aynı olmalı (aynı ağırlık, aynı tahmin)."""
+    """The test (and OOD) F1 of the identity condition must match the run's metrics.json (same weights, same predictions)."""
     rep = json.load(open(os.path.join(O.run_dir(name, seed), 'metrics.json')))['reports']
     out = {}
     for key, y, p in (('test', y_test, pred_test), ('ood_test', y_ood, pred_ood)):
@@ -177,7 +179,7 @@ def member_keys(name):
 
 
 def collect(device, models=tuple(MODELS), seeds=SEEDS):
-    """Her üye ve kümede bütün koşulların tahminleri. Var olan dosyaya yalnız eksik koşullar eklenir."""
+    """Predictions of all conditions for each member and set. Only missing conditions are added to an existing file."""
     st, idx = open_sets()
     data = {s: (st.obs[i], st.labels[i], st.prev_action[i]) for s, i in idx.items()}
     os.makedirs(PRED_DIR, exist_ok=True)
@@ -189,7 +191,7 @@ def collect(device, models=tuple(MODELS), seeds=SEEDS):
             if not todo:
                 continue
             model, cfg = O.load_model(name, seed, device)
-            assert not getattr(model, 'action_input', False), 'aksiyon girdili modellerde aksiyonlar da permüte edilmeli'
+            assert not getattr(model, 'action_input', False), 'models with action input would need permuted actions too'
             t0 = time.time()
             for key in todo:
                 s, c = key.split('__')
@@ -203,21 +205,21 @@ def collect(device, models=tuple(MODELS), seeds=SEEDS):
                     out[key] = predict(model, cfg, *permute(obs, y, *DATA_CONDITIONS[c]), pa, device)
             f1 = check_against_record(name, seed, data['test'][1], out['test__id'], data['ood'][1], out['ood__id'])
             np.savez_compressed(path, **out)
-            print(f'{name} s{seed}: {time.time() - t0:.0f} s, {len(todo)} koşul; özdeş F1 = kayıt '
+            print(f'{name} s{seed}: {time.time() - t0:.0f} s, {len(todo)} conditions; identity F1 = record '
                   + ', '.join(f'{k} {v:.4f}' for k, v in f1.items()), flush=True)
             del model
             if device == 'mps':
                 torch.mps.empty_cache()
 
 
-# ── analiz ───────────────────────────────────────────────────────────────
+# ── analysis ─────────────────────────────────────────────────────────────
 
 def records(y, pred, alert, age):
-    """Bir üyenin bölüm başına sayımları (eşli bootstrap için) ve host başına sessiz sayımları."""
+    """Per-episode counts of a member (for the paired bootstrap) and per-host silent counts."""
     cnt, names = M.episode_slice_counts(y, pred, alert, age)
     silent, hit = (y > 0) & ~alert, pred > 0
     return {'conf': M.episode_confusion(y, pred).astype(np.int32),
-            'silent': cnt[:, names.index('sessiz')], 'never': cnt[:, names.index('hiç')],
+            'silent': cnt[:, names.index('sessiz')], 'never': cnt[:, names.index('never')],
             'silent_host': np.stack([silent.sum((0, 1)), (silent & hit).sum((0, 1))], -1)}
 
 
@@ -233,12 +235,12 @@ def group_recall(silent_host, hosts):
 
 
 def error_rates(C):
-    """Havuzlanmış (3, 3) karışıklık → hata türü oranları."""
+    """Pooled (3, 3) confusion → error-type rates."""
     return {e: float(C[t, list(ps)].sum() / max(C[t].sum(), 1)) for e, (t, ps) in ERRORS.items()}
 
 
 def summarize(runs, ep_mask=None):
-    """Seed listesi → ölçütler, hata türleri ve grup recall'ları (ortalama ± sd). ep_mask: bölüm alt kümesi."""
+    """Seed list → criteria, error types and group recalls (mean ± sd). ep_mask: episode subset."""
     if ep_mask is not None:
         runs = [{k: (v[ep_mask] if k != 'silent_host' else v) for k, v in r.items()} for r in runs]
     out = {c: _msd([member_value(r, key) for r in runs]) for c, (key, _) in CRITERIA.items()}
@@ -261,10 +263,10 @@ def set_stats(y, alert, age, red=None, red_names=None):
 
 
 def bootstrap_rows(runs, sizes, n_boot, ka, kb, base=None, side=None, **tags):
-    """ka − kb (base verilirse (ka − base[0]) − (kb − base[1])) her ölçüt için; tags satıra yazılır.
+    """ka − kb ((ka − base[0]) − (kb − base[1]) if base is given) for each criterion; tags are written to the row.
 
-    side: koşu anahtarı → bootstrap ağırlık anahtarı (sizes'taki küme). Verilmezse tek küme (eşli). İki ayrı küme
-    verilirse kümeler birbirinden bağımsız örneklenir (eşsiz iki örneklem)."""
+    side: run key → bootstrap weight key (a set in sizes). Without it, a single set (paired). With two different
+    sets, the sets are resampled independently of each other (unpaired two-sample)."""
     rows = []
     side = side or {k: next(iter(sizes)) for k in (ka, kb) + tuple(base or ())}
     for c, (key, _) in CRITERIA.items():
@@ -295,9 +297,9 @@ def analyze(n_boot=10_000, models=tuple(MODELS), seeds=SEEDS, log=print):
             stats = set_stats(y, alert, age)
             if c == 'id':
                 res['sets'][s] = stats
-            else:                                   # permütasyon yalnız slotları değiştirir
+            else:                                   # the permutation only changes the slots
                 for k in ('n_host_steps', 'class_counts', 'n_silent', 'n_never'):
-                    assert stats[k] == res['sets'][s][k], f'{s} {c}: {k} değişti'
+                    assert stats[k] == res['sets'][s][k], f'{s} {c}: {k} changed'
                 res['sets'][s].setdefault('silent_by_group_permuted', {})[c] = stats['silent_by_group']
             for name in models:
                 if c == 'P3' and name not in HOST_TOKEN:
@@ -307,7 +309,7 @@ def analyze(n_boot=10_000, models=tuple(MODELS), seeds=SEEDS, log=print):
         for name in models:
             m = res['models'][name][s]
             log(f'{name:30s} {s:5s} ' + '  '.join(
-                f"{c}: F1 {m[c]['host_macro_f1']['mean']:.4f} sessiz {m[c]['silent_recall']['mean']:.4f} "
+                f"{c}: F1 {m[c]['host_macro_f1']['mean']:.4f} silent {m[c]['silent_recall']['mean']:.4f} "
                 f"N {m[c]['never_recall']['mean']:.4f}" for c in CONDITIONS if c in m))
 
         sizes = {s: len(i)}
@@ -338,7 +340,7 @@ def analyze(n_boot=10_000, models=tuple(MODELS), seeds=SEEDS, log=print):
     return res
 
 
-# ── çıktılar ─────────────────────────────────────────────────────────────
+# ── outputs ──────────────────────────────────────────────────────────────
 
 def _ms(d):
     return f"{d['mean']:.3f} ± {d['sd']:.3f}" if d else '–'

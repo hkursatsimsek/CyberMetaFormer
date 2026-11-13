@@ -377,7 +377,7 @@
       "n_silent": 216175,
       "silent_share": 0.40294170276537206,
       "alert_age_recall": {
-        "hiç": {
+        "never": {
           "n": 57442,
           "recall": 0.7390759374673583
         },
@@ -467,7 +467,7 @@
       "n_silent": 216495,
       "silent_share": 0.40407141683962194,
       "alert_age_recall": {
-        "hiç": {
+        "never": {
           "n": 54731,
           "recall": 0.7393067913979281
         },
@@ -562,7 +562,7 @@
       "n_silent": 321008,
       "silent_share": 0.5934701423553337,
       "alert_age_recall": {
-        "hiç": {
+        "never": {
           "n": 96486,
           "recall": 0.44660365234334515
         },

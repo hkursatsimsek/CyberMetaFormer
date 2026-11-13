@@ -2,8 +2,8 @@
 |---|---|---|---:|---|---|
 | Policy parameter | ε = 0.3 (main OOD test) | Random-action probability of the restore-based defender raised from 0.1 to 0.3 | 4,000 | No | Tables @tbl:ana, @tbl:politika |
 |  | ε = 0.5 and 0.7 | Same parameter, larger values | 4,000 each | No | Table @tbl:politika |
-| Observation mechanism | Periodic analyse on idle steps | Idle steps are used to analyse hosts, which re-emits the root flag of compromised hosts (alert refresh) | 4,000 | No | Tables @tbl:politika, @tbl:basarisizlik |
-|  | Remove instead of restore | Removal replaces restore; a failed remove keeps root access but shows the "removed" flag | 4,000 | No | Tables @tbl:politika, @tbl:basarisizlik |
+| Observation mechanism | Periodic analyse on idle steps | Idle steps are used to analyse hosts, which re-emits the root flag of compromised hosts (alert refresh) | 4,000 | No | Tables @tbl:politika, @tbl:failure_analysis |
+|  | Remove instead of restore | Removal replaces restore; a failed remove keeps root access but shows the "removed" flag | 4,000 | No | Tables @tbl:politika, @tbl:failure_analysis |
 |  | Corrected remove flag | Same episodes and defender actions re-simulated; a failed remove no longer shows "removed" | test 2,000; four shift sets 4,000 each | No | Table @tbl:duzeltilmis |
 | Simulator version | Earlier simulator version | Documented simulator bugs left in place; OOD policy | 4,000 | No | Table @tbl:politika |
 | Attacker | B-line ↔ Meander transfer | Model trained on one attacker and tested on the other | test 1,000; OOD 2,000 | Yes: one model per training attacker | Table @tbl:saldirgan |

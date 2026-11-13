@@ -1,5 +1,5 @@
-# Aşama 2 PatchTST (TSLib, kanal-bağımsız, örnek normalizasyonu yok). Yama k'dan (matris); HPO:
-# d_model, heads, layers, ff, dropout, yama oranı + ortak. Değerlendirme batch'i küçük: her örnek 78 ayrı dizi.
+# Stage 2 PatchTST (TSLib, channel-independent, no instance norm). Patch from k (matrix); HPO:
+# d_model, heads, layers, ff, dropout, patch ratio + shared. Small evaluation batch: each sample is 78 separate series.
 model: patchtst
 model_args: {d_model: 128, heads: 8, layers: 2, ff: 256, dropout: 0.1, patch_ratio: 0.5}
 scale: global

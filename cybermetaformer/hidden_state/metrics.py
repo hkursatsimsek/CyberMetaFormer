@@ -1,17 +1,17 @@
-"""Ortak metrikler. Yalnızca numpy; CybORG'a bağımlı değil (T7).
+"""Shared metrics. numpy only; independent of CybORG (T7).
 
-Dizi düzenleri:
-- düz: y, p (N, H) int, H = 12 host, sınıf {0 temiz, 1 user, 2 root}
-- bölüm: y, p (E, T, H); olasılıklar (E, T, H, 3)
-`host_macro_f1`, baselines.py'deki tanımla birebir aynıdır: host başına mevcut sınıflar (tp+fn > 0) üzerinden
-makro-F1, ardından pozitif etiketi olan hostların ortalaması (def hiç ele geçirilmediği için fiilen 11 host).
+Array layouts:
+- flat: y, p (N, H) int, H = 12 hosts, classes {0 clean, 1 user, 2 root}
+- episode: y, p (E, T, H); probabilities (E, T, H, 3)
+`host_macro_f1` is exactly the definition in baselines.py: macro-F1 per host over the classes present (tp+fn > 0),
+then the mean over hosts with a positive label (effectively 11 hosts, since def is never compromised).
 """
 import numpy as np
 
 N_CLASSES = 3
 
-ALERT_AGE_BINS = [            # (ad, alt, üst) — sessiz ihlallerde son uyarıdan bu yana geçen adım
-    ('hiç', -1, -1),
+ALERT_AGE_BINS = [            # (name, low, high) — steps since the last alert in silent compromises
+    ('never', -1, -1),
     ('1–3', 1, 3),
     ('4–7', 4, 7),
     ('8–15', 8, 15),
@@ -21,10 +21,10 @@ ALERT_AGE_BINS = [            # (ad, alt, üst) — sessiz ihlallerde son uyarı
 ]
 
 
-# ── karışıklık matrisi tabanlı F1 ───────────────────────────────────────
+# ── confusion-matrix-based F1 ───────────────────────────────────────────
 
 def confusion(y, p, mask=None):
-    """(N, H) → (H, 3, 3) sayım [gerçek, tahmin]. mask (N, H) bool: yalnızca seçili host-adımlar."""
+    """(N, H) → (H, 3, 3) counts [true, predicted]. mask (N, H) bool: only the selected host-steps."""
     y, p = np.asarray(y, np.int64), np.asarray(p, np.int64)
     H = y.shape[-1]
     code = (y * N_CLASSES + p).reshape(-1, H)
@@ -47,12 +47,12 @@ def _f1_classes(C, classes):
 
 
 def macro_f1_from_confusion(C):
-    """Tek host (3, 3) → makro-F1 (baselines.macro_f1(y, p, [0, 1, 2]) ile aynı)."""
+    """Single host (3, 3) → macro-F1 (same as baselines.macro_f1(y, p, [0, 1, 2]))."""
     return float(np.mean(_f1_classes(C, range(N_CLASSES))))
 
 
 def host_macro_f1_from_confusion(C, return_per_host=False):
-    """(H, 3, 3) → ortalama host makro-F1. Pozitif (user/root) gerçek etiketi olmayan hostlar atlanır."""
+    """(H, 3, 3) → mean host macro-F1. Hosts without a positive (user/root) true label are skipped."""
     hosts = [h for h in range(C.shape[0]) if C[h, 1:].sum() > 0]
     per = {h: macro_f1_from_confusion(C[h]) for h in hosts}
     val = float(np.mean([per[h] for h in hosts])) if hosts else float('nan')
@@ -64,27 +64,27 @@ def host_macro_f1(y, p, mask=None, return_per_host=False):
 
 
 def binary_f1(y, p):
-    """İkili F1 (pozitif sınıf 1) = baselines.macro_f1(y, p, [1])."""
+    """Binary F1 (positive class 1) = baselines.macro_f1(y, p, [1])."""
     y, p = np.asarray(y).astype(bool), np.asarray(p).astype(bool)
     tp, fp, fn = (p & y).sum(), (p & ~y).sum(), (~p & y).sum()
     return float(2 * tp / max(2 * tp + fp + fn, 1)) if tp + fn > 0 else float('nan')
 
 
 def breach_f1(y, p):
-    """Ağ düzeyi: en az bir hostta ihlal var mı."""
+    """Network level: is there a compromise on at least one host."""
     y, p = np.asarray(y).reshape(-1, np.shape(y)[-1]), np.asarray(p).reshape(-1, np.shape(p)[-1])
     return binary_f1((y > 0).any(1), (p > 0).any(1))
 
 
-# ── sessiz ihlal metrikleri ─────────────────────────────────────────────
+# ── silent-compromise metrics ───────────────────────────────────────────
 
 def silent_metrics(y, p, alert):
-    """alert: (…, H) bool, hedef adımın gözlemindeki uyarı (features.alerts, 'export').
+    """alert: (…, H) bool, the alert in the observation of the target step (features.alerts, 'export').
 
-    - silent_recall: ele geçirilmiş + uyarısız host-adımlarda P(tahmin > 0)
-    - silent_exact: aynı alt kümede P(tahmin = gerçek sınıf)
-    - noalert_macro_f1: uyarısız tüm host-adımlarda (temizler dahil) host makro-F1
-    - alert_recall: uyarılı ele geçirilmiş host-adımlarda P(tahmin > 0) (kıyas için)
+    - silent_recall: P(prediction > 0) on compromised, alert-free host-steps
+    - silent_exact: P(prediction = true class) on the same subset
+    - noalert_macro_f1: host macro-F1 on all alert-free host-steps (including clean ones)
+    - alert_recall: P(prediction > 0) on compromised host-steps with an alert (for comparison)
     """
     y, p, a = np.asarray(y), np.asarray(p), np.asarray(alert, bool)
     H = y.shape[-1]
@@ -102,7 +102,7 @@ def silent_metrics(y, p, alert):
 
 
 def alert_age_recall(y, p, alert, age):
-    """Sessiz ihlallerde uyarı yaşı dilimine göre recall. age: features.alert_age."""
+    """Recall in silent compromises by alert-age bin. age: features.alert_age."""
     y, p, a, g = (np.asarray(v) for v in (y, p, alert, age))
     silent = (y > 0) & ~a.astype(bool)
     out = {}
@@ -113,7 +113,7 @@ def alert_age_recall(y, p, alert, age):
 
 
 def cause_recall(p, cause, names):
-    """Sessiz ihlallerde nedene göre recall. cause: (…, H) kod, 0 = sessiz değil; names[kod] = ad."""
+    """Recall in silent compromises by cause. cause: (…, H) code, 0 = not silent; names[code] = name."""
     p, c = np.asarray(p), np.asarray(cause)
     out = {}
     for code, name in enumerate(names):
@@ -124,12 +124,12 @@ def cause_recall(p, cause, names):
     return out
 
 
-# ── zamansal metrikler (bölüm düzeni) ───────────────────────────────────
+# ── temporal metrics (episode layout) ───────────────────────────────────
 
 def detection_latency(y, p):
-    """Her ihlal dönemi (y > 0'ın kesintisiz koşusu) için ilk doğru (p > 0) tahmine kadar geçen adım.
+    """For every compromise period (uninterrupted run of y > 0), the steps until the first correct (p > 0) prediction.
 
-    y, p: (E, T, H). Dönüş: ortalama/medyan gecikme (yakalanan dönemler), yakalanan dönem oranı, dönem sayısı.
+    y, p: (E, T, H). Returns: mean/median delay (caught periods), share of caught periods, number of periods.
     """
     y, p = np.asarray(y) > 0, np.asarray(p) > 0
     E, T, H = y.shape
@@ -156,10 +156,10 @@ def detection_latency(y, p):
 
 
 def silent_persistence(y, p, alert):
-    """Uyarı kalktıktan sonra doğru tahminin (p > 0) kaç adım kesintisiz sürdüğü.
+    """How many steps a correct prediction (p > 0) persists without interruption after the alert disappears.
 
-    Sessiz koşu: aynı host için ele geçirilmiş ve uyarısız ardışık adımlar. Koşu başından ilk kaçırmaya
-    kadar geçen adım sayısı ve koşu uzunluğuna oranı raporlanır.
+    Silent run: consecutive compromised and alert-free steps of the same host. The number of steps from the start of
+    the run to the first miss, and its ratio to the run length, are reported.
     """
     y, p, a = np.asarray(y) > 0, np.asarray(p) > 0, np.asarray(alert, bool)
     silent = y & ~a
@@ -196,7 +196,7 @@ def softmax(logits, T=1.0):
 
 
 def calibration(probs, y, n_bins=15):
-    """probs (…, 3), y (…) → ECE (en olası sınıf, eşit genişlikli kutular), Brier (çok sınıflı), NLL."""
+    """probs (…, 3), y (…) → ECE (most probable class, equal-width bins), Brier (multi-class), NLL."""
     P = np.asarray(probs, np.float64).reshape(-1, N_CLASSES)
     Y = np.asarray(y, np.int64).reshape(-1)
     conf, pred = P.max(1), P.argmax(1)
@@ -213,7 +213,7 @@ def calibration(probs, y, n_bins=15):
 
 
 def fit_temperature(logits, y, lo=0.05, hi=20.0, iters=60):
-    """Val üzerinde NLL'yi en küçükleyen sıcaklık (log uzayında altın oran araması)."""
+    """Temperature minimizing NLL on val (golden-section search in log space)."""
     L = np.asarray(logits, np.float64).reshape(-1, N_CLASSES)
     Y = np.asarray(y, np.int64).reshape(-1)
 
@@ -234,10 +234,10 @@ def fit_temperature(logits, y, lo=0.05, hi=20.0, iters=60):
     return float(np.exp((a + b) / 2))
 
 
-# ── bölüm düzeyi toplama ve kırılımlar ──────────────────────────────────
+# ── episode-level aggregation and breakdowns ─────────────────────────────
 
 def episode_confusion(y, p):
-    """(E, T, H) → (E, H, 3, 3): bölüm başına karışıklık (bölüm bootstrap'ı için, T5)."""
+    """(E, T, H) → (E, H, 3, 3): confusion per episode (for the episode bootstrap, T5)."""
     y, p = np.asarray(y, np.int64), np.asarray(p, np.int64)
     E, T, H = y.shape
     code = y * N_CLASSES + p                                       # (E, T, H)
@@ -247,9 +247,9 @@ def episode_confusion(y, p):
 
 
 def episode_slice_counts(y, p, alert, age, cause=None, cause_names=None):
-    """(E, T, H) → (E, S, 2) [sessiz host-adım, P(tahmin > 0) isabeti] ve S dilim adı (eşli bölüm bootstrap'ı için).
+    """(E, T, H) → (E, S, 2) [silent host-step, P(prediction > 0) hit] and S slice names (for the paired episode bootstrap).
 
-    Dilimler: 'sessiz' (silent_recall ile aynı alt küme), uyarı yaşı dilimleri, varsa nedenler (cause_recall)."""
+    Slices: 'sessiz' (same subset as silent_recall), alert-age bins, and causes if given (cause_recall)."""
     y, p, a, g = np.asarray(y), np.asarray(p), np.asarray(alert, bool), np.asarray(age)
     silent, hit = (y > 0) & ~a, p > 0
     names, masks = ['sessiz'], [silent]
@@ -265,7 +265,7 @@ def episode_slice_counts(y, p, alert, age, cause=None, cause_names=None):
 
 
 def bootstrap_ci(ep_conf, n_boot=1000, seed=0, alpha=0.05):
-    """Bölüm düzeyinde yeniden örnekleme ile host makro-F1'in %95 güven aralığı."""
+    """95% confidence interval of host macro-F1 by episode-level resampling."""
     rng = np.random.default_rng(seed)
     E = ep_conf.shape[0]
     stats = np.empty(n_boot)
@@ -276,10 +276,10 @@ def bootstrap_ci(ep_conf, n_boot=1000, seed=0, alpha=0.05):
     return {'point': point, 'lo': float(np.quantile(stats, alpha / 2)), 'hi': float(np.quantile(stats, 1 - alpha / 2))}
 
 
-# ── iki modelin bölüm düzeyinde eşli karşılaştırması ──
+# ── paired episode-level comparison of two models ──
 
 def host_macro_f1_batch(C):
-    """(B, H, 3, 3) → (B,): host_macro_f1_from_confusion'ın vektörel hâli (bootstrap örnekleri için)."""
+    """(B, H, 3, 3) → (B,): vectorized host_macro_f1_from_confusion (for bootstrap samples)."""
     C = np.asarray(C, np.float64)
     tp = np.diagonal(C, axis1=-2, axis2=-1)
     true, pred = C.sum(-1), C.sum(-2)
@@ -291,17 +291,17 @@ def host_macro_f1_batch(C):
 
 
 def _boot_weights(rng, E, n):
-    """(n, E): her satır E bölümlük bir yeniden örneklemede bölümlerin kaç kez seçildiği."""
+    """(n, E): in each row, how many times each episode is drawn in an E-episode resample."""
     flat = rng.integers(0, E, (n, E)) + (np.arange(n) * E)[:, None]
     return np.bincount(flat.reshape(-1), minlength=n * E).reshape(n, E).astype(np.float64)
 
 
 def paired_bootstrap(stat_a, stat_b, sizes, n_boot=10_000, seed=0, alpha=0.05, chunk=500):
-    """a − b farkı için bölüm düzeyinde eşli bootstrap.
+    """Episode-level paired bootstrap for the difference a − b.
 
-    sizes: {split: bölüm sayısı}. stat_x(W) → (n,) değer; W = {split: (n, E) bölüm ağırlıkları}. İki model her örnekte
-    aynı ağırlıkları görür (eşli); splitler birbirinden bağımsız örneklenir. p iki yönlü: farkın bootstrap dağılımında
-    0'ın öbür yanına düşen pay × 2 (+1 düzeltmeli, en küçük değer 2 / (n_boot + 1))."""
+    sizes: {split: number of episodes}. stat_x(W) → (n,) value; W = {split: (n, E) episode weights}. Both models see the
+    same weights in every sample (paired); splits are sampled independently. p is two-sided: the share of the bootstrap
+    distribution of the difference on the other side of 0, × 2 (+1 corrected, minimum 2 / (n_boot + 1))."""
     rng = np.random.default_rng(seed)
     ones = {s: np.ones((1, E)) for s, E in sizes.items()}
     point = float(stat_a(ones)[0] - stat_b(ones)[0])
@@ -316,7 +316,7 @@ def paired_bootstrap(stat_a, stat_b, sizes, n_boot=10_000, seed=0, alpha=0.05, c
 
 
 def holm(pvals):
-    """Holm–Bonferroni düzeltmeli p'ler (girdi sırasıyla)."""
+    """Holm–Bonferroni corrected p-values (in input order)."""
     p = np.asarray(pvals, np.float64)
     adj, run = np.empty(len(p)), 0.0
     for r, i in enumerate(np.argsort(p)):
@@ -330,7 +330,7 @@ def ood_drop(f1_test, f1_ood):
 
 
 def policy_breakdown(y, p, blue_policy, red_policy, blue_names, red_names):
-    """(E, T, H) + bölüm başına politika kimlikleri → {'red×blue': host makro-F1}."""
+    """(E, T, H) + policy ids per episode → {'red×blue': host macro-F1}."""
     out = {}
     for r in np.unique(red_policy):
         for b in np.unique(blue_policy):
@@ -343,9 +343,9 @@ def policy_breakdown(y, p, blue_policy, red_policy, blue_names, red_names):
 
 
 def full_report(y, p, alert, age, logits=None, cause=None, cause_names=None, temperature=None):
-    """Bir değerlendirme kümesi için tüm ana metrikler (bölüm düzeni, (E, T, H)).
+    """All main metrics for an evaluation set (episode layout, (E, T, H)).
 
-    temperature: val'de bulunan sıcaklık; verilirse ölçeklenmiş kalibrasyon da raporlanır ('calibration_T')."""
+    temperature: the temperature found on val; if given, the scaled calibration is reported as well ('calibration_T')."""
     H = y.shape[-1]
     y2, p2 = y.reshape(-1, H), p.reshape(-1, H)
     rep = {'host_macro_f1': host_macro_f1(y2, p2), 'breach_f1': breach_f1(y2, p2)}

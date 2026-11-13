@@ -1,5 +1,5 @@
-# LSTM tam geçmiş varyantı (uzatma ızgarası): bölüm boyunca durumlu, her adımda tahmin.
-# Hiperparametreler lstm k=32 HPO sonucundan gelir (run_grid.py). k=101 = tam geçmiş (obs[0..t]).
+# Full-history LSTM variant (extension grid): stateful over the episode, predicts at every step.
+# Hyperparameters come from the lstm k=32 HPO result (run_grid.py). k=101 = full history (obs[0..t]).
 model: lstm_full
 mode: episode
 episodes_per_batch: 16

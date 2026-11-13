@@ -1,0 +1,52 @@
+# M3 variants. Via run_grid.py --variants <name>; run name <model>-<name>_k<k>_s<seed>.
+# Each variant: base config + best HPO setting + this patch. Keys:
+#   model_args: patch to the model constructor;  train: top-level config patch (train.py keys);
+#   fit: the CyberMetaFormer width (d) is refitted to the upper limit of this budget (default b1; null = HPO's d).
+# The main model is not a variant: cybermetaformer_k101_s* (run_grid --models cybermetaformer).
+
+# ── ablation core (this Mac) ──
+duz78:        {model_args: {tokens: flat, host_mixer: none}}         # no host tokenisation
+host_yok:     {model_args: {host_mixer: none}}                       # RQ4
+host_tam:     {model_args: {host_mixer: attn}}                       # no topology bias
+host_gcn:     {model_args: {host_mixer: gcn}}
+konv_dikkat:  {model_args: {temporal: [conv, attn]}}                 # causal attention instead of SSD (full history)
+hafiza_yok:   {model_args: {temporal: [conv, attn], window: 32, age: false}}   # window 32, nothing beyond it
+yalniz_yas:   {model_args: {temporal: [conv, attn], window: 32, age: true}}    # window 32 + alert age (a)
+yalniz_ssd:   {model_args: {age: false}}                             # full-history SSD (c), no age channel
+konum_yok:    {model_args: {pos: none}}
+
+# ── ablation extension (this Mac) ──
+kol_konv:     {model_args: {temporal: [conv]}}                       # short range only (+ age)
+kol_ssd:      {model_args: {temporal: [ssd]}}                        # long range only
+konv_gru:     {model_args: {temporal: [conv, gru]}}
+havuz_mlp:    {model_args: {temporal: [pool, mlp]}}                  # MetaFormer's simple mixers
+
+# ── scaling control (M4) ──
+b2:           {fit: b2}
+
+# ── copy of the main model for the M4 comparisons ──
+# Domain generalisation and (ii) are compared against this copy in M4 (same machine); its difference from the main
+# model also measures reproducibility across machines.
+ana_m4:       {}
+
+# ── action-input ablation (M4, moved 2026-10-23): cybermetaformer, gru_full ──
+aksiyon:      {model_args: {action_input: true}}
+
+# ── domain generalisation and mechanism augmentation (M4, dg.py): against ana_m4 ──
+# Coefficients are the DomainBed defaults; not tuned on OOD (OOD enters no selection).
+dg_groupdro:  {train: {dg: {method: groupdro, eta: 0.01}}}
+dg_vrex:      {train: {dg: {method: vrex, lam: 10.0, anneal_steps: 500}}}
+dg_coral:     {train: {dg: {method: coral, lam: 1.0}}}
+dg_dann:      {train: {dg: {method: dann, lam: 1.0}}}
+art_uyari:    {train: {augment: {alert_drop: 0.1}}}          # alert-spell dropping (twice the 5% leak)
+art_zaman:    {train: {augment: {time_mask: 0.1}}}           # step masking
+
+# ── (ii) attacker shift (M4): cybermetaformer, gru_full (HPO asama1), timemixer k=64 (HPO asama2) ──
+saldirgan_bline:   {train: {train_red: bline}}
+saldirgan_meander: {train: {train_red: meander}}
+
+# ── M4 revision, item 4: host-token GRU + cross-host attention reference ──
+# Temporal mixer GRU only (no conv branch and no gate); host tokens, age channel, embeddings and HPO settings as in
+# the main model. Topology-biased and unbiased versions; fits b1 with d=64 (184 499 / 184 451 parameters). M4 Pro.
+gru_host_topo:     {model_args: {temporal: [gru]}}
+gru_host_attn:     {model_args: {temporal: [gru], host_mixer: attn}}

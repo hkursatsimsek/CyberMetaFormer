@@ -1,8 +1,8 @@
 {
   "name": "minicage_v1_shift",
-  "source": "CybORG++ MiniCAGE (FixedCAGE: SimplifiedCAGE + ödül çift-sayım düzeltmesi)",
+  "source": "CybORG++ MiniCAGE (FixedCAGE: SimplifiedCAGE + reward double-counting fix)",
   "red_agents": {
-    "bline": "mini_CAGE/red_bline_agent.py::B_line_minimal (ortam başına)",
+    "bline": "mini_CAGE/red_bline_agent.py::B_line_minimal (one per environment)",
     "meander": "mini_CAGE/test_agent.py::Meander_minimal"
   },
   "steps_per_episode": 100,
@@ -158,21 +158,21 @@
     "host_activity_safety": [
       0,
       52,
-      "host başına 4: aktivite [scan, exploit] + güvenlik ([0,0] temiz/bilinmiyor, [0,1] istismar edildi, [1,1] root (analyse ile), [1,0] remove)"
+      "4 per host: activity [scan, exploit] + safety ([0,0] clean/unknown, [0,1] exploited, [1,1] root (with analyse), [1,0] remove)"
     ],
     "scan_history": [
       52,
       65,
-      "0 yok, 1 önceden tarandı, 2 bu adımda tarandı"
+      "0 none, 1 scanned earlier, 2 scanned at this step"
     ],
     "decoys_left": [
       65,
       78,
-      "host başına kalan decoy sayısı"
+      "decoys left per host"
     ]
   },
-  "obs_red_layout": "1 success bayrağı + host başına 3 (scanned, user, priv)",
-  "true_state_layout": "host başına 3: [scanned, user, priv]; -1 = Red bilmiyor",
+  "obs_red_layout": "1 success flag + 3 per host (scanned, user, priv)",
+  "true_state_layout": "3 per host: [scanned, user, priv]; -1 = unknown to Red",
   "shards": [
     {
       "file": "shard_000.npz",

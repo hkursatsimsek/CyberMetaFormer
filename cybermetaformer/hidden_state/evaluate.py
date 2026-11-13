@@ -1,15 +1,15 @@
-"""Model → tahminler ve metrikler (bölüm düzeni).
+"""Model → predictions and metrics (episode layout).
 
     rep, out = evaluate_split(model, store, 'test', k=8, scale='global')
-    # OOD yalnızca nihai değerlendirmede:
+    # OOD only in the final evaluation:
     with store.final_evaluation():
         rep, out = evaluate_split(model, store, 'ood_test', k=8)
 
-Model ailesinden bağımsız nihai değerlendirme (torch, XGBoost, kurallar):
+Final evaluation independent of the model family (torch, XGBoost, rules):
 
-    reports, outs = final_reports(store, predict)     # predict(idx) → (logits (E,T,12,3) ya da None, pred (E,T,12))
+    reports, outs = final_reports(store, predict)     # predict(idx) → (logits (E,T,12,3) or None, pred (E,T,12))
 
-Sıcaklık val üzerinde bulunur; test ve ood_test için ham ve ölçeklenmiş kalibrasyon raporlanır.
+The temperature is found on val; raw and scaled calibration are reported for test and ood_test.
 """
 import numpy as np
 import torch
@@ -18,14 +18,14 @@ from cybermetaformer.hidden_state import data as D
 from cybermetaformer.hidden_state import features as F
 from cybermetaformer.hidden_state import metrics as M
 
-TEMP_FIT_ROWS = 500_000          # sıcaklık araması için val'den rastgele host-adım sayısı (hız)
+TEMP_FIT_ROWS = 500_000          # number of random host-steps from val for the temperature search (speed)
 
 
 @torch.no_grad()
 def predict_logits(model, wd, k, scale='global', batch_size=65536):
-    """WindowData → logits (n, T, 12, 3) float32 numpy, bölüm-ana sırada.
+    """WindowData → logits (n, T, 12, 3) float32 numpy, in episode-major order.
 
-    Bölüm kipindeki modeller (`episode_mode = True`, tam geçmiş) bölümü tek geçişte işler; t. konum y[t]'yi kestirir."""
+    Episode-mode models (`episode_mode = True`, full history) process the episode in one pass; position t estimates y[t]."""
     model.eval()
     out = []
     if getattr(model, 'episode_mode', False):
@@ -36,7 +36,7 @@ def predict_logits(model, wd, k, scale='global', batch_size=65536):
             kw = {'act': wd.prev_actions(ep)} if getattr(model, 'action_input', False) else {}
             out.append(model.forward_episode(D.scale_obs(obs, scale), **kw)[:, 1:].float().cpu())
         return torch.cat(out).numpy()
-    batch_size = min(batch_size, max(2048, batch_size * 8 // max(k, 8)))    # büyük k'da ara tensörler sığsın
+    batch_size = min(batch_size, max(2048, batch_size * 8 // max(k, 8)))    # so that intermediate tensors fit at large k
     for ep, t in D.eval_indices(wd.n, wd.T, batch_size):
         x, mask = wd.windows(ep, t, k)
         out.append(model(D.scale_obs(x, scale), mask).float().cpu())
@@ -44,9 +44,9 @@ def predict_logits(model, wd, k, scale='global', batch_size=65536):
 
 
 def split_report(store, idx, pred, logits=None, temperature=None, full=True, bootstrap=False):
-    """Bir bölüm kümesi için rapor. Dönüş: (rapor, bölüm karışıklığı (E, 12, 3, 3), sessiz dilim sayımları).
+    """Report for an episode set. Returns: (report, episode confusion (E, 12, 3, 3), silent slice counts).
 
-    Sayımlar yalnızca full=True'da: (bölüm × dilim × [n, isabet], dilim adları), M.episode_slice_counts."""
+    Counts only with full=True: (episode × slice × [n, hit], slice names), M.episode_slice_counts."""
     y = store.labels[idx].astype(np.int64)
     slices = None
     if full:
@@ -70,7 +70,7 @@ def split_report(store, idx, pred, logits=None, temperature=None, full=True, boo
 
 
 def evaluate_split(model, store, split, k, scale='global', device='cpu', batch_size=65536, full=True):
-    """Bir split üzerinde tahmin + metrik raporu. Dönüş: (rapor, {'logits', 'pred', 'y', 'ep_conf', 'ep_slices'})."""
+    """Prediction + metric report on a split. Returns: (report, {'logits', 'pred', 'y', 'ep_conf', 'ep_slices'})."""
     idx = store.split(split)
     wd = D.WindowData(store, idx, device=device)
     logits = predict_logits(model, wd, k, scale, batch_size)
@@ -90,11 +90,11 @@ def fit_temperature(logits, y, rows=TEMP_FIT_ROWS, seed=0):
 
 
 def final_reports(store, predict, splits=('val', 'test', 'ood_test'), max_episodes=None, log=print, resolve=None):
-    """Nihai değerlendirme: val (sıcaklık + seçim metrikleri), test ve ood_test (bootstrap GA'lı).
+    """Final evaluation: val (temperature + selection metrics), test and ood_test (with bootstrap CIs).
 
-    predict(idx) → (logits ya da None, pred). max_episodes: yalnızca smoke için split başına üst sınır.
-    resolve(ad) → bölüm indeksleri: ek ya da daraltılmış kümeler ((ii) saldırgan kayması; OOD kilidi açıkken çağrılır).
-    Dönüş: (raporlar {'val', 'test', 'ood_test', 'temperature'}, çıktılar {split: {'logits', 'ep_conf', 'ep_slices'}})."""
+    predict(idx) → (logits or None, pred). max_episodes: upper bound per split, for smoke only.
+    resolve(name) → episode indices: extra or narrowed sets ((ii) attacker shift; called while the OOD lock is open).
+    Returns: (reports {'val', 'test', 'ood_test', 'temperature'}, outputs {split: {'logits', 'ep_conf', 'ep_slices'}})."""
     reports, outs, temp = {}, {}, None
     with store.final_evaluation():
         for split in splits:

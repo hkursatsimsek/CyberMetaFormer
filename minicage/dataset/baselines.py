@@ -1,4 +1,4 @@
-"""Görev başına hızlı referans modeller (torch, CPU). Sonuçlar baselines.json'a yazılır.
+"""Quick reference models per task (torch, CPU). Results are written to baselines.json.
 
     venv_cyborg/bin/python -m minicage.dataset.baselines
 """
@@ -71,15 +71,15 @@ def detection_k(raw, sp, results, k):
         Xs, ys, ya = L.detection_view(raw, sp[split], k)
         pred = predict(model, Xs).view(-1, H, 3).argmax(-1).numpy()
         f1 = np.mean([macro_f1(ys[:, h], pred[:, h], [0, 1, 2]) for h in range(H) if ys[:, h].any()])
-        # saf kural: son gözlemde "istismar edildi" bayrağı olan host = ele geçirilmiş
+        # plain rule: host with the "exploited" flag in the last observation = compromised
         last = Xs[:, -78:-26].reshape(-1, 13, 4)[:, L.LABEL_HOSTS, 3] == 1
         any_pred, any_rule = (pred > 0).any(1), last.any(1)
         bin_f1 = lambda p: macro_f1(ya, p.astype(np.int8), [1])
         results += [
-            dict(task='tespit (host x 3 sınıf)', split=split, model=f'MLP, k={k}', metric='ort. host makro-F1',
-                 value=f1, reference=f"çoğunluk sınıfı: {np.mean([macro_f1(ys[:, h], np.zeros_like(ys[:, h]), [0, 1, 2]) for h in range(H) if ys[:, h].any()]):.3f}"),
-            dict(task='tespit (ağda ihlal var mı)', split=split, model=f'MLP, k={k}', metric='F1',
-                 value=bin_f1(any_pred), reference=f'uyarı kuralı: {bin_f1(any_rule):.3f}'),
+            dict(task='detection (host x 3 classes)', split=split, model=f'MLP, k={k}', metric='mean host macro-F1',
+                 value=f1, reference=f"majority class: {np.mean([macro_f1(ys[:, h], np.zeros_like(ys[:, h]), [0, 1, 2]) for h in range(H) if ys[:, h].any()]):.3f}"),
+            dict(task='detection (any compromise in the network)', split=split, model=f'MLP, k={k}', metric='F1',
+                 value=bin_f1(any_pred), reference=f'alert rule: {bin_f1(any_rule):.3f}'),
         ]
 
 
@@ -108,12 +108,12 @@ def risk(raw, sp, results, horizon=10, k=4):
     for split in ['test', 'ood_test']:
         Xs, ys = L.risk_view(raw, sp[split], horizon, k)
         score = predict(model, Xs).view(-1).numpy()
-        # saf kural: son gözlemde ent2 veya opserv için istismar uyarısı varsa → impact gelecek
+        # plain rule: if the last observation has an exploit alert for ent2 or opserv → an impact is coming
         last = Xs[:, -78:-26].reshape(-1, 13, 4)[:, [3, 7], 3].any(1)
-        results.append(dict(task=f'OpServer erken uyarı ({horizon} adım)', split=split, model=f'MLP, k={k}',
+        results.append(dict(task=f'OpServer early warning ({horizon} steps)', split=split, model=f'MLP, k={k}',
                             metric='F1 / AUC', value=macro_f1(ys, (score > 0).astype(np.int8), [1]),
                             auc=auc(ys, score), pos_rate=float(ys.mean()),
-                            reference=f'uyarı kuralı F1: {macro_f1(ys, last.astype(np.int8), [1]):.3f}'))
+                            reference=f'alert rule F1: {macro_f1(ys, last.astype(np.int8), [1]):.3f}'))
 
 
 def attacker(raw, sp, results):
@@ -123,8 +123,8 @@ def attacker(raw, sp, results):
         for split in ['test', 'ood_test']:
             Xs, ys = L.attacker_id_view(raw, sp[split], n)
             acc = float((predict(model, Xs).argmax(-1).numpy() == ys).mean())
-            results.append(dict(task='saldırgan tanıma', split=split, model=f'GRU, ilk {n} adım',
-                                metric='doğruluk', value=acc, reference='şans: 0.500'))
+            results.append(dict(task='attacker identification', split=split, model=f'GRU, first {n} steps',
+                                metric='accuracy', value=acc, reference='chance: 0.500'))
 
 
 def next_red(raw, sp, results, k=4):
@@ -134,8 +134,8 @@ def next_red(raw, sp, results, k=4):
     for split in ['test', 'ood_test']:
         Xs, ys = L.next_red_action_view(raw, sp[split], k)
         acc = float((predict(model, Xs).argmax(-1).numpy() == ys).mean())
-        results.append(dict(task='Red aksiyon tipi tahmini', split=split, model=f'MLP, k={k}', metric='doğruluk',
-                            value=acc, reference=f'çoğunluk: {np.bincount(ys).max() / len(ys):.3f}'))
+        results.append(dict(task='Red action type prediction', split=split, model=f'MLP, k={k}', metric='accuracy',
+                            value=acc, reference=f'majority: {np.bincount(ys).max() / len(ys):.3f}'))
 
 
 def rollout(policy_fn, red_name, episodes=500, seed=777):
@@ -156,9 +156,9 @@ def behaviour_cloning(raw, meta, sp, results, teacher='restore_decoys'):
     policy = lambda obs: predict(model, obs).argmax(-1).numpy().reshape(-1, 1)
     for red_name in meta['red_policies']:
         teacher_agent = make_blue(teacher)
-        results.append(dict(task='davranış klonlama (BC)', split='ortamda 500 bölüm', model=f'MLP ← {teacher}',
-                            metric=f'bölüm ödülü vs {red_name}', value=rollout(policy, red_name),
-                            reference=f'öğretmen: {rollout(teacher_agent.get_action, red_name):.1f}'))
+        results.append(dict(task='behaviour cloning (BC)', split='500 episodes in the environment', model=f'MLP ← {teacher}',
+                            metric=f'episode reward vs {red_name}', value=rollout(policy, red_name),
+                            reference=f'teacher: {rollout(teacher_agent.get_action, red_name):.1f}'))
 
 
 def main():

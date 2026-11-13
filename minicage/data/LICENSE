@@ -1,6 +1,7 @@
 The MiniCAGE datasets in this folder (minicage_v1, minicage_v1_aux,
-minicage_v1_bugged, minicage_v1_shift, minicage_v1_shift_aux, smoke) are
-licensed under the Creative Commons Attribution 4.0 International License
+minicage_v1_bugged, minicage_v1_shift, minicage_v1_shift_aux,
+minicage_v1_topo, minicage_v1_fixedobs, minicage_v1_shift_fixedobs, smoke)
+are licensed under the Creative Commons Attribution 4.0 International License
 (CC BY 4.0).
 
 Copyright (c) 2026 Hamza Kürşat Şimşek
@@ -13,4 +14,5 @@ Full license text: https://creativecommons.org/licenses/by/4.0/legalcode
 
 The data were generated with the MiniCAGE simulator of CybORG++
 (https://github.com/alan-turing-institute/CybORG_plus_plus, MIT License,
-commit c343476) by minicage/dataset/generate.py.
+commit c343476) by minicage/dataset/generate.py (minicage_v1_fixedobs and
+minicage_v1_shift_fixedobs by minicage/dataset/resimulate.py).

@@ -1,4 +1,4 @@
-"""Ham MiniCAGE veri setini yükler ve görev görünümlerine dönüştürür.
+"""Loads the raw MiniCAGE dataset and converts it into task views.
 
     from minicage.dataset import loaders as L
     raw, meta = L.load_raw('minicage/data/minicage_v1')
@@ -13,7 +13,7 @@ import os
 import numpy as np
 
 NUM_HOSTS = 13
-USER0 = 8                 # Red'in sabit dayanağı; Blue müdahale edemez → etiketlerden çıkarılır
+USER0 = 8                 # Red's fixed foothold; Blue cannot act on it → excluded from the labels
 LABEL_HOSTS = [h for h in range(NUM_HOSTS) if h != USER0]
 RED_ACTION_TYPES = ['sleep', 'remote', 'network', 'exploit', 'escalate', 'impact']
 OOD_BLUE_POLICY = 'react_restore_eps0.3'
@@ -25,7 +25,7 @@ def load_meta(data_dir):
 
 
 def load_raw(data_dir, fields=None):
-    """Tüm shard'ları bölüm ekseninde birleştirir. fields=None → tüm alanlar."""
+    """Concatenates all shards along the episode axis. fields=None → all fields."""
     meta = load_meta(data_dir)
     parts = []
     for shard in meta['shards']:
@@ -39,7 +39,7 @@ def load_raw(data_dir, fields=None):
 # ── etiketler ───────────────────────────────────────────────────────────
 
 def host_labels(true_state):
-    """(..., 39) gerçek durum → (..., 13) sınıf: 0 temiz, 1 user erişimi, 2 root erişimi."""
+    """(..., 39) true state → (..., 13) class: 0 clean, 1 user access, 2 root access."""
     s = true_state.reshape(*true_state.shape[:-1], NUM_HOSTS, 3)
     labels = np.zeros(s.shape[:-1], np.int8)
     labels[s[..., 1] == 1] = 1
@@ -48,7 +48,7 @@ def host_labels(true_state):
 
 
 def red_action_type(act_red):
-    """56 Red aksiyonu → 6 tip (sleep, remote, network, exploit, escalate, impact)."""
+    """56 Red actionu → 6 tip (sleep, remote, network, exploit, escalate, impact)."""
     a = np.asarray(act_red).astype(np.int64)
     out = np.zeros_like(a)
     out[(a >= 1) & (a <= 3)] = 1
@@ -57,10 +57,10 @@ def red_action_type(act_red):
     return out
 
 
-# ── bölümler ────────────────────────────────────────────────────────────
+# ── splits ───────────────────────────────────────────────────────────────
 
 def make_splits(data_dir, seed=0, frac=(0.8, 0.1, 0.1)):
-    """Bölüm düzeyinde, (red, blue) kombinasyonuna göre tabakalı train/val/test + OOD test."""
+    """Episode-level train/val/test + OOD test, stratified by (red, blue) combination."""
     raw, meta = load_raw(data_dir, fields=['red_policy', 'blue_policy'])
     rng = np.random.default_rng(seed)
     ood_id = meta['blue_policies'].index(OOD_BLUE_POLICY)
@@ -85,10 +85,10 @@ def load_splits(data_dir):
         return {k: z[k] for k in z.files}
 
 
-# ── görev görünümleri ───────────────────────────────────────────────────
+# ── task views ──────────────────────────────────────────────────────────────
 
 def _windows(obs, k):
-    """(E, T+1, D) → (E, T, k*D): her t ≥ 1 için obs[t-k+1 .. t], başta sıfır dolgu."""
+    """(E, T+1, D) → (E, T, k*D): obs[t-k+1 .. t] for every t ≥ 1, zero-padded at the start."""
     E, T1, D = obs.shape
     padded = np.concatenate([np.zeros((E, k - 1, D), obs.dtype), obs], axis=1)
     win = np.stack([padded[:, j:j + T1] for j in range(k)], axis=2)  # (E, T+1, k, D)
@@ -96,9 +96,9 @@ def _windows(obs, k):
 
 
 def detection_view(raw, idx, k=1):
-    """Saldırı tespiti. X: son k Blue gözlemi; y: (N, 12) host sınıfı {0,1,2} (user0 hariç).
+    """Attack detection. X: last k Blue observations; y: (N, 12) host class {0,1,2} (excluding user0).
 
-    Dönen y_any: ağda herhangi bir ihlal (user0 dışında user/root) var mı (ikili).
+    The returned y_any: whether any compromise (user/root other than user0) exists in the network (binary).
     """
     X = _windows(raw['obs_blue'][idx], k)
     y = host_labels(raw['true_state'][idx][:, 1:])[..., LABEL_HOSTS]
@@ -107,12 +107,12 @@ def detection_view(raw, idx, k=1):
 
 
 def attacker_id_view(raw, idx, n_steps=10):
-    """Saldırgan türü tanıma. X: (N, n_steps, 78) ilk n_steps Blue gözlemi; y: red_policy."""
+    """Attacker type recognition. X: (N, n_steps, 78) first n_steps Blue observations; y: red_policy."""
     return raw['obs_blue'][idx][:, 1:n_steps + 1], raw['red_policy'][idx].astype(np.int64)
 
 
 def next_red_action_view(raw, idx, k=4, coarse=True):
-    """Red'in sıradaki aksiyonu. X: t'ye kadarki son k Blue gözlemi; y: act_red[t]."""
+    """Red's next action. X: last k Blue observations up to t; y: act_red[t]."""
     obs = raw['obs_blue'][idx]
     E, T1, D = obs.shape
     padded = np.concatenate([np.zeros((E, k - 1, D), obs.dtype), obs], axis=1)
@@ -122,7 +122,7 @@ def next_red_action_view(raw, idx, k=4, coarse=True):
 
 
 def d4rl_view(raw, idx, blue_policies=None, meta=None):
-    """Offline RL / BC için D4RL biçiminde düz geçiş sözlüğü (Blue perspektifi)."""
+    """Flat transition dictionary in D4RL format for offline RL / BC (Blue perspective)."""
     idx = np.asarray(idx)
     if blue_policies is not None:
         ids = [meta['blue_policies'].index(p) for p in blue_policies]
@@ -144,12 +144,12 @@ def d4rl_view(raw, idx, blue_policies=None, meta=None):
 
 
 def risk_view(raw, idx, horizon=10, k=4, host=7):
-    """Erken uyarı. X: son k Blue gözlemi; y: host (varsayılan OpServer) önümüzdeki `horizon`
-    adımda impact edilecek mi. Zaten impact altındaki ve ufku bölüm sonunu aşan adımlar çıkarılır."""
+    """Early warning. X: last k Blue observations; y: whether the host (default OpServer) will be impacted in the next
+    `horizon` steps. Steps already under impact and steps whose horizon passes the episode end are dropped."""
     obs = raw['obs_blue'][idx]
     E, T1, _ = obs.shape
     T = T1 - 1
-    imp = np.concatenate([np.zeros((E, 1)), raw['impacted'][idx][:, :, host]], axis=1)   # obs ile hizalı
+    imp = np.concatenate([np.zeros((E, 1)), raw['impacted'][idx][:, :, host]], axis=1)   # aligned with obs
     c = np.concatenate([np.zeros((E, 1)), np.cumsum(imp, axis=1)], axis=1)                # c[b]-c[a] = sum imp[a:b]
     s = np.arange(1, T + 1)
     valid = s <= T - horizon
@@ -161,7 +161,7 @@ def risk_view(raw, idx, horizon=10, k=4, host=7):
 
 
 def dynamics_view(raw, idx):
-    """Dünya modeli / dinamik öğrenme: (gözlem, gerçek durum, Blue aksiyonu) → sonraki gözlem ve gerçek durum."""
+    """World model / dynamics learning: (observation, true state, Blue action) → next observation and true state."""
     obs, ts = raw['obs_blue'][idx], raw['true_state'][idx]
     D, S = obs.shape[-1], ts.shape[-1]
     return {
@@ -174,7 +174,7 @@ def dynamics_view(raw, idx):
 
 
 def export_tabular(data_dir, out_path=None, sample_episodes=None, seed=0):
-    """Adım başına bir satır, okunabilir sütunlarla csv.gz yazar."""
+    """Writes one row per step with readable columns to csv.gz."""
     raw, meta = load_raw(data_dir)
     hosts, n = meta['hosts'], NUM_HOSTS
     E, T = raw['act_blue'].shape
@@ -198,7 +198,7 @@ def export_tabular(data_dir, out_path=None, sample_episodes=None, seed=0):
             ep = episodes[start:start + 500]
             labels = host_labels(raw['true_state'][ep][:, 1:])                    # (e, T, 13)
             safety = raw['obs_blue'][ep][:, 1:, :4 * n].reshape(len(ep), T, n, 4)
-            alerts = (safety[..., 3] == 1) | (safety[..., 1] == 1)               # istismar uyarısı
+            alerts = (safety[..., 3] == 1) | (safety[..., 1] == 1)               # exploit alert
             alerts, labels = alerts[..., LABEL_HOSTS], labels[..., LABEL_HOSTS]
             cum = np.cumsum(raw['rew_blue'][ep], axis=1)
             for i, e in enumerate(ep):

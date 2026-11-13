@@ -1,4 +1,4 @@
-"""metrics.py ↔ baselines.py denkliği, baselines.json kural değerleri ve sessiz ihlal ön ölçümü (adım 0.5)."""
+"""metrics.py ↔ baselines.py equivalence, baselines.json rule values and the silent-compromise pre-check (step 0.5)."""
 import json
 import os
 
@@ -10,7 +10,7 @@ from cybermetaformer.hidden_state import data as D
 from cybermetaformer.hidden_state import features as F
 from cybermetaformer.hidden_state import metrics as M
 
-baselines = pytest.importorskip('minicage.dataset.baselines')   # CybORG ister → yalnız VM'de koşar
+baselines = pytest.importorskip('minicage.dataset.baselines')   # needs CybORG → runs only on the VM
 
 
 def _ref_host_f1(y, p):
@@ -21,17 +21,17 @@ def _ref_host_f1(y, p):
 def _random_case(seed, N=5000, H=12):
     rng = np.random.default_rng(seed)
     y = rng.choice(3, size=(N, H), p=[0.7, 0.05, 0.25])
-    y[:, 0] = 0                                       # def gibi hiç ele geçirilmeyen host
-    y[:, 5] = rng.choice([0, 2], size=N)              # user sınıfı hiç yok
+    y[:, 0] = 0                                       # a host never compromised, like def
+    y[:, 5] = rng.choice([0, 2], size=N)              # no user class at all
     p = np.where(rng.random((N, H)) < 0.8, y, rng.choice(3, size=(N, H)))
-    p[:, 7] = 0                                       # hiç pozitif tahmin yok
+    p[:, 7] = 0                                       # never predicts a positive
     return y, p
 
 
 @pytest.mark.parametrize('seed', range(5))
 def test_host_macro_f1_matches_baselines(seed):
     y, p = _random_case(seed)
-    assert M.host_macro_f1(y, p) == _ref_host_f1(y, p)          # birebir (aynı işlem sırası)
+    assert M.host_macro_f1(y, p) == _ref_host_f1(y, p)          # exactly equal (same order of operations)
 
 
 @pytest.mark.parametrize('seed', range(3))
@@ -61,20 +61,20 @@ def _baseline_value(model, split, task_prefix):
 
 @pytest.mark.parametrize('split', ['test', 'ood_test'])
 def test_rule_values_match_baselines_json(store, split):
-    """Çoğunluk (0.285 / 0.311) ve uyarı kuralı (0.833 / 0.802), baselines.json'daki referans metinleriyle."""
+    """Majority (0.285 / 0.311) and alert rule (0.833 / 0.802), against the reference texts in baselines.json."""
     with store.final_evaluation():
         idx = store.split(split)
     y = store.labels[idx].reshape(-1, 12)
     maj = M.host_macro_f1(y, np.zeros_like(y))
     rule = F.alerts(store.obs[idx][:, 1:], kind='flag').reshape(-1, 12)
-    r1 = _baseline_value('MLP, k=1', split, 'tespit (host')
-    r2 = _baseline_value('MLP, k=1', split, 'tespit (ağda')
+    r1 = _baseline_value('MLP, k=1', split, 'detection (host')
+    r2 = _baseline_value('MLP, k=1', split, 'detection (any')
     assert f'{maj:.3f}' == r1['reference'].split(': ')[1]
     assert f'{M.breach_f1(y, rule.astype(np.int64)):.3f}' == r2['reference'].split(': ')[1]
 
 
 def test_silent_share_matches_plan(store):
-    """Sessiz ihlal ön ölçümü: sessiz / ele geçirilmiş = 0.408 (train), 0.404 (test), 0.593 (OOD)."""
+    """Silent-compromise pre-check: silent / compromised = 0.408 (train), 0.404 (test), 0.593 (OOD)."""
     expected = {'train': 0.408, 'test': 0.404, 'ood_test': 0.593}
     with store.final_evaluation():
         for split, val in expected.items():
@@ -86,7 +86,7 @@ def test_silent_share_matches_plan(store):
 
 
 def test_alert_age_matches_appendix_a(store, small_idx):
-    """Ek A'daki gap hesabıyla aynı (hiç uyarı yok → NEVER)."""
+    """Same as the gap computation of Appendix A (never alerted → NEVER)."""
     a = F.episode_alerts(store.obs[small_idx])
     E, T, H = a.shape
     last = np.full((E, H), -10 ** 6)
@@ -107,17 +107,17 @@ def test_calibration_and_temperature():
     assert c['ece'] == pytest.approx(0) and c['brier'] == pytest.approx(0)
     true_logits = rng.normal(size=(20000, 3)) * 3
     y = np.array([rng.choice(3, p=pr) for pr in M.softmax(true_logits)])
-    t = M.fit_temperature(true_logits * 2.5, y)          # 2.5 kat aşırı güvenli → T ≈ 2.5
+    t = M.fit_temperature(true_logits * 2.5, y)          # 2.5× overconfident → T ≈ 2.5
     assert t == pytest.approx(2.5, rel=0.1)
 
 
 def test_latency_and_persistence_toy():
     y = np.zeros((1, 10, 1), int)
-    y[0, 2:8, 0] = 2                          # dönem: t=2..7
+    y[0, 2:8, 0] = 2                          # spell: t=2..7
     p = np.zeros_like(y)
-    p[0, 4:7, 0] = 2                          # ilk doğru tahmin t=4 → gecikme 2
+    p[0, 4:7, 0] = 2                          # first correct prediction at t=4 → latency 2
     a = np.zeros_like(y, bool)
-    a[0, 2:4, 0] = True                       # uyarı t=2,3; sessiz koşu t=4..7 (4 adım)
+    a[0, 2:4, 0] = True                       # alerts at t=2,3; silent run t=4..7 (4 steps)
     lat = M.detection_latency(y, p)
     assert lat['mean_latency'] == 2 and lat['n_spells'] == 1 and lat['detected_spells'] == 1
     per = M.silent_persistence(y, p, a)

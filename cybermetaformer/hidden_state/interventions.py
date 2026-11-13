@@ -1,36 +1,40 @@
-"""Müdahale deneyleri (revizyon madde 7): hedef hostun kestirimi diğer hostların gözlemine ne kadar dayanıyor?
+"""Intervention experiments (revision item 7): how much does the estimate for a target host rely on the other
+hosts' observations?
 
-Yeniden eğitim yok: `model.pt` (asama3, s0–s4). Küme: v1 test (2000 bölüm, eğitim politikaları; dağılım içi).
+No retraining: `model.pt` (asama3, s0–s4). Set: v1 test (2000 episodes, training policies; in distribution).
 
-Hedef host h'nin gözlem sütunları (4 bit, tarama geçmişi, decoy sayısı) olduğu gibi kalır. Bir S host kümesinin sütunları
-bölümün bütün adımlarında değiştirilir; model nedensel olduğu için t'deki tahmin S'nin ≤ t geçmişini görür. Üç müdahale:
-    empty    S'nin her adımı kendi t = 0 gözlemi (aktivite ve güvenlik bitleri 0, tarama yok, decoy başlangıçtaki
-             gibi): "o hostlarda hiçbir şey olmadı"
-    swap     S'nin sütunları, aynı Red ve Blue politikasından rastgele başka bir bölümün aynı hostlarından alınır.
-             Her hostun marjinali korunur, hedefle ortak dağılım bozulur
-    shuffle  S'nin sütunları bölüm içinde zamanda karıştırılır (t ≥ 1; S'nin hostları aynı permütasyonla, kendi
-             aralarındaki eşzamanlılık korunur, hedefle zaman hizası ve sıralama bozulur)
-Host kümeleri (eğitim topolojisinin ilişki matrisinden):
-    related  h'nin saldırı grafı komşuları ve aynı alt ağdaki hostlar
-    random   h ile ilişkisiz hostlardan (ilişki türü "diğer") eşit büyüklükte RANDOM_DRAWS rastgele küme
-Hedefler: TARGETS (ent0–2, opserv, user1–4). def hiç ihlal edilmez; ophost'ların sessiz ihlali çok az olduğu için
-hedef değildir (ama küme üyesi olabilir). Müdahale rastlantısı modelden bağımsızdır ve sabit seed'lidir; bütün modeller
-ve seed'ler aynı müdahale edilmiş girdileri görür.
+The observation columns of the target host h (4 bits, scan history, decoy count) are left as they are. The columns of
+a host set S are changed at every step of the episode; the model is causal, so the prediction at t sees the ≤ t
+history of S. Three interventions:
+    empty    every step of S is its own t = 0 observation (activity and security bits 0, no scan, decoys as at the
+             start): "nothing happened on those hosts"
+    swap     the columns of S are taken from the same hosts of another random episode with the same Red and Blue
+             policy. The marginal of each host is kept, the joint distribution with the target is broken
+    shuffle  the columns of S are shuffled in time within the episode (t ≥ 1; the hosts of S with the same permutation,
+             so their mutual synchrony is kept, while the time alignment and ordering with the target are broken)
+Host sets (from the relation matrix of the training topology):
+    related  the attack-graph neighbours of h and the hosts in the same subnet
+    random   RANDOM_DRAWS random sets of the same size from the hosts unrelated to h (relation type "other")
+Targets: TARGETS (ent0–2, opserv, user1–4). def is never compromised; the ophosts have very few silent compromises, so
+they are not targets (but can be set members). The intervention randomness does not depend on the model and has a
+fixed seed; all models and seeds see the same intervened inputs.
 
-Ölçüler (hedef host-adımlarında; ilk satır birincil):
-    Δ sessiz recall ve Δ N_geçmiş recall (müdahale − özgün; sessiz/N_geçmiş hedefin kendi gözleminden, değişmez)
-    karar değişimi oranı (argmax), ΔP(ihlal) (üyenin val sıcaklığıyla, metrics.json)
-    kayma kontrolü: (a) hedefin kendi uyarısı olan ihlal adımlarında Δ recall ve temiz adımlarda Δ yanlış alarm
-    (hedefin kanıtı yerindeyken değişim, müdahalenin yarattığı yapay girdi kaymasına işaret eder); (b) müdahale edilmiş
-    gözlemlerin eğitim kümesinde hiç görülmemiş tam gözlem (78 boyut) oranı ve host başına görülmemiş ardışık geçiş
-    oranı; (c) S'de bölüm başına uyarı sayısı, özgün ve müdahale sonrası (girdinin ne kadar değiştiği)
-Belirsizlik: seed sd ve eşli bölüm bootstrap'ı (seed ortalaması; random kümeler çekilişler üzerinden havuzlanır):
-    (i) her model, müdahale ve küme türü için Δ (müdahale − özgün); (ii) related − random; (iii) çift farkı
-    (CMF'nin Δ'sı − ötekinin Δ'sı). Holm bütün satırlar üzerinden. Sonuçlar karşı-olgusal kanıt gibi yorumlanmaz:
-    müdahaleler gözlem uzayında yapılır, simülatörde değil.
+Measures (on the target host-steps; the first line is primary):
+    Δ silent recall and Δ N_hist recall (intervention − original; silent/N_hist from the target's own observation,
+    unchanged)
+    decision change rate (argmax), ΔP(breach) (at the member's val temperature, metrics.json)
+    shift control: (a) Δ recall on breach steps with the target's own alert and Δ false alarm on clean steps (a change
+    while the target's evidence is in place points to an artificial input shift caused by the intervention); (b) share
+    of intervened observations whose full observation (78 dims) was never seen in the training set, and share of
+    unseen consecutive transitions per host; (c) alerts per episode in S, original and after the intervention (how
+    much the input changed)
+Uncertainty: seed sd and a paired episode bootstrap (seed mean; random sets pooled over the draws):
+    (i) Δ (intervention − original) for each model, intervention and set kind; (ii) related − random; (iii) pair
+    difference (CMF's Δ − the other's Δ). Holm over all rows. The results are not read as counterfactual evidence:
+    the interventions are made in observation space, not in the simulator.
 
-    python -m cybermetaformer.hidden_state.mudahale collect    # asama3/mudahale/preds/ (git dışı), shift.json; MPS
-    python -m cybermetaformer.hidden_state.mudahale analyze    # makale/mudahale/{ozet.json, tablolar.md, fig_mudahale.*}
+    python -m cybermetaformer.hidden_state.interventions collect    # asama3/interventions/preds/ (outside git), shift.json; MPS
+    python -m cybermetaformer.hidden_state.interventions analyze    # makale/interventions/{ozet.json, tablolar.md, fig_interventions.*}
 """
 import argparse
 import json
@@ -44,15 +48,15 @@ from cybermetaformer.hidden_state import data as D
 from cybermetaformer.hidden_state import evaluate as E
 from cybermetaformer.hidden_state import features as F
 from cybermetaformer.hidden_state import metrics as M
-from cybermetaformer.hidden_state import ood_paketi as O
-from cybermetaformer.hidden_state.duzeltilmis_gozlem import _stat as member_stat
+from cybermetaformer.hidden_state import ood_suite as O
+from cybermetaformer.hidden_state.corrected_obs import _stat as member_stat
 from cybermetaformer.hidden_state.models.cybermetaformer import HOSTS, REL_EDGE, REL_OTHER, REL_SUBNET, host_relations
-from cybermetaformer.hidden_state.ood_permutasyon import ArrayStore, _ci, _ms, _msd, _p
+from cybermetaformer.hidden_state.ood_permutation import ArrayStore, _ci, _ms, _msd, _p
 
 RESULTS = os.path.join(D.ROOT, 'results', 'hidden_state')
-STAGE = os.path.join(RESULTS, 'asama3', 'mudahale')
+STAGE = os.path.join(RESULTS, 'asama3', 'interventions')
 PRED_DIR = os.path.join(STAGE, 'preds')
-OUT_DIR = os.path.join(RESULTS, 'makale', 'mudahale')
+OUT_DIR = os.path.join(RESULTS, 'makale', 'interventions')
 MODELS = {'cybermetaformer': 'CyberMetaFormer', 'cybermetaformer-host_tam': 'CMF, full attention (no topology bias)',
           'gru_full': 'GRU (full history)'}
 PAIRS = [('cybermetaformer', 'gru_full'), ('cybermetaformer', 'cybermetaformer-host_tam')]
@@ -74,7 +78,7 @@ def host_columns(h):
 
 
 def host_sets(seed=0):
-    """{hedef: {'related': [...], 'random': [[...] × RANDOM_DRAWS]}} host indeksleriyle (eğitim topolojisi)."""
+    """{target: {'related': [...], 'random': [[...] × RANDOM_DRAWS]}} as host indices (training topology)."""
     rel = host_relations().numpy()
     rng = np.random.default_rng(seed)
     out = {}
@@ -90,7 +94,7 @@ def host_sets(seed=0):
 
 
 def set_keys(sets):
-    """(hedef, küme anahtarı, host listesi): related ve random0..k."""
+    """(target, set key, host list): related and random0..k."""
     for t, d in sets.items():
         yield t, 'related', d['related']
         for i, s in enumerate(d['random']):
@@ -98,7 +102,7 @@ def set_keys(sets):
 
 
 def intervene(obs, hosts, kind, red, blue, rng):
-    """obs (E, T+1, 78) → kopya; yalnız `hosts`'un sütunları değişir."""
+    """obs (E, T+1, 78) → copy; only the columns of `hosts` change."""
     cols = np.concatenate([host_columns(h) for h in hosts])
     out = obs.copy()
     E, S = obs.shape[:2]
@@ -106,7 +110,7 @@ def intervene(obs, hosts, kind, red, blue, rng):
         out[:, :, cols] = obs[:, :1, cols]
     elif kind == 'swap':
         partner = np.empty(E, np.int64)
-        for key in np.unique(red * 100 + blue):                      # aynı Red ve Blue politikası içinde türetme
+        for key in np.unique(red * 100 + blue):                      # drawn within the same Red and Blue policy
             idx = np.flatnonzero(red * 100 + blue == key)
             perm = rng.permutation(len(idx))
             while len(idx) > 1 and (perm == np.arange(len(idx))).any():
@@ -114,7 +118,7 @@ def intervene(obs, hosts, kind, red, blue, rng):
             partner[idx] = idx[perm]
         out[:, :, cols] = obs[partner][:, :, cols]
     elif kind == 'shuffle':
-        order = np.argsort(rng.random((E, S - 1)), axis=1) + 1          # t ≥ 1 karışır, t = 0 yerinde
+        order = np.argsort(rng.random((E, S - 1)), axis=1) + 1          # t ≥ 1 is shuffled, t = 0 stays in place
         order = np.concatenate([np.zeros((E, 1), np.int64), order], 1)
         out[:, :, cols] = obs[np.arange(E)[:, None], order][:, :, cols]
     else:
@@ -123,7 +127,7 @@ def intervene(obs, hosts, kind, red, blue, rng):
 
 
 def iv_rng(target, key, kind):
-    """Müdahale rastlantısı: (hedef, küme, müdahale) başına sabit; modelden ve seed'den bağımsız."""
+    """Intervention randomness: fixed per (target, set, intervention); independent of the model and the seed."""
     set_id = 0 if key == 'related' else 1 + int(key[len('random'):])
     return np.random.default_rng([HOSTS.index(target), set_id, INTERVENTIONS.index(kind), 7])
 
@@ -143,7 +147,7 @@ def temperature(name, seed):
 
 @torch.no_grad()
 def predict_target(model, cfg, obs, labels, prev_action, device, temp):
-    """(E, T, 12) argmax ve P(ihlal) (float16)."""
+    """(E, T, 12) argmax and P(breach) (float16)."""
     wd = D.WindowData(ArrayStore(obs, labels, prev_action), np.arange(len(obs)), device=device)
     lg = E.predict_logits(model, wd, O.K, cfg['scale'], cfg['eval_batch_size'])
     del wd
@@ -154,7 +158,7 @@ def predict_target(model, cfg, obs, labels, prev_action, device, temp):
 # ── toplama ──────────────────────────────────────────────────────────────
 
 def collect(device, models=tuple(MODELS), seeds=SEEDS):
-    """Özgün ve her (hedef, küme, müdahale) için hedef hostun tahmini. Var olan dosya atlanır."""
+    """Prediction for the target host, original and for each (target, set, intervention). Existing files are skipped."""
     st, idx = open_set()
     obs, y, pa = st.obs[idx], st.labels[idx], st.prev_action[idx]
     red, blue = st.red_policy[idx], st.blue_policy[idx]
@@ -180,7 +184,7 @@ def collect(device, models=tuple(MODELS), seeds=SEEDS):
                     out[f'{t}__{key}__{kind}__pred'] = p[..., lab[t]]
                     out[f'{t}__{key}__{kind}__p'] = q[..., lab[t]]
             np.savez_compressed(path, **out)
-            print(f'{name} s{seed}: {time.time() - t0:.0f} s; test F1 {f1:.4f} = kayıt', flush=True)
+            print(f'{name} s{seed}: {time.time() - t0:.0f} s; test F1 {f1:.4f} = record', flush=True)
             del model
             if device == 'mps':
                 torch.mps.empty_cache()
@@ -191,12 +195,12 @@ def collect(device, models=tuple(MODELS), seeds=SEEDS):
 
 
 def _row_hash(x, w, chunk=200_000):
-    """(N, 78) int8 → (N,) uint64 özet (tam gözlem kimliği; çakışma olasılığı ihmal edilir). Parça parça."""
+    """(N, 78) int8 → (N,) uint64 digest (full observation identity; collision probability neglected). In chunks."""
     return np.concatenate([(x[i:i + chunk].astype(np.uint64) + np.uint64(3)) @ w for i in range(0, len(x), chunk)])
 
 
 def shift_stats(st, idx, sets):
-    """Müdahale edilmiş girdilerin eğitim kümesine göre yeniliği ve S'deki uyarı sayısı (modelden bağımsız)."""
+    """Novelty of the intervened inputs relative to the training set and the alert counts in S (independent of the model)."""
     rng_w = np.random.default_rng(12345)
     w = rng_w.integers(1, 2 ** 63, D.OBS_DIM, dtype=np.uint64) | np.uint64(1)
     train = st.obs[st.split('train')]
@@ -224,16 +228,16 @@ def shift_stats(st, idx, sets):
     return out
 
 
-# ── analiz ───────────────────────────────────────────────────────────────
+# ── analysis ─────────────────────────────────────────────────────────────
 
 def masks(y, alert, age):
-    """Hedef host-adım maskeleri (E, T)."""
+    """Target host-step masks (E, T)."""
     return {'silent': (y > 0) & ~alert, 'never': (y > 0) & ~alert & (age == F.NEVER), 'alerted': (y > 0) & alert,
             'clean_fa': y == 0}
 
 
 def counts(pred, mk):
-    """{ölçüt: (E, 2)} [n, isabet]: recall'larda tahmin > 0, temiz adımda yanlış alarm (tahmin > 0)."""
+    """{criterion: (E, 2)} [n, hits]: prediction > 0 for the recalls, false alarm (prediction > 0) on clean steps."""
     hit = pred > 0
     return {c: np.stack([m.sum(1), (m & hit).sum(1)], -1) for c, m in mk.items()}
 
@@ -250,9 +254,9 @@ def analyze(n_boot=100_000, models=tuple(MODELS), seeds=SEEDS, log=print):
     res = {'seeds': list(seeds), 'n_boot': n_boot, 'n_episodes': E_, 'host_sets': {
         t: {'related': [HOSTS[j] for j in d['related']], 'random': [[HOSTS[j] for j in s] for s in d['random']]}
         for t, d in sets.items()}, 'targets': {}, 'models': {}, 'per_target': {}, 'shift': {}, 'rows': []}
-    # (model, seed) → {(koşul): {ölçüt: (E, 2)}}; koşul = 'base' ya da (müdahale, küme türü); hedefler havuzlanır
+    # (model, seed) → {(condition): {criterion: (E, 2)}}; condition = 'base' or (intervention, set kind); targets pooled
     pooled = {}
-    extra = {}                                       # karar değişimi ve ΔP, seed başına
+    extra = {}                                       # decision change and ΔP, per seed
     for t in TARGETS:
         j = D.LABEL_HOSTS.index(HOSTS.index(t))
         y, a, g = y_all[..., j], alert_all[..., j], age_all[..., j]
@@ -287,8 +291,8 @@ def analyze(n_boot=100_000, models=tuple(MODELS), seeds=SEEDS, log=print):
                             pt = res['per_target'].setdefault(n, {}).setdefault(t, {}).setdefault(f'{kind}|{sk}', [])
                             m = mk['silent']
                             pt.append(float((p[m] > 0).mean() - (base[m] > 0).mean()) if m.any() else None)
-    # random kümelerde sayımlar RANDOM_DRAWS kez toplandı: oranlar havuzlanmış çekilişlerin ortalamasıdır (n de
-    # aynı katla büyür), base ile karşılaştırma oran düzeyinde yapılır.
+    # in the random sets the counts were summed RANDOM_DRAWS times: rates are means over the pooled draws (n grows by
+    # the same factor), and the comparison with base is made at the rate level.
 
     def runs(n, cond, c):
         return [{'c': pooled[n, s][cond][c]} for s in seeds]
@@ -315,7 +319,7 @@ def analyze(n_boot=100_000, models=tuple(MODELS), seeds=SEEDS, log=print):
     for kind in INTERVENTIONS:
         for c in CRITERIA:
             for n in models:
-                for sk in SET_KINDS:                                          # (i) müdahale − özgün
+                for sk in SET_KINDS:                                          # (i) intervention − original
                     r = M.paired_bootstrap(member_stat(runs(n, (kind, sk), c), 'c', 's'),
                                            member_stat(runs(n, 'base', c), 'c', 's'), sizes, n_boot=n_boot, seed=0)
                     res['rows'].append({'kind': 'iv_minus_base', 'intervention': kind, 'set_kind': sk, 'model': n,
@@ -342,7 +346,7 @@ def analyze(n_boot=100_000, models=tuple(MODELS), seeds=SEEDS, log=print):
                                         'criterion': c, **r})
     for r, p in zip(res['rows'], M.holm([r['p'] for r in res['rows']])):
         r['p_holm'] = p
-    for kind in INTERVENTIONS:                                               # kayma kontrolü (b)–(c), hedef ortalaması
+    for kind in INTERVENTIONS:                                               # shift control (b)–(c), target mean
         for sk in SET_KINDS:
             keys = ['related'] if sk == 'related' else [f'random{i}' for i in range(RANDOM_DRAWS)]
             vals = [shift[f'{t}__{k}__{kind}'] for t in TARGETS for k in keys]
@@ -361,7 +365,7 @@ def analyze(n_boot=100_000, models=tuple(MODELS), seeds=SEEDS, log=print):
     return res
 
 
-# ── çıktılar ─────────────────────────────────────────────────────────────
+# ── outputs ──────────────────────────────────────────────────────────────
 
 def _d(d, digits=3):
     return f"{d['mean']:+.{digits}f} ± {d['sd']:.{digits}f}" if d else '–'
@@ -447,7 +451,7 @@ def figure(res):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
-    from cybermetaformer.hidden_state.rapor.makale_sekiller import CMF_C, GRU_C, OTHER_C, RC, WIDTH_IN, WHITE, _ygrid
+    from cybermetaformer.hidden_state.report.paper_figures import CMF_C, GRU_C, OTHER_C, RC, WIDTH_IN, WHITE, _ygrid
     plt.rcParams.update(RC)
     colors = {'cybermetaformer': CMF_C, 'cybermetaformer-host_tam': OTHER_C, 'gru_full': GRU_C}
     short = {'cybermetaformer': 'CMF', 'cybermetaformer-host_tam': 'CMF, no topology bias', 'gru_full': 'GRU (full)'}
@@ -477,7 +481,7 @@ def figure(res):
     fig.tight_layout()
     os.makedirs(OUT_DIR, exist_ok=True)
     for ext in ('png', 'svg'):
-        fig.savefig(os.path.join(OUT_DIR, f'fig_mudahale.{ext}'), dpi=300, facecolor=WHITE)
+        fig.savefig(os.path.join(OUT_DIR, f'fig_interventions.{ext}'), dpi=300, facecolor=WHITE)
     plt.close(fig)
 
 

@@ -1,4 +1,4 @@
-"""Aşama 2 bileşenleri: vendor edilmiş TSLib, uyarlama katmanı, geçerlilik matrisi, compile yolu, ağırlık kaydı."""
+"""Stage 2 components: vendored TSLib, adapter layer, validity matrix, compile path, weight saving."""
 import hashlib
 import os
 
@@ -14,7 +14,7 @@ TSLIB = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def test_vendored_tslib_unchanged():
-    """third_party/tslib/ dosyaları SHA256SUMS ile aynı (README'deki import değişiklikleri dahil)."""
+    """third_party/tslib/ files match SHA256SUMS (including the import changes listed in the README)."""
     with open(os.path.join(TSLIB, 'SHA256SUMS')) as f:
         want = dict(reversed(line.split()) for line in f if line.strip())
     for rel, digest in want.items():
@@ -35,7 +35,7 @@ def _x(k, B=6, seed=0):
 
 @pytest.mark.parametrize('k', [4, 8, 32])
 def test_patchtst_is_tslib_classification_without_norm(k):
-    """Uyarlamanın ileri geçişi = TSLib'in classification'ı, örnek normalizasyonu çıkarılmış hâliyle (T1)."""
+    """Forward pass of the adapter = TSLib's classification with instance normalisation removed (T1)."""
     torch.manual_seed(0)
     model = build_model('patchtst', k).eval()
     x, mask = _x(k)
@@ -46,7 +46,7 @@ def test_patchtst_is_tslib_classification_without_norm(k):
 
 
 def test_k_dependent_settings():
-    """Geçerlilik matrisi: PatchTST yama/adım, TimesNet top_k, TimeMixer ölçek sayısı."""
+    """Validity matrix: PatchTST patch/stride, TimesNet top_k, TimeMixer number of scales."""
     assert [(build_model('patchtst', k).patch_len, build_model('patchtst', k).stride) for k in [4, 8, 16, 32]] == \
         [(2, 1), (4, 2), (8, 4), (16, 8)]
     assert (build_model('patchtst', 32, patch_ratio=0.25).patch_len, build_model('patchtst', 8, patch_ratio=0.25).patch_len) == (8, 2)
@@ -63,7 +63,7 @@ def test_not_applicable_cells():
 @pytest.mark.parametrize('readout', ['last', 'cls'])
 @pytest.mark.parametrize('causal', [False, True])
 def test_transformer_ignores_padding(readout, causal):
-    """Dolgu adımlarının içeriği çıktıyı değiştirmez (key_padding_mask; CLS dahil)."""
+    """The content of padding steps does not change the output (key_padding_mask; CLS included)."""
     torch.manual_seed(0)
     model = build_model('transformer', 8, readout=readout, causal=causal).eval()
     x, mask = _x(8)
@@ -73,8 +73,8 @@ def test_transformer_ignores_padding(readout, causal):
 
 
 def test_compile_path(store, monkeypatch):
-    """compile: true → eğitim ileri geçişi torch.compile'ın döndürdüğü modülden geçer; dynamo her eğitimde sıfırlanır.
-    Gerçek derleme yerine birim sarmalayıcı: sonuç compile kapalıyla birebir aynı olmalı."""
+    """compile: true → the training forward pass uses the module returned by torch.compile; dynamo is reset per run.
+    An identity wrapper stands in for real compilation: the result must equal the one with compile off."""
     from cybermetaformer.hidden_state.train import train
     calls = {'compile': [], 'reset': 0}
 
@@ -108,7 +108,7 @@ def test_save_run_writes_loadable_weights(tmp_path):
 
 
 def test_m2_budget_protocol():
-    """M2 bütçesi: Aşama 2'de 15 deneme; PatchTST d 32, TimesNet d 16, ≤ 2 katman, yama oranı temelde."""
+    """M2 budget: 15 trials in stage 2; PatchTST d 32, TimesNet d 16, ≤ 2 layers, default patch ratio."""
     import optuna
     from cybermetaformer.hidden_state.hpo import SPACES, protocol
     assert [protocol(s, False)['n_trials'] for s in ['asama1', 'asama2', 'asama2_smoke']] == [25, 15, 15]
@@ -121,7 +121,7 @@ def test_m2_budget_protocol():
 
 
 def test_m1_refs_select_by_val():
-    """Aşama 2'nin M1 referansları val'e göre seçilir; test/OOD seçime girmez, tam geçmiş pencereli sayılmaz."""
+    """Stage 2's M1 references are chosen on val; test/OOD do not enter the choice; full history is not a window."""
     from cybermetaformer.hidden_state.aggregate import m1_refs
 
     def g(model, k, val, test):
@@ -131,34 +131,34 @@ def test_m1_refs_select_by_val():
         ('mlp', 8, 0.93, 0.99), ('gru', 8, 0.94, 0.90), ('xgb_tf', 64, 0.95, 0.95), ('gru', 32, 0.96, 0.96),
         ('gru_full', 101, 0.98, 0.98), ('persist', 8, 0.99, 0.99)]}
     R = m1_refs(ref)
-    assert R['best'][8]['model'] == 'gru'                         # val'de iyi olan; test'te iyi olan MLP değil
+    assert R['best'][8]['model'] == 'gru'                         # best on val, not the MLP best on test
     assert R['best'][64]['model'] == 'xgb_tf' and 'persist' not in {b['model'] for b in R['best'].values()}
     assert R['best_window']['k'] == 32 and R['gru_full']['k'] == 101 and set(R['mlp']) == {8}
 
 
 def test_cd_summary_best_first():
-    """CD özeti 1 = en iyi sırayla döner (autorank `rankdf`'i ters verir); bölüm F1 ortalaması sütundan gelir."""
+    """CD summary: rank 1 = best first (autorank's `rankdf` is reversed); the episode-F1 mean is the column mean."""
     import pandas as pd
     from autorank import autorank
     from cybermetaformer.hidden_state.cd import summary_rows
     rng = np.random.default_rng(0)
     base = rng.random(200)
-    df = pd.DataFrame({'kötü': base, 'iyi': base + 0.2, 'orta': base + 0.1})
+    df = pd.DataFrame({'bad': base, 'good': base + 0.2, 'mid': base + 0.1})
     rows = summary_rows(df, autorank(df, verbose=False, order='descending', force_mode='nonparametric'))
-    assert [r['model'] for r in rows] == ['iyi', 'orta', 'kötü']
-    assert rows[0]['meanrank'] == pytest.approx(1.0) and rows[0]['mean'] == pytest.approx(df['iyi'].mean())
+    assert [r['model'] for r in rows] == ['good', 'mid', 'bad']
+    assert rows[0]['meanrank'] == pytest.approx(1.0) and rows[0]['mean'] == pytest.approx(df['good'].mean())
 
 
 def test_pareto_front():
-    """Düşük maliyet ve yüksek doğruluk: baskın noktalar sınırda değil; eşit maliyette yalnız iyisi."""
+    """Low cost and high accuracy: dominated points are not on the frontier; at equal cost only the better one."""
     from cybermetaformer.hidden_state.efficiency import pareto_front
     pts = [(1.0, 0.80), (2.0, 0.85), (2.0, 0.84), (3.0, 0.83), (0.5, 0.70), (4.0, 0.90)]
     assert pareto_front(pts) == [4, 0, 1, 5]
 
 
-@pytest.mark.skipif(not torch.backends.mps.is_available(), reason='MPS yok')
+@pytest.mark.skipif(not torch.backends.mps.is_available(), reason='MPS not available')
 def test_patchtst_mps_large_batch_matches_cpu():
-    """MPS Conv1d batch > 2^16'da yanlış (torch 2.14.1); PatchTST'nin parçalı konvolüsyonu CPU ile aynı vermeli."""
+    """MPS Conv1d is wrong for batch > 2^16 (torch 2.14.1); PatchTST's patched convolution must match the CPU."""
     from cybermetaformer.hidden_state.models.tslib_adapter import _ChunkedConv1d
     torch.manual_seed(0)
     cpu = build_model('patchtst', 8, d_model=16, heads=4, layers=1, ff=32).eval()

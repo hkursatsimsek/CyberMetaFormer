@@ -1,5 +1,5 @@
-# GRU tam geçmiş varyantı (uzatma ızgarası): bölüm boyunca durumlu, her adımda tahmin.
-# Hiperparametreler gru k=32 HPO sonucundan gelir (run_grid.py). k=101 = tam geçmiş (obs[0..t]).
+# Full-history GRU variant (extension grid): stateful over the episode, predicts at every step.
+# Hyperparameters come from the gru k=32 HPO result (run_grid.py). k=101 = full history (obs[0..t]).
 model: gru_full
 mode: episode
 episodes_per_batch: 16

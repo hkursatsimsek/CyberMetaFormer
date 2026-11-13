@@ -1,22 +1,24 @@
-"""Makale (M4, madde 4; madde 10'un A4 sütunu): CPU'da tek örnekli (bs = 1) çevrimiçi adım gecikmesi.
+"""Paper (M4, item 4; the A4 column of item 10): single-sample (bs = 1) online step latency on CPU.
 
-Modeller seed 0'ın eğitilmiş ağırlıklarıyla yüklenir. Süre ağırlıktan bağımsızdır; ama adım kipi gerçek ağırlıkla denetlenir.
-- CyberMetaFormer ve varyantları: `CyberMetaFormer.step` (konv tamponu, SSD ya da GRU durumu; maliyet t'den bağımsız).
-- GRU tamı: taşınan gizli durumla tek hücre güncellemesi + çıkış başlığı (`rnn(x_t, h)`; efficiency.py'deki k = 1
-  penceresiyle aynı hesap, ama durum taşınır).
-Ölçümden önce her model 4 test bölümünde adım kipini bölüm kipiyle karşılaştırır (FP32, en büyük |Δ| < 1e-3).
+Models are loaded with the trained weights of seed 0. Timing does not depend on the weights, but the step mode is
+checked with real weights.
+- CyberMetaFormer and its variants: `CyberMetaFormer.step` (conv buffer, SSD or GRU state; cost independent of t).
+- Full GRU: single cell update with the carried hidden state + output head (`rnn(x_t, h)`; the same computation as the
+  k = 1 window in efficiency.py, but with the state carried).
+Before timing, each model compares its step mode with the episode mode on 4 test episodes (FP32, largest |Δ| < 1e-3).
 
-Protokol: her iş parçacığı ayarında (1 ve torch'un varsayılanı) her model 202 adım ısınır; ardından 5 tur, her turda
-modeller sırayla (dönüşümlü; zamanla kayma modeller arasında paylaşılır) 10 bölüm × 101 adım = 1010 adım koşar. Her
-bölüm başında durum sıfırlanır; sıfırlama ölçülmez. Ölçülen: tek `step` çağrısının duvar süresi (perf_counter_ns).
-Raporlanan: 5 × 1010 adımın medyanı, p95, p99, ortalama ± sd ve tur medyanlarının sd'si.
-Ayrıca parametre sayısı ve FP32 baytı, çevrimiçi durum baytı (adım kipinin taşıdığı tensörler) ve ortam: CPU modeli,
-performans/verim çekirdek sayısı, torch/numpy/Python/macOS sürümleri, ölçüm öncesi ve sonrası yük ortalaması, tepe RSS.
-Makine başka iş koşmazken ölçülmelidir.
+Protocol: in each thread setting (1 and the torch default) each model warms up for 202 steps; then 5 rounds, each
+round running the models in turn (alternating, so drift over time is shared between models) for 10 episodes × 101
+steps = 1010 steps. The state is reset at each episode start; the reset is not timed. Measured: wall time of a single
+`step` call (perf_counter_ns). Reported: median, p95, p99, mean ± sd of the 5 × 1010 steps and the sd of the round
+medians.
+Also the parameter count and FP32 bytes, the online state bytes (tensors carried by the step mode) and the
+environment: CPU model, performance/efficiency core counts, torch/numpy/Python/macOS versions, load average before and
+after timing, peak RSS. Measure while nothing else is running on the machine.
 
-Çıktı: results/hidden_state/makale/gecikme/{olcum.json, table.md}
+Output: results/hidden_state/makale/step_latency/{olcum.json, table.md}
 
-    venv_ts/bin/python -m cybermetaformer.hidden_state.gecikme
+    venv_ts/bin/python -m cybermetaformer.hidden_state.step_latency
 """
 import json
 import os
@@ -30,13 +32,13 @@ import numpy as np
 import torch
 
 from cybermetaformer.hidden_state import data as D
-from cybermetaformer.hidden_state.ood_paketi import load_model
+from cybermetaformer.hidden_state.ood_suite import load_model
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, 'results', 'hidden_state', 'makale', 'gecikme')
+OUT = os.path.join(ROOT, 'results', 'hidden_state', 'makale', 'step_latency')
 MODELS = ['cybermetaformer', 'cybermetaformer-host_tam', 'cybermetaformer-konv_gru', 'cybermetaformer-gru_host_topo',
           'cybermetaformer-gru_host_attn', 'gru_full', 'cybermetaformer-host_yok']
-LABEL = {'cybermetaformer': 'CyberMetaFormer (conv + SSD, topology bias)',      # makale Tablo 14 ile aynı adlar
+LABEL = {'cybermetaformer': 'CyberMetaFormer (conv + SSD, topology bias)',      # same names as the paper table
          'cybermetaformer-host_tam': 'CMF, no topology bias',
          'cybermetaformer-konv_gru': 'CMF, GRU instead of SSD',
          'cybermetaformer-gru_host_topo': 'Host-token GRU, topology bias',
@@ -47,7 +49,7 @@ WARM, ROUNDS, EPISODES = 202, 5, 10
 
 
 class GRUStep:
-    """GRU tamının çevrimiçi adımı: taşınan gizli durum, tek hücre güncellemesi, çıkış başlığı."""
+    """Online step of the full GRU: carried hidden state, single cell update, output head."""
 
     def __init__(self, model):
         self.model = model
@@ -78,7 +80,7 @@ def state_bytes(state):
         return sum(state_bytes(v) for v in state.values())
     if isinstance(state, (list, tuple)):
         return sum(state_bytes(v) for v in state)
-    return 0                                                     # adım sayacı (int)
+    return 0                                                     # step counter (int)
 
 
 @torch.no_grad()
@@ -87,13 +89,13 @@ def check(st, x):
     state = st.init_state(4, 'cpu')
     out = torch.stack([st.step(x[:4, t], state) for t in range(x.shape[1])], 1)
     err = float((out - ref).abs().max())
-    assert err < 1e-3, f'adım kipi bölüm kipinden {err:.2e} sapıyor'
+    assert err < 1e-3, f'step mode deviates from the episode mode by {err:.2e}'
     return err
 
 
 @torch.no_grad()
 def run_steps(st, x, n_ep):
-    """n_ep bölüm × S adım; her bölüm başında durum sıfırlanır. Dönüş: adım başına süre (ns)."""
+    """n_ep episodes × S steps; the state is reset at each episode start. Returns: time per step (ns)."""
     S, out = x.shape[1], []
     for e in range(n_ep):
         state = st.init_state(1, 'cpu')
@@ -141,12 +143,12 @@ def main():
         models[name] = {'step': st, 'params': sum(p.numel() for p in model.parameters()),
                         'param_bytes': sum(p.numel() * p.element_size() for p in model.parameters()),
                         'state_bytes': state_bytes(st.init_state(1, 'cpu')), 'step_check_max_abs': check(st, x)}
-        print(f"{name:32s} param {models[name]['params']:>9,}  durum {models[name]['state_bytes']:>9,} B  "
-              f"adım–bölüm |Δ| {models[name]['step_check_max_abs']:.1e}", flush=True)
+        print(f"{name:32s} param {models[name]['params']:>9,}  state {models[name]['state_bytes']:>9,} B  "
+              f"step–episode |Δ| {models[name]['step_check_max_abs']:.1e}", flush=True)
     results = {}
     for threads in sorted({1, default_threads}):
         torch.set_num_threads(threads)
-        for name in MODELS:                                                  # ısınma
+        for name in MODELS:                                                  # warm-up
             run_steps(models[name]['step'], x, max(1, WARM // S))
         rounds = {name: [] for name in MODELS}
         for r in range(ROUNDS):
@@ -155,8 +157,8 @@ def main():
         for name in MODELS:
             res = summarize([v for rr in rounds[name] for v in rr], rounds[name])
             results.setdefault(name, {})[str(threads)] = res
-            print(f"{threads} iş parçacığı  {name:32s} medyan {res['median_ms']:.4f} ms  p95 {res['p95_ms']:.4f}  "
-                  f"p99 {res['p99_ms']:.4f}  tur sd {res['round_median_sd_ms']:.4f}", flush=True)
+            print(f"{threads} threads  {name:32s} median {res['median_ms']:.4f} ms  p95 {res['p95_ms']:.4f}  "
+                  f"p99 {res['p99_ms']:.4f}  round sd {res['round_median_sd_ms']:.4f}", flush=True)
     env['load_average_after'] = list(os.getloadavg())
     env['peak_rss_bytes'] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss          # macOS: bayt
     out = {'environment': env, 'protocol': {'warmup_steps': max(1, WARM // S) * S, 'rounds': ROUNDS,
@@ -194,7 +196,7 @@ def table_md(out):
 
 
 if __name__ == '__main__':
-    if sys.argv[1:] == ['--table']:                  # ölçmeden, kayıtlı olcum.json'dan yalnız tabloyu yeniden yaz
+    if sys.argv[1:] == ['--table']:                  # without timing, only rewrite the table from the saved olcum.json
         with open(os.path.join(OUT, 'olcum.json')) as f:
             olcum = json.load(f)
         with open(os.path.join(OUT, 'table.md'), 'w') as f:

@@ -1,8 +1,8 @@
-# Aşama 2 özet tabloları
+# Stage 2 summary tables
 
-Hücreler: 3 seed ortalaması ± std. `—`: PatchTST ve TimesNet k ∈ {4, 16, 64} bütçe (paket B, README Kararlar 2026-10-19); k=1 N/A (PatchTST, TimesNet, TimeMixer; `models.NOT_APPLICABLE`). M1 referansları (`asama1`, 5 seed): ayarlanmış MLP ve aynı k'daki en iyi M1 modeli (val host makro-F1 ile seçilir; adı hücrede, † = tek seed); tam geçmiş GRU k'dan bağımsızdır, tablo altında. Orijinal MLP (k=8): test 0.929 / OOD 0.816.
+Cells: mean ± std over 3 seeds. `—`: PatchTST and TimesNet k ∈ {4, 16, 64} budget (package B, decided 2026-10-19); k=1 N/A (PatchTST, TimesNet, TimeMixer; `models.NOT_APPLICABLE`). M1 references (`asama1`, 5 seeds): tuned MLP and the best M1 model at the same k (chosen by val host macro-F1; name in the cell, † = single seed); the full-history GRU does not depend on k and is below the table. Original MLP (k=8): test 0.929 / OOD 0.816.
 
-## Test host makro-F1
+## Test host macro-F1
 
 | Model | k=1 | k=4 | k=8 | k=16 | k=32 | k=64 |
 |---|---:|---:|---:|---:|---:|---:|
@@ -13,11 +13,11 @@ Hücreler: 3 seed ortalaması ± std. `—`: PatchTST ve TimesNet k ∈ {4, 16, 
 | TimesNet | — | — | 0.936 ± 0.001 | — | 0.924 ± 0.005 | — |
 | TimeMixer | — | 0.927 ± 0.001 | 0.937 ± 0.001 | 0.950 ± 0.000 | 0.961 ± 0.001 | 0.969 ± 0.002 |
 | M1: MLP | 0.911 ± 0.001 | 0.929 ± 0.000 | 0.939 ± 0.001 | 0.948 ± 0.000 | 0.956 ± 0.000 | — |
-| M1: en iyi (val) | 0.912 † (XGBoost) | 0.931 † (XGBoost) | 0.941 † (XGBoost) | 0.954 † (XGBoost) | 0.966 ± 0.000 (GRU) | 0.956 ± 0.000 (XGB-TF) |
+| M1: best (val) | 0.912 † (XGBoost) | 0.931 † (XGBoost) | 0.941 † (XGBoost) | 0.954 † (XGBoost) | 0.966 ± 0.000 (GRU) | 0.956 ± 0.000 (XGB-TF) |
 
-M1: GRU (tam geçmiş) 0.977 ± 0.000.
+M1: GRU (full history) 0.977 ± 0.000.
 
-## OOD host makro-F1
+## OOD host macro-F1
 
 | Model | k=1 | k=4 | k=8 | k=16 | k=32 | k=64 |
 |---|---:|---:|---:|---:|---:|---:|
@@ -28,11 +28,11 @@ M1: GRU (tam geçmiş) 0.977 ± 0.000.
 | TimesNet | — | — | 0.816 ± 0.005 | — | 0.822 ± 0.005 | — |
 | TimeMixer | — | 0.815 ± 0.001 | 0.823 ± 0.004 | 0.840 ± 0.001 | 0.866 ± 0.001 | 0.893 ± 0.005 |
 | M1: MLP | 0.806 ± 0.001 | 0.821 ± 0.001 | 0.829 ± 0.002 | 0.840 ± 0.002 | 0.850 ± 0.002 | — |
-| M1: en iyi (val) | 0.811 † (XGBoost) | 0.830 † (XGBoost) | 0.840 † (XGBoost) | 0.857 † (XGBoost) | 0.887 ± 0.002 (GRU) | 0.860 ± 0.000 (XGB-TF) |
+| M1: best (val) | 0.811 † (XGBoost) | 0.830 † (XGBoost) | 0.840 † (XGBoost) | 0.857 † (XGBoost) | 0.887 ± 0.002 (GRU) | 0.860 ± 0.000 (XGB-TF) |
 
-M1: GRU (tam geçmiş) 0.926 ± 0.001.
+M1: GRU (full history) 0.926 ± 0.001.
 
-## Test sessiz recall
+## Test silent recall
 
 | Model | k=1 | k=4 | k=8 | k=16 | k=32 | k=64 |
 |---|---:|---:|---:|---:|---:|---:|
@@ -43,11 +43,11 @@ M1: GRU (tam geçmiş) 0.926 ± 0.001.
 | TimesNet | — | — | 0.717 ± 0.003 | — | 0.700 ± 0.033 | — |
 | TimeMixer | — | 0.645 ± 0.010 | 0.740 ± 0.008 | 0.814 ± 0.006 | 0.849 ± 0.003 | 0.876 ± 0.002 |
 | M1: MLP | 0.498 ± 0.011 | 0.632 ± 0.012 | 0.735 ± 0.013 | 0.799 ± 0.007 | 0.810 ± 0.006 | — |
-| M1: en iyi (val) | 0.492 † (XGBoost) | 0.627 † (XGBoost) | 0.732 † (XGBoost) | 0.802 † (XGBoost) | 0.858 ± 0.009 (GRU) | 0.797 ± 0.000 (XGB-TF) |
+| M1: best (val) | 0.492 † (XGBoost) | 0.627 † (XGBoost) | 0.732 † (XGBoost) | 0.802 † (XGBoost) | 0.858 ± 0.009 (GRU) | 0.797 ± 0.000 (XGB-TF) |
 
-M1: GRU (tam geçmiş) 0.902 ± 0.002.
+M1: GRU (full history) 0.902 ± 0.002.
 
-## OOD sessiz recall
+## OOD silent recall
 
 | Model | k=1 | k=4 | k=8 | k=16 | k=32 | k=64 |
 |---|---:|---:|---:|---:|---:|---:|
@@ -58,11 +58,11 @@ M1: GRU (tam geçmiş) 0.902 ± 0.002.
 | TimesNet | — | — | 0.364 ± 0.015 | — | 0.476 ± 0.032 | — |
 | TimeMixer | — | 0.352 ± 0.007 | 0.433 ± 0.020 | 0.529 ± 0.010 | 0.616 ± 0.007 | 0.671 ± 0.014 |
 | M1: MLP | 0.246 ± 0.011 | 0.321 ± 0.009 | 0.395 ± 0.025 | 0.496 ± 0.013 | 0.511 ± 0.015 | — |
-| M1: en iyi (val) | 0.236 † (XGBoost) | 0.287 † (XGBoost) | 0.337 † (XGBoost) | 0.435 † (XGBoost) | 0.651 ± 0.028 (GRU) | 0.467 ± 0.001 (XGB-TF) |
+| M1: best (val) | 0.236 † (XGBoost) | 0.287 † (XGBoost) | 0.337 † (XGBoost) | 0.435 † (XGBoost) | 0.651 ± 0.028 (GRU) | 0.467 ± 0.001 (XGB-TF) |
 
-M1: GRU (tam geçmiş) 0.736 ± 0.009.
+M1: GRU (full history) 0.736 ± 0.009.
 
-## Test uyarısız host-adım makro-F1
+## Test no-alert host-step macro-F1
 
 | Model | k=1 | k=4 | k=8 | k=16 | k=32 | k=64 |
 |---|---:|---:|---:|---:|---:|---:|
@@ -73,11 +73,11 @@ M1: GRU (tam geçmiş) 0.736 ± 0.009.
 | TimesNet | — | — | 0.769 ± 0.001 | — | 0.716 ± 0.013 | — |
 | TimeMixer | — | 0.743 ± 0.004 | 0.766 ± 0.003 | 0.801 ± 0.002 | 0.830 ± 0.003 | 0.851 ± 0.012 |
 | M1: MLP | 0.606 ± 0.003 | 0.754 ± 0.002 | 0.778 ± 0.004 | 0.800 ± 0.003 | 0.819 ± 0.003 | — |
-| M1: en iyi (val) | 0.604 † (XGBoost) | 0.757 † (XGBoost) | 0.787 † (XGBoost) | 0.822 † (XGBoost) | 0.851 ± 0.003 (GRU) | 0.828 ± 0.001 (XGB-TF) |
+| M1: best (val) | 0.604 † (XGBoost) | 0.757 † (XGBoost) | 0.787 † (XGBoost) | 0.822 † (XGBoost) | 0.851 ± 0.003 (GRU) | 0.828 ± 0.001 (XGB-TF) |
 
-M1: GRU (tam geçmiş) 0.881 ± 0.001.
+M1: GRU (full history) 0.881 ± 0.001.
 
-## OOD göreli düşüş
+## OOD relative drop
 
 | Model | k=1 | k=4 | k=8 | k=16 | k=32 | k=64 |
 |---|---:|---:|---:|---:|---:|---:|
@@ -88,11 +88,11 @@ M1: GRU (tam geçmiş) 0.881 ± 0.001.
 | TimesNet | — | — | 0.128 ± 0.005 | — | 0.110 ± 0.007 | — |
 | TimeMixer | — | 0.121 ± 0.000 | 0.122 ± 0.004 | 0.116 ± 0.001 | 0.099 ± 0.002 | 0.079 ± 0.003 |
 | M1: MLP | 0.115 ± 0.001 | 0.116 ± 0.001 | 0.117 ± 0.002 | 0.114 ± 0.002 | 0.110 ± 0.002 | — |
-| M1: en iyi (val) | 0.111 † (XGBoost) | 0.108 † (XGBoost) | 0.108 † (XGBoost) | 0.102 † (XGBoost) | 0.081 ± 0.002 (GRU) | 0.101 ± 0.000 (XGB-TF) |
+| M1: best (val) | 0.111 † (XGBoost) | 0.108 † (XGBoost) | 0.108 † (XGBoost) | 0.102 † (XGBoost) | 0.081 ± 0.002 (GRU) | 0.101 ± 0.000 (XGB-TF) |
 
-M1: GRU (tam geçmiş) 0.052 ± 0.001.
+M1: GRU (full history) 0.052 ± 0.001.
 
-## Test ECE (sıcaklık sonrası)
+## Test ECE (after temperature)
 
 | Model | k=1 | k=4 | k=8 | k=16 | k=32 | k=64 |
 |---|---:|---:|---:|---:|---:|---:|
@@ -103,13 +103,13 @@ M1: GRU (tam geçmiş) 0.052 ± 0.001.
 | TimesNet | — | — | 0.002 ± 0.000 | — | 0.006 ± 0.006 | — |
 | TimeMixer | — | 0.003 ± 0.001 | 0.005 ± 0.000 | 0.001 ± 0.000 | 0.001 ± 0.000 | 0.001 ± 0.000 |
 | M1: MLP | 0.002 ± 0.001 | 0.005 ± 0.001 | 0.004 ± 0.002 | 0.001 ± 0.000 | 0.004 ± 0.001 | — |
-| M1: en iyi (val) | 0.001 † (XGBoost) | 0.002 † (XGBoost) | 0.003 † (XGBoost) | 0.003 † (XGBoost) | 0.002 ± 0.000 (GRU) | 0.001 ± 0.000 (XGB-TF) |
+| M1: best (val) | 0.001 † (XGBoost) | 0.002 † (XGBoost) | 0.003 † (XGBoost) | 0.003 † (XGBoost) | 0.002 ± 0.000 (GRU) | 0.001 ± 0.000 (XGB-TF) |
 
-M1: GRU (tam geçmiş) 0.001 ± 0.000.
+M1: GRU (full history) 0.001 ± 0.000.
 
-## Model başına en iyi k (val host makro-F1 ile seçilir)
+## Best k per model (chosen by val host macro-F1)
 
-| Model | k | Test F1 | OOD F1 | Sessiz recall (test / OOD) | Gecikme (adım) | Kalıcılık payı | ECE_T |
+| Model | k | Test F1 | OOD F1 | Silent recall (test / OOD) | Latency (steps) | Held share | ECE_T |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | Transformer | 64 | 0.971 ± 0.001 | 0.892 ± 0.005 | 0.875 ± 0.012 / 0.637 ± 0.013 | 0.25 ± 0.03 | 0.437 ± 0.013 | 0.002 ± 0.000 |
 | PatchTST | 32 | 0.955 ± 0.000 | 0.850 ± 0.000 | 0.791 ± 0.009 / 0.488 ± 0.010 | 0.35 ± 0.01 | 0.314 ± 0.008 | 0.001 ± 0.000 |
@@ -117,16 +117,16 @@ M1: GRU (tam geçmiş) 0.001 ± 0.000.
 | TSMixer | 64 | 0.967 ± 0.000 | 0.877 ± 0.002 | 0.856 ± 0.009 / 0.591 ± 0.021 | 0.26 ± 0.01 | 0.414 ± 0.012 | 0.001 ± 0.001 |
 | TimesNet | 8 | 0.936 ± 0.001 | 0.816 ± 0.005 | 0.717 ± 0.003 / 0.364 ± 0.015 | 0.17 ± 0.01 | 0.324 ± 0.007 | 0.002 ± 0.000 |
 | TimeMixer | 64 | 0.969 ± 0.002 | 0.893 ± 0.005 | 0.876 ± 0.002 / 0.671 ± 0.014 | 0.25 ± 0.00 | 0.408 ± 0.011 | 0.001 ± 0.000 |
-| Orijinal MLP | 8 | 0.929 | 0.816 | — | — | — | — |
+| Original MLP | 8 | 0.929 | 0.816 | — | — | — | — |
 | M1: MLP | 32 | 0.956 ± 0.000 | 0.850 ± 0.002 | 0.810 ± 0.006 / 0.511 ± 0.015 | 0.25 ± 0.02 | 0.354 ± 0.011 | 0.004 ± 0.001 |
-| M1: GRU (en iyi pencereli) | 32 | 0.966 ± 0.000 | 0.887 ± 0.002 | 0.858 ± 0.009 / 0.651 ± 0.028 | 0.25 ± 0.01 | 0.404 ± 0.011 | 0.002 ± 0.000 |
-| M1: GRU (tam geçmiş) | tam | 0.977 ± 0.000 | 0.926 ± 0.001 | 0.902 ± 0.002 / 0.736 ± 0.009 | 0.25 ± 0.01 | 0.456 ± 0.007 | 0.001 ± 0.000 |
+| M1: GRU (best windowed) | 32 | 0.966 ± 0.000 | 0.887 ± 0.002 | 0.858 ± 0.009 / 0.651 ± 0.028 | 0.25 ± 0.01 | 0.404 ± 0.011 | 0.002 ± 0.000 |
+| M1: GRU (full history) | tam | 0.977 ± 0.000 | 0.926 ± 0.001 | 0.902 ± 0.002 / 0.736 ± 0.009 | 0.25 ± 0.01 | 0.456 ± 0.007 | 0.001 ± 0.000 |
 
-## Maliyet (en iyi k)
+## Cost (best k)
 
-Eğitim süresi: MPS; iki Mac (M3 Pro, M4 Pro) ve eş zamanlı şeritler, iki koşuda kapak uykusu. Süreler kabaca karşılaştırma içindir; verimlilik bench'ten.
+Training time: MPS; two Macs (M3 Pro, M4 Pro) and concurrent lanes, lid sleep in two runs. Times are for rough comparison only; efficiency comes from bench.
 
-| Model | k | Parametre / ağaç | Epoch | Eğitim (dk) | Val F1 |
+| Model | k | Parameters / trees | Epoch | Training (min) | Val F1 |
 |---|---:|---:|---:|---:|---:|
 | Transformer | 64 | 2 399 268 | 13.0 ± 1.0 | 202.8 ± 11.4 | 0.971 ± 0.001 |
 | PatchTST | 32 | 385 444 | 26.3 ± 3.2 | 190.3 ± 23.3 | 0.955 ± 0.000 |
@@ -135,11 +135,11 @@ Eğitim süresi: MPS; iki Mac (M3 Pro, M4 Pro) ve eş zamanlı şeritler, iki ko
 | TimesNet | 8 | 301 572 | 28.0 ± 3.5 | 95.1 ± 11.2 | 0.936 ± 0.000 |
 | TimeMixer | 64 | 144 516 | 30.0 ± 0.0 | 65.2 ± 0.1 | 0.968 ± 0.002 |
 
-## Politika kırılımı (host makro-F1, Red × Blue; model başına en iyi k)
+## Policy breakdown (host macro-F1, Red × Blue; best k per model)
 
-Son 2 satır OOD (`react_restore_eps0.3`), diğerleri test.
+The last 2 rows are OOD (`react_restore_eps0.3`), the others test.
 
-| Red × Blue | Transformer k=64 | PatchTST k=32 | iTransformer k=64 | TSMixer k=64 | TimesNet k=8 | TimeMixer k=64 | M1: GRU k=32 | M1: GRU tam |
+| Red × Blue | Transformer k=64 | PatchTST k=32 | iTransformer k=64 | TSMixer k=64 | TimesNet k=8 | TimeMixer k=64 | M1: GRU k=32 | M1: full GRU |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | bline × sleep | 0.995 ± 0.001 | 0.992 ± 0.000 | 0.995 ± 0.001 | 0.995 ± 0.001 | 0.993 ± 0.001 | 0.995 ± 0.001 | 0.995 ± 0.001 | 0.995 ± 0.000 |
 | bline × react_restore | 0.995 ± 0.000 | 0.985 ± 0.000 | 0.995 ± 0.000 | 0.993 ± 0.001 | 0.982 ± 0.000 | 0.994 ± 0.000 | 0.989 ± 0.001 | 0.997 ± 0.000 |

@@ -1,4 +1,4 @@
-# Aşama 2 TSMixer (TSLib ResBlock'ları + sınıflandırma başlığı). HPO: d_model, layers, dropout + ortak.
+# Stage 2 TSMixer (TSLib ResBlocks + classification head). HPO: d_model, layers, dropout + shared.
 model: tsmixer
 model_args: {d_model: 128, layers: 2, dropout: 0.1}
 scale: global

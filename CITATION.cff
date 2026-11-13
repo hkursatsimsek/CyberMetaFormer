@@ -5,8 +5,8 @@ type: software
 authors:
   - family-names: "Şimşek"
     given-names: "Hamza Kürşat"
-version: "0.2.0"
-date-released: "2026-11-09"
+version: "0.3.0"
+date-released: "2026-11-13"
 license: MIT
 repository-code: "https://github.com/hkursatsimsek/CyberMetaFormer"
 keywords:
@@ -18,3 +18,14 @@ keywords:
   - state space models
   - out-of-distribution generalization
   - CAGE Challenge 2
+preferred-citation:
+  type: article
+  title: "CyberMetaFormer: host-structured temporal hidden-state estimation for autonomous cyber defence under silent compromise"
+  authors:
+    - family-names: "Şimşek"
+      given-names: "Hamza Kürşat"
+    - family-names: "Adem"
+      given-names: "Kemal"
+    - family-names: "Arslan"
+      given-names: "Halil"
+  notes: "Manuscript in preparation; the journal reference will be added on publication."

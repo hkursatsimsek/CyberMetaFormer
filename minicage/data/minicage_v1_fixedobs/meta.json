@@ -1,8 +1,8 @@
 {
   "name": "minicage_v1_fixedobs",
-  "source": "CybORG++ MiniCAGE (FixedObsCAGE); minicage_v1 kaydından yeniden simülasyon, Blue aksiyonları kayıttan zorlandı",
+  "source": "CybORG++ MiniCAGE (FixedObsCAGE); minicage_v1 record re-simulated, Blue actions forced from the record",
   "red_agents": {
-    "bline": "mini_CAGE/red_bline_agent.py::B_line_minimal (ortam başına)",
+    "bline": "mini_CAGE/red_bline_agent.py::B_line_minimal (one per environment)",
     "meander": "mini_CAGE/test_agent.py::Meander_minimal"
   },
   "steps_per_episode": 100,
@@ -154,21 +154,21 @@
     "host_activity_safety": [
       0,
       52,
-      "host başına 4: aktivite [scan, exploit] + güvenlik ([0,0] temiz/bilinmiyor, [0,1] istismar edildi, [1,1] root (analyse ile), [1,0] remove)"
+      "4 per host: activity [scan, exploit] + safety ([0,0] clean/unknown, [0,1] exploited, [1,1] root (with analyse), [1,0] remove)"
     ],
     "scan_history": [
       52,
       65,
-      "0 yok, 1 önceden tarandı, 2 bu adımda tarandı"
+      "0 none, 1 scanned earlier, 2 scanned at this step"
     ],
     "decoys_left": [
       65,
       78,
-      "host başına kalan decoy sayısı"
+      "decoys left per host"
     ]
   },
-  "obs_red_layout": "1 success bayrağı + host başına 3 (scanned, user, priv)",
-  "true_state_layout": "host başına 3: [scanned, user, priv]; -1 = Red bilmiyor",
+  "obs_red_layout": "1 success flag + 3 per host (scanned, user, priv)",
+  "true_state_layout": "3 per host: [scanned, user, priv]; -1 = unknown to Red",
   "shards": [
     {
       "file": "shard_000.npz",
@@ -345,10 +345,10 @@
   },
   "generation_seconds": 32.4,
   "command": "minicage/dataset/resimulate.py --src minicage/data/minicage_v1 --out minicage/data/minicage_v1_fixedobs",
-  "observation_fix": "_process_state yalnız başarılı Blue aksiyonlarını görür (blue_success > 0): başarısız remove [1,0] \"kaldırıldı\" basmaz; geçersiz user0 restore user0'ın güvenlik bayrağını ve aktivite bitlerini (dolayısıyla tarama geçmişini) silmez. Gerçek durum, Red gözlemi, ödül ve kaydedilen blue_success değişmez.",
+  "observation_fix": "_process_state sees only successful Blue actions (blue_success > 0): a failed remove does not write [1,0] \"removed\"; an invalid user0 restore does not clear the safety flag and activity bits of user0 (nor, therefore, its scan history). True state, Red observation, reward and the recorded blue_success are unchanged.",
   "resimulated_from": {
     "name": "minicage_v1",
-    "meta_sha256": "8624945cc0d6f737720a37cb07acf11c5c38f5974df7d485abca1fa392388e1d",
+    "meta_sha256": "3bef5d3b8234bc94e0237966277acff01bc947a432dd531a0a5b804ccf5662fb",
     "command": "minicage/dataset/generate.py --episodes-per-config 2000"
   },
   "gate": {

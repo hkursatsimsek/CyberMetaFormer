@@ -1,34 +1,35 @@
-"""Topoloji OOD'si (revizyon madde 6 (b)): ağ bağlantısı değişince modellerin tahmini.
+"""Topology OOD (revision item 6 (b)): model predictions when the network connectivity changes.
 
-Yeniden eğitim yok: v1'de (MiniCAGE topolojisi: user1/2 → ent0, user3/4 → ent1) eğitilmiş `model.pt` (asama3, s0–s4).
-Değerlendirme verisi `minicage_v1_topo`: RewiredCAGE ile user1/2 → ent1, user3/4 → ent0. Alt ağlar, host sayısı ve
-gözlem düzeni aynı olduğu için modeller değişmeden çalışır. Host sayısı ya da gözlem düzeni değişseydi girdi boyutu,
-host gömmesi ve ilişki matrisi değişeceği için model de değişmek zorunda kalırdı. B-line, ent hedefini bağlantı
-tablosundan okuyan LinkedBline'dır. CMF ve gru_host_topo'nun topoloji önseli (ilişki matrisi) burada yanlış
-tanımlıdır; host_tam ve gru_host_attn'in önseli yoktur.
+No retraining: the `model.pt` (asama3, s0–s4) trained on v1 (MiniCAGE topology: user1/2 → ent0, user3/4 → ent1).
+Evaluation data `minicage_v1_topo`: RewiredCAGE with user1/2 → ent1, user3/4 → ent0. Subnets, host count and the
+observation layout are the same, so the models run unchanged. Had the host count or the observation layout changed,
+the input size, the host embedding and the relation matrix would change and the model would have to change too. B-line
+is LinkedBline, which reads its ent target from the link table. The topology prior (relation matrix) of CMF and
+gru_host_topo is misspecified here; host_tam and gru_host_attn have no prior.
 
-Koşullar (her biri aynı Blue politikasıyla iki kümede):
-    original   v1: eps0.1 = v1 test'in react_restore_eps0.1 bölümleri, ood = v1 ood_test (ε = 0.3)
-    P2         aynı v1 bölümleri, ood_permutasyon'un P2 permütasyonuyla (user1↔user3, user2↔user4): yeniden
-               bağlamanın veri içindeki karşılığı; decoy kapasitesi hostla birlikte taşınır
-    P2s        P2, ama decoy sayısı slotta kalır. Gerçek yeniden bağlamada da kapasite slotun (hostun) özelliğidir;
-               en yakın veri içi karşılık budur
-    rewired    minicage_v1_topo: eps0.1 = react_restore_eps0.1'in bütün bölümleri (hiçbiri eğitimde kullanılmadı),
-               ood = react_restore_eps0.3'ün bütün bölümleri
-    rewired_prior  aynı bölümler; topoloji sapmalı modellerde (CMF, gru_host_topo) ilişki matrisi yeni bağlantı
-               tablosundan yeniden kurulur (meta.json → topology). Yeniden eğitim yok, öğrenilen ağırlıklar aynı:
-               ortam topolojisi biliniyorsa yalnız önselin güncellenmesi yetiyor mu?
-original, P2 ve P2s aynı bölümlerdir (eşli). rewired ayrı bölümlerdir: rewired − original ve rewired − P2s farkları eşsiz
-iki örneklemli bölüm bootstrap'ıyla hesaplanır (iki küme bağımsız örneklenir). Model çiftleri her koşulda eşlidir.
-"(a_rewired − a_original) − (b_rewired − b_original)" farkı da iki örneklemlidir.
+Conditions (each on two sets with the same Blue policy):
+    original   v1: eps0.1 = the react_restore_eps0.1 episodes of v1 test, ood = v1 ood_test (ε = 0.3)
+    P2         the same v1 episodes with the P2 permutation of ood_permutation (user1↔user3, user2↔user4): the in-data
+               counterpart of rewiring; decoy capacity moves with the host
+    P2s        P2, but the decoy count stays in the slot. In a real rewiring capacity is also a property of the slot
+               (the host); this is the closest in-data counterpart
+    rewired    minicage_v1_topo: eps0.1 = all react_restore_eps0.1 episodes (none used in training),
+               ood = all react_restore_eps0.3 episodes
+    rewired_prior  the same episodes; in the topology-biased models (CMF, gru_host_topo) the relation matrix is rebuilt
+               from the new link table (meta.json → topology). No retraining, the learned weights are the same: if the
+               environment topology is known, is updating the prior alone enough?
+original, P2 and P2s are the same episodes (paired). rewired has its own episodes: the rewired − original and rewired −
+P2s differences use an unpaired two-sample episode bootstrap (the two sets are resampled independently). Model pairs
+are paired within each condition. The "(a_rewired − a_original) − (b_rewired − b_original)" difference is two-sample
+too.
 
-Model çiftlerinde ayrıca "a_rewired_prior − b_rewired" (eşli) verilir. Ölçütler ve dökümler ood_permutasyon ile aynıdır: host makro-F1, sessiz recall, N_geçmiş recall, hata türleri, host
-grubu (slot) başına sessiz recall. Ek olarak saldırgan (B-line / Meander) başına döküm verilir. Holm bütün satırlar
-üzerinden uygulanır.
+Model pairs also get "a_rewired_prior − b_rewired" (paired). Criteria and breakdowns are as in ood_permutation: host
+macro-F1, silent recall, N_hist recall, error types, silent recall per host group (slot). In addition a breakdown per
+attacker (B-line / Meander). Holm over all rows.
 
-    python -m cybermetaformer.hidden_state.ood_topoloji collect     # asama3/ood_topoloji/preds/ (git dışı)
-    python -m cybermetaformer.hidden_state.ood_topoloji analyze     # ood_permutasyon collect'i de ister;
-                                                                  # makale/ood_topoloji/{ozet.json, tablolar.md}
+    python -m cybermetaformer.hidden_state.ood_topology collect     # asama3/ood_topology/preds/ (outside git)
+    python -m cybermetaformer.hidden_state.ood_topology analyze     # also needs the ood_permutation collect;
+                                                                  # makale/ood_topology/{ozet.json, tablolar.md}
 """
 import argparse
 import contextlib
@@ -42,17 +43,17 @@ import torch
 from cybermetaformer.hidden_state import data as D
 from cybermetaformer.hidden_state import features as F
 from cybermetaformer.hidden_state import metrics as M
-from cybermetaformer.hidden_state import ood_paketi as O
-from cybermetaformer.hidden_state import ood_permutasyon as P
+from cybermetaformer.hidden_state import ood_suite as O
+from cybermetaformer.hidden_state import ood_permutation as P
 from cybermetaformer.hidden_state.models.cybermetaformer import HOSTS, REL_OTHER, host_relations
-from cybermetaformer.hidden_state.ood_permutasyon import (CRITERIA, ERROR_LABEL, ERRORS, GROUPS, MODELS, PAIRS, SEEDS,
+from cybermetaformer.hidden_state.ood_permutation import (CRITERIA, ERROR_LABEL, ERRORS, GROUPS, MODELS, PAIRS, SEEDS,
                                                         _ci, _ms, _p)
 
 RESULTS = os.path.join(D.ROOT, 'results', 'hidden_state')
-PRED_DIR = os.path.join(RESULTS, 'asama3', 'ood_topoloji', 'preds')
-OUT_DIR = os.path.join(RESULTS, 'makale', 'ood_topoloji')
+PRED_DIR = os.path.join(RESULTS, 'asama3', 'ood_topology', 'preds')
+OUT_DIR = os.path.join(RESULTS, 'makale', 'ood_topology')
 TOPO = os.path.join(D.DATA_ROOT, 'minicage_v1_topo')
-SETS = {'eps0.1': ('test', 'react_restore_eps0.1'), 'ood': ('ood', 'react_restore_eps0.3')}   # → (perm kümesi, politika)
+SETS = {'eps0.1': ('test', 'react_restore_eps0.1'), 'ood': ('ood', 'react_restore_eps0.3')}   # → (perm set, policy)
 SET_LABEL = {'eps0.1': 'ε = 0.1 (training policy)', 'ood': 'ε = 0.3 (OOD policy)'}
 CONDITIONS = ('original', 'P2', 'P2s', 'rewired', 'rewired_prior')
 COND_LABEL = {'original': 'original topology', 'P2': 'P2 (rewiring by permutation)',
@@ -69,7 +70,7 @@ def _policy(st, name):
 
 
 def open_sets():
-    """v1 ve topo store'ları; her küme için v1 bölümleri (perm kümesindeki konumlarıyla) ve topo bölümleri."""
+    """v1 and topo stores; for each set the v1 episodes (with their positions in the perm set) and the topo episodes."""
     v1, topo = D.EpisodeStore(D.DEFAULT_DATA), D.EpisodeStore(TOPO)
     assert v1.meta['red_policies'] == topo.meta['red_policies'] == list(REDS)
     _, base = P.open_sets()
@@ -91,7 +92,7 @@ def links_of(store):
 
 @contextlib.contextmanager
 def updated_prior(model, links):
-    """Topoloji sapmalı HostMixer'ların ilişki matrisini (ve varsa maskesini) verilen bağlantı tablosundan kurar."""
+    """Builds the relation matrix (and the mask, if any) of the topology-biased HostMixers from the given link table."""
     saved = []
     for blk in model.blocks:
         hm = blk.host
@@ -102,7 +103,7 @@ def updated_prior(model, links):
         masked = bool(torch.isinf(hm.mask).any())
         hm.rel = rel
         hm.mask = torch.where(rel == REL_OTHER, float('-inf'), 0.0).to(hm.mask.device) if masked else hm.mask
-    assert saved, 'modelde topoloji sapmalı host karıştırıcısı yok'
+    assert saved, 'the model has no topology-biased host mixer'
     try:
         yield model
     finally:
@@ -113,8 +114,8 @@ def updated_prior(model, links):
 # ── toplama ──────────────────────────────────────────────────────────────
 
 def collect(device, models=tuple(MODELS), seeds=SEEDS):
-    """Topo verisinin bütün bölümlerinde tahmin (E, T, 12) int8: 'all' ve topoloji sapmalı modellerde 'prior'
-    (güncellenmiş önsel). Var olan dosyaya yalnız eksik anahtarlar eklenir."""
+    """Predictions on all episodes of the topo data (E, T, 12) int8: 'all', and 'prior' for the topology-biased models
+    (updated prior). Only missing keys are added to an existing file."""
     topo = D.EpisodeStore(TOPO)
     assert topo.meta['topology']['name'] == 'rewired'
     links = links_of(topo)
@@ -136,14 +137,14 @@ def collect(device, models=tuple(MODELS), seeds=SEEDS):
                         out[k] = P.predict(model, cfg, topo.obs, topo.labels, topo.prev_action, device)
             np.savez_compressed(path, **out)
             f1 = {k: M.host_macro_f1(topo.labels.reshape(-1, 12), out[k].reshape(-1, 12)) for k in out}
-            print(f'{name} s{seed}: {time.time() - t0:.0f} s; topo F1 (bütün bölümler) '
+            print(f'{name} s{seed}: {time.time() - t0:.0f} s; topo F1 (all episodes) '
                   + ', '.join(f'{k} {v:.4f}' for k, v in f1.items()), flush=True)
             del model
             if device == 'mps':
                 torch.mps.empty_cache()
 
 
-# ── analiz ───────────────────────────────────────────────────────────────
+# ── analysis ─────────────────────────────────────────────────────────────
 
 def analyze(n_boot=10_000, models=tuple(MODELS), seeds=SEEDS, log=print):
     v1, topo, sets = open_sets()
@@ -176,7 +177,7 @@ def analyze(n_boot=10_000, models=tuple(MODELS), seeds=SEEDS, log=print):
         for name in models:
             m = res['models'][name][s]
             log(f'{name:30s} {s:6s} ' + '  '.join(
-                f"{c}: F1 {m[c]['host_macro_f1']['mean']:.4f} sessiz {m[c]['silent_recall']['mean']:.4f} "
+                f"{c}: F1 {m[c]['host_macro_f1']['mean']:.4f} silent {m[c]['silent_recall']['mean']:.4f} "
                 f"N {m[c]['never_recall']['mean']:.4f}" for c in CONDITIONS if c in m))
 
         Er, Et = len(d['v1']), len(d['topo'])
@@ -222,7 +223,7 @@ def analyze(n_boot=10_000, models=tuple(MODELS), seeds=SEEDS, log=print):
     return res
 
 
-# ── çıktılar ─────────────────────────────────────────────────────────────
+# ── outputs ──────────────────────────────────────────────────────────────
 
 KIND_LABEL = {'rewired_minus_original': 'rewired − original (two-sample)',
               'p2_minus_original': 'P2 − original (paired)',
@@ -251,7 +252,7 @@ def tables_md(res):
            '|---|---|---|---|---|---|---|---|---|']
     for s, ds in res['sets'].items():
         for c, d in ds.items():
-            if c == 'rewired_prior':                       # rewired ile aynı bölümler
+            if c == 'rewired_prior':                       # same episodes as rewired
                 continue
             cc, er = d['class_counts'], d['episodes_by_red']
             out.append(f"| {SET_LABEL[s]} | {COND_LABEL[c]} | {d['n_episodes']:,} ({er['bline']:,} / {er['meander']:,}) | "

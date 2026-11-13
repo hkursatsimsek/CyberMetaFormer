@@ -1,5 +1,5 @@
-# Aşama 2 iTransformer (TSLib, token = değişken). HPO: d_model, heads, layers, ff, dropout + ortak.
-# Değerlendirme batch'i küçük: dikkat 78 × 78 token üzerinde.
+# Stage 2 iTransformer (TSLib, token = variable). HPO: d_model, heads, layers, ff, dropout + shared.
+# Small evaluation batch: attention over 78 × 78 tokens.
 model: itransformer
 model_args: {d_model: 128, heads: 8, layers: 2, ff: 256, dropout: 0.1}
 scale: global

@@ -1,29 +1,35 @@
-"""Makale (M4) şekilleri, İngilizce. Şekiller son baskı genişliğinde (6.3 inç) çizilir, en küçük yazı 8 pt.
-Çıktılar 300 dpi PNG ve SVG'dir; SVG vektör sürümüdür, PDF git'e girmediği için SVG kullanılır.
+"""Paper (M4) figures, in English. Drawn at the final print width (6.3 in), smallest text 8 pt.
+Outputs are 300 dpi PNG and SVG; SVG is the vector version (PDFs are not kept in git).
 
-    venv_ts/bin/python -m cybermetaformer.hidden_state.rapor.makale_sekiller
+    venv_ts/bin/python -m cybermetaformer.hidden_state.report.paper_figures
+    venv_ts/bin/python -m cybermetaformer.hidden_state.report.paper_figures --pdf FOLDER   # submission (outside git)
 
-- fig_cmf_architecture: CyberMetaFormer (madde 2). Şekil, §3.5'teki denklemlerle ve models/cybermetaformer.py ile
-  birebir uyumludur:
-  - girdi: host token'ları ve uyarı yaşı (Eş. 1–2), gömme (Eş. 3);
-  - blok: üç pre-LN artık alt katman. Zaman karıştırıcısında konv ve SSD kolları ile softmax kapısı (Eş. 4–8);
-    host karıştırıcısında ilişki sapmalı dikkat (Eş. 9); kanal MLP'si (Eş. 10);
-  - çıkış: son LN ve paylaşılan başlık (Eş. 11).
-- fig_confusion: CMF ve tam geçmiş GRU'nun test ve OOD'de havuzlanmış, satır normalize karışıklık matrisi (madde 3;
-  seed 0–4 ortalaması ± SD, makale/sinif_duzeyi/ozet.json).
+`--pdf`: only vector PDFs are written (fonts embedded as TrueType, `pdf.fonttype` 42); PNG and SVG are not touched.
+Raster elements (the imshow of the attention map) are written at 1000 dpi (JISA: bitmaps ≥ 1000 dpi). The submission
+folder is prepared by `report/gonderim`.
 
-Taslaktan gelen şekillerin İngilizce, betikten yeniden çizimleri (2026-11-08; hiçbir şekilde Türkçe sözcük yok). Sayılar
-tabloların kullandığı kayıtlardan gelir; tablo hücreleriyle aynı değerler `makale_tablolar` üzerinden okunur:
-- fig_network (Şekil 1): ağ, saldırı grafı kenarları (models/cybermetaformer.py CONNECTED_HOSTS) ve kestirim akışı.
-- fig_window_coverage (Şekil 2): asama0/eda.json (figures.fig_window_coverage'ın verisi).
-- fig_memory_stage1 / fig_memory_stage2 (Şekil 4–5): asama1/2 ozet/ozet.json (aggregate.fig_memory_curve'ün verisi).
-- fig_selected (Şekil 6): seçili modellerin test ve OOD F1'i; CMF ve GRU tam seed 0–4 (Tablo 8 ile aynı kayıtlar).
-- fig_ablation (Şekil 8): Tablo 15'in farkları ve %95 GA'ları.
-- fig_attention (Şekil 9): asama3/aciklama/dikkat.json (explain_m3.fig_attention'ın verisi; seed 0, ε = 0.1 testi).
-- fig_severity (Şekil 10): asama3/ood_paketi/ozet_5seed.json (Tablo 16 ile aynı; ortalama ± seed SD).
-- fig_intervention: müdahale deneyi (madde 7), makale/mudahale/ozet.json; mudahale.py çiziminin makale etiketli sürümü.
-- fig_pareto (Şekil 11): maliyet tablosunun (t_cost, madde 10 ölçümü) tek iş parçacıklı gecikmesi, parametre sayısı ve
-  OOD F1'i; önceki ölçümün yerine.
+- fig_cmf_architecture: CyberMetaFormer (item 2). The figure matches the equations of §3.5 and
+  models/cybermetaformer.py one to one:
+  - input: host tokens and alert age (Eqs. 1–2), embedding (Eq. 3);
+  - block: three pre-LN residual sublayers. Conv and SSD branches with a softmax gate in the temporal mixer
+    (Eqs. 4–8); relation-biased attention in the host mixer (Eq. 9); channel MLP (Eq. 10);
+  - output: final LN and shared head (Eq. 11).
+- fig_confusion: pooled, row-normalised confusion matrices of CMF and the full-history GRU on test and OOD (item 3;
+  mean ± SD over seeds 0–4, makale/class_level/ozet.json).
+
+English redrawings, from scripts, of the figures carried over from the draft (2026-11-08; no Turkish words at all).
+Numbers come from the records the tables use; values shared with table cells are read through `paper_tables`:
+- fig_network: network, attack-graph edges (models/cybermetaformer.py CONNECTED_HOSTS) and the estimation flow.
+- fig_window_coverage: asama0/eda.json (the data of figures.fig_window_coverage).
+- fig_memory_stage1 / fig_memory_stage2: asama1/2 ozet/ozet.json (the data of aggregate.fig_memory_curve).
+- fig_selected: test and OOD F1 of selected models; CMF and full GRU seeds 0–4 (same records as the main-pair table).
+- fig_ablation: differences of the ablation table and their 95% CIs.
+- fig_attention: asama3/aciklama/dikkat.json (the data of explain_m3.fig_attention; seed 0, ε = 0.1 test).
+- fig_severity: asama3/ood_suite/ozet_5seed.json (same as the policy-shift table; mean ± seed SD).
+- fig_intervention: intervention experiment (item 7), makale/interventions/ozet.json; the paper-labelled version of the
+  interventions.py plot.
+- fig_pareto: single-thread latency, parameter count and OOD F1 of the cost table (t_cost, item 10 measurement);
+  replaces the earlier measurement.
 """
 import os
 
@@ -31,7 +37,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, FancyBboxPatch
 
 from cybermetaformer.hidden_state.figures import BASE, GRID, INK, INK2, MUTED, ROOT, SERIES, SURFACE
-from cybermetaformer.hidden_state.rapor.sekiller import PALE, PALE2, RESULTS, _arrow, _box
+from cybermetaformer.hidden_state.report.drawing import PALE, PALE2, RESULTS, _arrow, _box
 
 OUT_DIR = os.path.join(RESULTS, 'makale', 'sekiller')
 WIDTH_IN = 6.3
@@ -41,15 +47,25 @@ RC = {'figure.facecolor': WHITE, 'axes.facecolor': WHITE, 'savefig.facecolor': W
       'axes.labelsize': FS, 'xtick.labelsize': FS, 'ytick.labelsize': FS, 'legend.fontsize': FS,
       'axes.titlesize': FS_TITLE, 'svg.fonttype': 'none', 'xtick.color': INK2, 'ytick.color': INK2,
       'axes.labelcolor': INK2}
-plt.rcParams.update(RC)     # aggregate.py içe aktarılınca kendi rcParams'ını yazar; main() bunu yeniden uygular
-CMF_C, GRU_C, OTHER_C = SERIES[0], SERIES[1], MUTED       # CMF mavi, tam geçmiş GRU turuncu, ötekiler nötr
+plt.rcParams.update(RC)     # importing aggregate.py writes its own rcParams; main() applies these again
+CMF_C, GRU_C, OTHER_C = SERIES[0], SERIES[1], MUTED       # CMF blue, full-history GRU orange, others neutral
+
+
+PDF_DIR = None         # --pdf: only PDFs are written to this folder
 
 
 def _save(fig, name):
-    os.makedirs(OUT_DIR, exist_ok=True)
     fig.patch.set_facecolor(WHITE)
     for ax in fig.axes:
         ax.set_facecolor(WHITE)
+    if PDF_DIR:
+        os.makedirs(PDF_DIR, exist_ok=True)
+        with plt.rc_context({'pdf.fonttype': 42}):
+            fig.savefig(os.path.join(PDF_DIR, f'{name}.pdf'), dpi=1000, facecolor=WHITE,
+                        metadata={'CreationDate': None})          # no date: same input → same bytes
+        plt.close(fig)
+        return
+    os.makedirs(OUT_DIR, exist_ok=True)
     fig.savefig(os.path.join(OUT_DIR, f'{name}.png'), dpi=300, facecolor=WHITE)
     fig.savefig(os.path.join(OUT_DIR, f'{name}.svg'), facecolor=WHITE)
     plt.close(fig)
@@ -77,7 +93,7 @@ def fig_cmf_architecture():
     ax.axis('off')
     y_res, y_ln, y_mod, y_drop = 8.55, 7.45, 5.45, 2.55
 
-    # ── girdi (aşağıdan yukarı) ──
+    # ── input (bottom to top) ──
     _box(ax, 1.75, 2.55, 3.2, 1.0, 'Observation $\\hat{o}_t$\n(78 values)', fc=PALE2, fs=FS)
     _box(ax, 1.75, 5.0, 3.2, 1.95, '13 host tokens\n$x_{t,h}$ (6) + age\n$\\phi, \\nu$ (8)\nEqs. 1–2',
          fc=PALE, ec=SERIES[0], fs=FS)
@@ -92,7 +108,7 @@ def fig_cmf_architecture():
             fontsize=FS_TITLE, fontweight='bold', color=INK)
     _arrow(ax, (3.35, y_res), (3.95, y_res), lw=1.3)
     _line(ax, [3.95, 16.15], [y_res, y_res], color=INK, lw=1.4)
-    cols = [  # (LN x, ⊕ x, LN etiketi, alt yazı)
+    cols = [  # (LN x, ⊕ x, LN label, caption)
         (6.3, 9.0, '$\\mathrm{LN}_1$', 'per host, along time\n(weights shared)'),
         (10.85, 12.75, '$\\mathrm{LN}_2$', 'per step, across\nthe 13 hosts'),
         (14.45, 16.15, '$\\mathrm{LN}_3$', 'per token'),
@@ -107,7 +123,7 @@ def fig_cmf_architecture():
         ax.text((x_ln + x_add) / 2 - (0.35 if x_ln == 6.3 else 0.1), 1.35, cap, ha='center', va='center',
                 fontsize=FS_SMALL, color=MUTED, style='italic', linespacing=1.2)
 
-    # zaman karıştırıcısı: konv ve SSD kolları → softmax kapısı
+    # temporal mixer: conv and SSD branches → softmax gate
     ax.text(6.45, 9.05, 'Temporal mixer', ha='center', va='center', fontsize=FS, fontweight='bold', color=INK2)
     _box(ax, 5.1, y_mod + 0.45, 2.1, 1.75, 'Causal\nconv\n$K$ = 4\nEq. 4', fc=SURFACE, ec=SERIES[0], fs=FS)
     _box(ax, 7.5, y_mod + 0.45, 2.1, 1.75, 'SSD\n4 heads\nEqs. 5–7', fc=SURFACE, ec=SERIES[0], fs=FS)
@@ -118,7 +134,7 @@ def fig_cmf_architecture():
     _arrow(ax, (7.5, y_mod - 0.43), (7.0, 4.17))
     _arrow(ax, (6.3, 3.22), (6.3, y_drop + 0.3))
 
-    # host karıştırıcısı
+    # host mixer
     ax.text(11.4, 9.05, 'Host mixer', ha='center', va='center', fontsize=FS, fontweight='bold', color=INK2)
     _box(ax, 10.85, 5.05, 2.75, 3.1, 'Multi-head\nattention\nacross hosts\n+ relation\nbias $\\beta_{m,\\rho}$\nEq. 9',
          fc=SURFACE, ec=SERIES[0], fs=FS)
@@ -132,7 +148,7 @@ def fig_cmf_architecture():
     _arrow(ax, (14.45, y_ln - 0.3), (14.45, 6.6))
     _arrow(ax, (14.45, 3.5), (14.45, y_drop + 0.3))
 
-    # ── çıkış (yukarıdan aşağı) ──
+    # ── output (top to bottom) ──
     _arrow(ax, (16.15, y_res), (16.95, y_res), lw=1.3)
     _box(ax, 18.3, y_res, 2.6, 0.62, '$\\mathrm{LN}_f$', fc=SURFACE, ec=BASE, fs=FS)
     _box(ax, 18.3, 6.5, 2.95, 1.55, 'Shared head\n12 label hosts\nEq. 11', fc='#e8f0fb', ec=ROOT, fs=FS, lw=1.4)
@@ -143,20 +159,20 @@ def fig_cmf_architecture():
     _save(fig, 'fig_cmf_architecture')
 
 
-# sıralı mavi rampa (dataviz paleti, adım 100 → 700); hücre değeri satır normalize oran
+# sequential blue ramp (dataviz palette, step 100 → 700); cell value is the row-normalised rate
 SEQ_BLUE = ['#f4f8fd', '#cde2fb', '#9ec5f4', '#6da7ec', '#3987e5', '#256abf', '#184f95', '#0d366b']
 
 
 def fig_confusion():
-    """Madde 3: havuzlanmış, satır normalize 3×3 karışıklık; satırlar CMF / tam geçmiş GRU, sütunlar test / OOD; seed
-    0–4 ortalaması (sinif_duzeyi/ozet.json). Renk PowerNorm(0.5) ile: küçük hata oranları (%4 – %20) ayırt edilsin
-    diye; her hücrede değer ve seed SD'si yazılıdır."""
+    """Item 3: pooled, row-normalised 3×3 confusion; rows CMF / full-history GRU, columns test / OOD; mean of seeds
+    0–4 (class_level/ozet.json). Colour via PowerNorm(0.5) so that small error rates (4% – 20%) can be told apart;
+    each cell shows the value and the seed SD."""
     import json
 
     import numpy as np
     from matplotlib.colors import LinearSegmentedColormap, PowerNorm, to_rgb
 
-    with open(os.path.join(RESULTS, 'makale', 'sinif_duzeyi', 'ozet.json')) as f:
+    with open(os.path.join(RESULTS, 'makale', 'class_level', 'ozet.json')) as f:
         S = json.load(f)
     classes = S['classes']
     models = [('CyberMetaFormer', 'CyberMetaFormer'), ('Full-history GRU', 'Full-history GRU')]
@@ -203,7 +219,7 @@ def fig_confusion():
     _save(fig, 'fig_confusion')
 
 
-# ── taslaktan gelen şekiller, İngilizce ─────────────────────────────────────
+# ── figures carried over from the draft, in English ─────────────────────────
 
 def _region(ax, x0, y0, x1, y1, title):
     ax.add_patch(FancyBboxPatch((x0, y0), x1 - x0, y1 - y0, boxstyle='round,pad=0,rounding_size=0.12', fc=PALE2,
@@ -212,8 +228,8 @@ def _region(ax, x0, y0, x1, y1, title):
 
 
 def fig_network():
-    """Şekil 1: üç alt ağ, saldırı grafı kenarları (CONNECTED_HOSTS: user1/2 → ent0, user3/4 → ent1, ent2 → opserv)
-    ve gözlem → kestirici → gizli durum akışı."""
+    """Network figure: three subnets, attack-graph edges (CONNECTED_HOSTS: user1/2 → ent0, user3/4 → ent1, ent2 →
+    opserv) and the observation → estimator → hidden state flow."""
     from cybermetaformer.hidden_state.models.cybermetaformer import CONNECTED_HOSTS, HOSTS
     fig, ax = plt.subplots(figsize=(WIDTH_IN, 3.35))
     fig.subplots_adjust(0.005, 0.005, 0.995, 0.995)
@@ -257,7 +273,7 @@ def fig_network():
 
 
 def fig_window_coverage():
-    """Şekil 2: sessiz host-adımlar içinde son uyarısı k adımlık pencereye düşenlerin payı (asama0/eda.json)."""
+    """Window coverage: share of silent host-steps whose last alert falls inside a k-step window (asama0/eda.json)."""
     import json
 
     import numpy as np
@@ -273,7 +289,7 @@ def fig_window_coverage():
         for k in (8, 32, 64):
             ax.plot([k], [c[k - 1]], 'o', color=color, ms=5, mec=WHITE, mew=1.5, zorder=3)
     c = np.array(cov['test']['coverage'])
-    for k, xt, yt in ((8, 3.2, 0.24), (32, 13, 0.5), (64, 30, 0.67)):          # etiketler eğrilerin sol üstünde
+    for k, xt, yt in ((8, 3.2, 0.24), (32, 13, 0.5), (64, 30, 0.67)):          # labels above-left of the curves
         ax.annotate(f'k = {k}: {100 * c[k - 1]:.0f}%', (k, c[k - 1]), xytext=(xt, yt), fontsize=FS, color=INK2,
                     ha='right', arrowprops=dict(arrowstyle='-', color=MUTED, lw=0.8, shrinkB=3))
     ceil = 1 - cov['test']['never']
@@ -300,7 +316,7 @@ STAGE_LABEL = {'persist': 'Alert-persistence rule', 'xgb': 'XGBoost', 'xgb_tf': 
 
 
 def _memory_curve(stage, name):
-    """aggregate.fig_memory_curve'ün İngilizce, başlıksız makale sürümü; veri aynı (ozet/ozet.json)."""
+    """English, untitled paper version of aggregate.fig_memory_curve; same data (ozet/ozet.json)."""
     import json
 
     from matplotlib.lines import Line2D
@@ -317,7 +333,7 @@ def _memory_curve(stage, name):
     fig, axes = plt.subplots(1, 3, figsize=(WIDTH_IN, 3.05))
     fig.subplots_adjust(left=0.075, right=0.99, bottom=0.4, top=0.93, wspace=0.32)
     allk = sorted({g['k'] for g in summary.values() if g['k'] > 0})
-    FULL = 128                      # tam geçmiş (k = 101) log ekseninde 64'ün bir adım sağında, "full" etiketiyle
+    FULL = 128                      # full history (k = 101) one step right of 64 on the log axis, labelled "full"
     X = lambda k: FULL if k == 101 else k          # noqa: E731
     ms, lw = 4, 1.4
     for ax, (col, title, orig) in zip(axes, panels):
@@ -388,7 +404,7 @@ def _memory_curve(stage, name):
 
 
 def _cmf_gru_runs():
-    from cybermetaformer.hidden_state.rapor import makale_tablolar as MT
+    from cybermetaformer.hidden_state.report import paper_tables as MT
     out = {}
     for key in ('cmf', 'gru_full'):
         stage, prefix, _ = MT.RUNS[key]
@@ -398,7 +414,7 @@ def _cmf_gru_runs():
 
 
 def fig_selected():
-    """Şekil 6: seçili modellerin standart test ve OOD host makro-F1'i (nokta: seed ortalaması, çubuk: seed SD)."""
+    """Selected models: standard test and OOD host macro-F1 (dot: seed mean, bar: seed SD)."""
     import json
 
     import numpy as np
@@ -445,7 +461,8 @@ def fig_selected():
 
 
 def fig_ablation(T8):
-    """Şekil 8: Tablo 15'in farkları (varyant − ana model) ve %95 GA'ları; GA sıfırı dışlıyorsa koyu."""
+    """Ablation figure: differences of the ablation table (variant − main model) and their 95% CIs; bold if the CI
+    excludes zero."""
     import numpy as np
     short = {'duz78': 'No host tokens (one 78-d token)', 'host_yok': 'No host mixer',
              'host_tam': 'Full attention, no topology bias', 'host_gcn': 'GCN-like host mixer',
@@ -478,7 +495,7 @@ def fig_ablation(T8):
 
 
 def fig_attention():
-    """Şekil 9: host karıştırıcısının katman başına ortalama dikkati (seed 0, ε = 0.1 test bölümleri)."""
+    """Mean attention of the host mixer per layer (seed 0, ε = 0.1 test episodes)."""
     import json
 
     import numpy as np
@@ -517,11 +534,11 @@ def fig_attention():
 
 
 def fig_severity():
-    """Şekil 10: react_restore'un ε'u ve mekanizma değişimleri (5 seed; ortalama ± seed SD; ozet_5seed.json)."""
+    """ε of react_restore and the mechanism changes (5 seeds; mean ± seed SD; ozet_5seed.json)."""
     import json
 
     import numpy as np
-    with open(os.path.join(RESULTS, 'asama3', 'ood_paketi', 'ozet_5seed.json')) as f:
+    with open(os.path.join(RESULTS, 'asama3', 'ood_suite', 'ozet_5seed.json')) as f:
         M = json.load(f)['models']
     curve = [('eps0.1', 0.0), ('ood', 1.0), ('eps0.5', 2.0), ('eps0.7', 3.0)]
     mech = [('analyse', 4.3), ('remove', 5.8)]
@@ -559,8 +576,8 @@ def fig_severity():
 
 
 def fig_pareto(TC):
-    """Şekil 11: maliyet tablosunun (t_cost) hücreleri: OOD host makro-F1'e karşı tek iş parçacıklı CPU adım gecikmesi
-    (sol, medyan) ve parametre sayısı (sağ)."""
+    """Cells of the cost table (t_cost): OOD host macro-F1 against the single-thread CPU step latency (left, median)
+    and the parameter count (right)."""
     show = {'cybermetaformer': 'CyberMetaFormer (B1)', 'cybermetaformer-b2': 'CyberMetaFormer (B2)',
             'cybermetaformer-gru_host_topo': 'Host-token GRU', 'gru_full': 'Full-history GRU',
             'timemixer_k64': 'TimeMixer (k = 64)', 'transformer_k64': 'Transformer (k = 64)'}
@@ -571,8 +588,9 @@ def fig_pareto(TC):
     color = {'cybermetaformer': CMF_C, 'gru_full': GRU_C}
     fig, axes = plt.subplots(1, 2, figsize=(WIDTH_IN, 2.6), sharey=True)
     fig.subplots_adjust(left=0.09, right=0.98, bottom=0.17, top=0.96, wspace=0.08)
-    # etiket yerleşimi (dx, dy nokta; yatay hizalama): yakın noktaların (iki k = 64 modeli, sağ panelde üst üste düşen
-    # küçük modeller) etiketleri karışmasın diye elle verilir; dy = 0 ise etiket dikeyde ortalanır
+    # label placement (dx, dy in points; horizontal alignment): set by hand so that the labels of close points (the
+    # two k = 64 models, small models overlapping in the right panel) do not collide; dy = 0 centres the label
+    # vertically
     offs = [{'cybermetaformer': (6, 4, 'left'), 'cybermetaformer-b2': (-8, 0, 'right'),
              'cybermetaformer-gru_host_topo': (-6, 4, 'right'), 'gru_full': (6, 4, 'left'),
              'timemixer_k64': (4, -13, 'right'), 'transformer_k64': (-6, 6, 'right')},
@@ -598,11 +616,12 @@ def fig_pareto(TC):
 
 
 def fig_intervention(MT):
-    """Müdahale şekli (madde 7): hedef hostun sessiz recall değişimi (müdahale − özgün), makale/mudahale/ozet.json'dan.
-    Çubuk seed 0–4 ortalaması, çizgi seed ortalamasının eşli bölüm bootstrap'ıyla %95 GA'sı (Tablo mudahale ile aynı
-    satırlar), noktalar tek tek seed'ler. mudahale.py'nin kendi çiziminin makale etiketli sürümüdür."""
+    """Intervention figure (item 7): change in the target host's silent recall (intervention − original), from
+    makale/interventions/ozet.json. Bar = mean of seeds 0–4, line = 95% CI of the seed mean by paired episode bootstrap (the
+    same rows as the intervention table), dots = individual seeds. The paper-labelled version of interventions.py's own
+    plot."""
     import numpy as np
-    A = MT.analysis('mudahale')
+    A = MT.analysis('interventions')
     color = {'cybermetaformer': CMF_C, 'cybermetaformer-host_tam': OTHER_C, 'gru_full': GRU_C}
     title = {'empty': 'Empty (t = 0 observation)', 'swap': 'Swap (other episode)', 'shuffle': 'Shuffle (in time)'}
     fig, axes = plt.subplots(1, len(MT.IV), figsize=(WIDTH_IN, 2.5), sharey=True)
@@ -634,8 +653,13 @@ def fig_intervention(MT):
 
 
 def main():
-    from cybermetaformer.hidden_state import aggregate  # noqa: F401  (rcParams'ını önce yazsın)
-    from cybermetaformer.hidden_state.rapor import makale_tablolar as MT
+    import argparse
+    global PDF_DIR
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument('--pdf', metavar='FOLDER', help='write vector PDFs only (to a folder outside git)')
+    PDF_DIR = ap.parse_args().pdf
+    from cybermetaformer.hidden_state import aggregate  # noqa: F401  (so that its rcParams are written first)
+    from cybermetaformer.hidden_state.report import paper_tables as MT
     plt.rcParams.update(RC)
     fig_cmf_architecture()
     fig_confusion()
@@ -651,7 +675,7 @@ def main():
     fig_severity()
     fig_pareto(MT.t_cost(runs, abl))
     fig_intervention(MT)
-    print(f'şekiller → {OUT_DIR} (aşama 1: {n1} seed, aşama 2: {n2} seed)')
+    print(f'figures → {PDF_DIR or OUT_DIR} (stage 1: {n1} seeds, stage 2: {n2} seeds)')
 
 
 if __name__ == '__main__':

@@ -21,7 +21,7 @@
       "n_silent": 73229,
       "silent_share": 0.36846077597701554,
       "alert_age_recall": {
-        "hiç": {
+        "never": {
           "n": 15478,
           "recall": 0.9042511952448636
         },
@@ -106,7 +106,7 @@
       "n_silent": 216495,
       "silent_share": 0.40407141683962194,
       "alert_age_recall": {
-        "hiç": {
+        "never": {
           "n": 54731,
           "recall": 0.3109389559847253
         },
@@ -201,7 +201,7 @@
       "n_silent": 321008,
       "silent_share": 0.5934701423553337,
       "alert_age_recall": {
-        "hiç": {
+        "never": {
           "n": 96486,
           "recall": 0.2806521153327944
         },
@@ -288,7 +288,7 @@
       "n_silent": 74427,
       "silent_share": 0.37435680765342305,
       "alert_age_recall": {
-        "hiç": {
+        "never": {
           "n": 14395,
           "recall": 0.9232372351510941
         },
@@ -378,7 +378,7 @@
       "n_silent": 142068,
       "silent_share": 0.4216030459594446,
       "alert_age_recall": {
-        "hiç": {
+        "never": {
           "n": 40336,
           "recall": 0.09242364141213805
         },
@@ -468,7 +468,7 @@
       "n_silent": 105331,
       "silent_share": 0.503188790743669,
       "alert_age_recall": {
-        "hiç": {
+        "never": {
           "n": 28354,
           "recall": 0.7268463003456302
         },
@@ -554,7 +554,7 @@
       "n_silent": 215677,
       "silent_share": 0.6504661115350164,
       "alert_age_recall": {
-        "hiç": {
+        "never": {
           "n": 68132,
           "recall": 0.09496271942699466
         },

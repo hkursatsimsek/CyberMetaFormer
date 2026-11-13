@@ -1,12 +1,12 @@
-# Kritik fark diyagramları (Friedman + Nemenyi, bloklar = bölümler)
+# Critical difference diagrams (Friedman + Nemenyi, blocks = episodes)
 
-Her model her bölümde seed'lerinin ortalamasıyla girer; sıra 1 = en iyi. Pozitif etiketi olmayan bölümler düşüldü. `python -m cybermetaformer.hidden_state.cd`.
+Every model enters each episode with the mean over its seeds; rank 1 = best. Episodes without a positive label were dropped. `python -m cybermetaformer.hidden_state.cd`.
 
 ## k8
 
-**Test:** 2000 bölüm, Friedman p = 0, CD = 0.373.
+**Test:** 2000 episodes, Friedman p = 0, CD = 0.373.
 
-| Sıra | Model | Ortalama sıra | Bölüm F1 ortalaması | Bölüm F1 medyanı |
+| Rank | Model | Mean rank | Episode F1 mean | Episode F1 median |
 |---:|---|---:|---:|---:|
 | 1 | iTransformer | 5.16 | 0.905 | 0.919 |
 | 2 | XGBoost | 5.29 | 0.906 | 0.921 |
@@ -21,9 +21,9 @@ Her model her bölümde seed'lerinin ortalamasıyla girer; sıra 1 = en iyi. Poz
 | 11 | XGB-TF | 7.14 | 0.893 | 0.909 |
 | 12 | PatchTST | 8.76 | 0.885 | 0.896 |
 
-**OOD:** 4000 bölüm, Friedman p = 0, CD = 0.263.
+**OOD:** 4000 episodes, Friedman p = 0, CD = 0.263.
 
-| Sıra | Model | Ortalama sıra | Bölüm F1 ortalaması | Bölüm F1 medyanı |
+| Rank | Model | Mean rank | Episode F1 mean | Episode F1 median |
 |---:|---|---:|---:|---:|
 | 1 | XGBoost | 3.60 | 0.828 | 0.832 |
 | 2 | XGB-TF | 5.09 | 0.813 | 0.819 |
@@ -40,9 +40,9 @@ Her model her bölümde seed'lerinin ortalamasıyla girer; sıra 1 = en iyi. Poz
 
 ## k32
 
-**Test:** 2000 bölüm, Friedman p = 0, CD = 0.373.
+**Test:** 2000 episodes, Friedman p = 0, CD = 0.373.
 
-| Sıra | Model | Ortalama sıra | Bölüm F1 ortalaması | Bölüm F1 medyanı |
+| Rank | Model | Mean rank | Episode F1 mean | Episode F1 median |
 |---:|---|---:|---:|---:|
 | 1 | GRU | 4.94 | 0.932 | 0.950 |
 | 2 | iTransformer | 5.03 | 0.932 | 0.949 |
@@ -57,9 +57,9 @@ Her model her bölümde seed'lerinin ortalamasıyla girer; sıra 1 = en iyi. Poz
 | 11 | XGB-TF | 8.15 | 0.910 | 0.928 |
 | 12 | TimesNet | 9.87 | 0.857 | 0.866 |
 
-**OOD:** 4000 bölüm, Friedman p = 0, CD = 0.263.
+**OOD:** 4000 episodes, Friedman p = 0, CD = 0.263.
 
-| Sıra | Model | Ortalama sıra | Bölüm F1 ortalaması | Bölüm F1 medyanı |
+| Rank | Model | Mean rank | Episode F1 mean | Episode F1 median |
 |---:|---|---:|---:|---:|
 | 1 | XGBoost | 3.91 | 0.870 | 0.874 |
 | 2 | GRU | 4.77 | 0.852 | 0.855 |
@@ -76,12 +76,12 @@ Her model her bölümde seed'lerinin ortalamasıyla girer; sıra 1 = en iyi. Poz
 
 ## enIyiK
 
-**Test:** 2000 bölüm, Friedman p = 0, CD = 0.444.
+**Test:** 2000 episodes, Friedman p = 0, CD = 0.444.
 
-| Sıra | Model | Ortalama sıra | Bölüm F1 ortalaması | Bölüm F1 medyanı |
+| Rank | Model | Mean rank | Episode F1 mean | Episode F1 median |
 |---:|---|---:|---:|---:|
-| 1 | GRU (tam geçmiş) | 4.88 | 0.951 | 0.977 |
-| 2 | LSTM (tam geçmiş) | 5.02 | 0.950 | 0.976 |
+| 1 | GRU (full history) | 4.88 | 0.951 | 0.977 |
+| 2 | LSTM (full history) | 5.02 | 0.950 | 0.976 |
 | 3 | Transformer k=64 | 6.04 | 0.941 | 0.962 |
 | 4 | iTransformer k=64 | 6.24 | 0.940 | 0.959 |
 | 5 | TimeMixer k=64 | 6.42 | 0.938 | 0.954 |
@@ -95,12 +95,12 @@ Her model her bölümde seed'lerinin ortalamasıyla girer; sıra 1 = en iyi. Poz
 | 13 | PatchTST k=32 | 9.86 | 0.913 | 0.923 |
 | 14 | TimesNet k=8 | 10.95 | 0.898 | 0.906 |
 
-**OOD:** 4000 bölüm, Friedman p = 0, CD = 0.314.
+**OOD:** 4000 episodes, Friedman p = 0, CD = 0.314.
 
-| Sıra | Model | Ortalama sıra | Bölüm F1 ortalaması | Bölüm F1 medyanı |
+| Rank | Model | Mean rank | Episode F1 mean | Episode F1 median |
 |---:|---|---:|---:|---:|
-| 1 | GRU (tam geçmiş) | 2.85 | 0.925 | 0.929 |
-| 2 | LSTM (tam geçmiş) | 3.07 | 0.922 | 0.927 |
+| 1 | GRU (full history) | 2.85 | 0.925 | 0.929 |
+| 2 | LSTM (full history) | 3.07 | 0.922 | 0.927 |
 | 3 | Transformer k=64 | 5.97 | 0.880 | 0.881 |
 | 4 | TimeMixer k=64 | 6.23 | 0.874 | 0.877 |
 | 5 | iTransformer k=64 | 6.50 | 0.878 | 0.880 |

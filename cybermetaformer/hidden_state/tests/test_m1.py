@@ -1,4 +1,4 @@
-"""Aşama 1 bileşenleri: XGB-TF özellikleri, kurallar, tam geçmiş RNN, XGBoost, HPO yaması, nihai değerlendirme."""
+"""Stage 1 components: XGB-TF features, rules, full-history RNN, XGBoost, HPO patch, final evaluation."""
 import numpy as np
 import optuna
 import pytest
@@ -15,7 +15,7 @@ from cybermetaformer.hidden_state.run_grid import planned_runs
 
 
 def _brute_tf(obs, k):
-    """temporal_features'ın döngüyle yazılmış karşılığı (tek bölüm)."""
+    """Loop-based counterpart of temporal_features (one episode)."""
     S = obs.shape[0]
     b = F.host_bits(obs).astype(bool)
     rows = []
@@ -64,7 +64,7 @@ def test_persist_k1_is_alert_rule(store, small_idx):
 
 @pytest.mark.parametrize('cell', ['lstm_full', 'gru_full'])
 def test_episode_mode_equals_unpadded_window(store, small_idx, cell):
-    """Tam geçmiş RNN'in t. çıktısı = k = t+1 dolgusuz pencereyle RNN'in son çıktısı."""
+    """Output t of the full-history RNN = the last output of the RNN on the unpadded window k = t+1."""
     torch.manual_seed(0)
     model = build_model(cell, 101).eval()
     wd = D.WindowData(store, small_idx[:2])
@@ -111,7 +111,7 @@ def test_xgb_tiny_deterministic(store):
     lg = m1.margins(store, idx)
     assert lg.shape == (20, store.T, 12, 3)
     np.testing.assert_array_equal(lg, m2.margins(store, idx))
-    assert info['rounds_per_host'][0] == 0                               # def hiç ele geçirilmiyor → sabit temiz
+    assert info['rounds_per_host'][0] == 0                               # def is never compromised → constant clean
     assert (lg[..., 0, :].argmax(-1) == 0).all()
 
 
@@ -124,7 +124,7 @@ def test_hpo_overrides_roundtrip(model):
 
 
 def test_final_reports_majority_matches_baselines(store):
-    """Nihai değerlendirme hattı (val → sıcaklık yok, test/OOD + bootstrap): çoğunluk = 0.285 / 0.311."""
+    """Final evaluation pipeline (val → no temperature, test/OOD + bootstrap): majority = 0.285 / 0.311."""
     predict = R.rule_predictor('majority', 0, store, store.split('train'))
     reports, outs = final_reports(store, predict, splits=('test', 'ood_test'), log=lambda s: None)
     assert f"{reports['test']['host_macro_f1']:.3f}" == '0.285'
@@ -134,7 +134,7 @@ def test_final_reports_majority_matches_baselines(store):
     assert outs['test']['ep_conf'].sum() == reports['test']['n_episodes'] * store.T * 12
     counts, names = outs['test']['ep_slices']
     assert names[0] == 'sessiz' and counts[:, 0, 0].sum() == reports['test']['n_silent']
-    assert counts[..., 1].sum() == 0                              # çoğunluk hiç pozitif tahmin etmez
+    assert counts[..., 1].sum() == 0                              # the majority never predicts a positive
     assert reports['test']['silent_recall'] == 0.0
     assert set(reports['test']['cause_recall']) <= set(store.cause_names[1:])
 
@@ -144,7 +144,7 @@ def test_cause_recall_counts(store):
         idx = store.split('test')
     c = store.cause[idx]
     y = store.labels[idx]
-    rep = M.cause_recall(y, c, store.cause_names)                        # tahmin = gerçek → recall 1
+    rep = M.cause_recall(y, c, store.cause_names)                        # prediction = truth → recall 1
     assert sum(v['n'] for v in rep.values()) == int(((y > 0) & ~F.episode_alerts(store.obs[idx])).sum())
     assert all(v['recall'] == 1.0 for v in rep.values())
 

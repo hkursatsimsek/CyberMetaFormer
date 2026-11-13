@@ -1,22 +1,22 @@
-"""Tek eğitici. Cihaz: cuda / mps / cpu.
+"""Single trainer. Device: cuda / mps / cpu.
 
     venv_cyborg/bin/python -m cybermetaformer.hidden_state.train --config cybermetaformer/hidden_state/configs/mlp.yaml --k 8 --seed 0
-    venv_cyborg/bin/python -m cybermetaformer.hidden_state.train --config ... --smoke      # 200 bölüm, 1 epoch
+    venv_cyborg/bin/python -m cybermetaformer.hidden_state.train --config ... --smoke      # 200 episodes, 1 epoch
 
-Model seçimi yalnızca val ile yapılır; ood_test eğitimde hiç açılmaz. `--final` verilirse eğitimden sonra val
-(sıcaklık), test ve (`store.final_evaluation()` içinde) ood_test değerlendirilir. Izgara koşuları için `run_grid.py`.
+Model selection uses val only; ood_test is never opened during training. With `--final`, val (temperature), test and
+(inside `store.final_evaluation()`) ood_test are evaluated after training. For grid runs, see `run_grid.py`.
 
-İki eğitim kipi: `mode: window` (son k gözlem → y[t], varsayılan) ve `mode: episode` (tam geçmiş, bölüm boyunca
-çoktan-çoğa; `lstm_full`, `gru_full`; batch = `episodes_per_batch` bölüm).
+Two training modes: `mode: window` (last k observations → y[t], default) and `mode: episode` (full history,
+many-to-many over the episode; `lstm_full`, `gru_full`; batch = `episodes_per_batch` episodes).
 
-M3 anahtarları (yalnızca bölüm kipi; kapalıyken eğitim yolu ve RNG akışı aynı):
-- `train_red: bline|meander`: (ii) saldırgan kayması; train ve val (seçim) yalnızca bu Red'in bölümleri.
+M3 keys (episode mode only; when off, the training path and RNG stream are unchanged):
+- `train_red: bline|meander`: (ii) attacker shift; train and val (selection) use only this Red's episodes.
 - `dg: {method: groupdro|vrex|coral|dann, ...}`, `augment: {alert_drop: p, time_mask: p}`: `dg.py`.
-- `model_args.action_input: true`: önceki Blue aksiyonu girdi (aksiyon ablasyonu).
+- `model_args.action_input: true`: the previous Blue action as input (action ablation).
 
-`compile: true` (M2 modelleri): pencere kipinde eğitim ileri geçişi `torch.compile` ile, değerlendirme eager. Model,
-veri ve optimizasyon aynı; sonuç kendi içinde belirlenimci, eager'dan farkı dropout'un rastgele akışı (README
-Kararlar 2026-10-19).
+`compile: true` (M2 models): in window mode the training forward pass uses `torch.compile`, evaluation is eager. Model,
+data and optimization are the same; the result is deterministic in itself and differs from eager only through the
+random stream of dropout.
 """
 import argparse
 import copy
@@ -63,8 +63,8 @@ def resolve_device(name):
 
 
 def release_device_memory():
-    """Ayırıcı önbelleğini boşaltır. Koşular/HPO denemeleri arasında çağrılır: MPS önbelleği farklı boyutlu modeller
-    arasında geri verilmeden büyür (LSTM k=32 HPO'sunda ~46 GB → OOM, 2026-10-16). Su işaretleri bunu önlemiyor."""
+    """Empties the allocator cache. Called between runs/HPO trials: the MPS cache grows across models of different size
+    without being released (~46 GB → OOM in the LSTM k=32 HPO, 2026-10-16). Watermarks do not prevent this."""
     gc.collect()
     if torch.backends.mps.is_available():
         torch.mps.empty_cache()
@@ -120,9 +120,9 @@ def _episode_batches(n_ep, per_batch, generator=None):
 
 
 def train(cfg, store, log=print, callback=None):
-    """Modeli eğitir. cfg['seed'] None ise global RNG yeniden tohumlanmaz (orijinal protokol zinciri için).
+    """Trains the model. If cfg['seed'] is None, the global RNG is not reseeded (for the original protocol chain).
 
-    callback(epoch, row): her epoch'un val değerlendirmesinden sonra çağrılır (HPO budaması; istisna fırlatabilir)."""
+    callback(epoch, row): called after each epoch's val evaluation (HPO pruning; may raise)."""
     cfg = {**DEFAULTS, **cfg}
     device = resolve_device(cfg['device'])
     if cfg['seed'] is not None:
@@ -149,7 +149,7 @@ def train(cfg, store, log=print, callback=None):
     if episode_mode != getattr(model, 'episode_mode', False):
         raise ValueError(f"{cfg['model']}: mode={cfg['mode']} modelle uyumsuz")
     if (cfg['dg'] or cfg['augment']) and not episode_mode:
-        raise ValueError('dg / augment yalnızca bölüm kipinde')
+        raise ValueError('dg / augment only in episode mode')
     use_act = getattr(model, 'action_input', False)
     dgm, dom = None, None
     if cfg['dg']:
@@ -160,7 +160,7 @@ def train(cfg, store, log=print, callback=None):
     opt = make_optimizer(cfg, list(model.parameters()) + ([] if dgm is None else list(dgm.parameters())))
     fwd = model
     if cfg['compile'] and not episode_mode:
-        torch._dynamo.reset()          # HPO ve ızgara aynı süreçte onlarca model derler; önbellek sınırına takılmasın
+        torch._dynamo.reset()          # HPO and the grid compile dozens of models in one process; avoid the cache limit
         fwd = torch.compile(model, dynamic=False)
     if episode_mode:
         steps_per_epoch = math.ceil(train_wd.n / cfg['episodes_per_batch'])
@@ -204,7 +204,7 @@ def train(cfg, store, log=print, callback=None):
                 loss = loss_fn(cfg, out, y, weight)
             loss.backward()
             if cfg['grad_clip']:
-                torch.nn.utils.clip_grad_norm_(model.parameters(), cfg['grad_clip'])   # DANN ayırt edicisi kırpılmaz
+                torch.nn.utils.clip_grad_norm_(model.parameters(), cfg['grad_clip'])   # the DANN discriminator is not clipped
             opt.step()
             if sched is not None:
                 sched.step()
@@ -234,7 +234,7 @@ def train(cfg, store, log=print, callback=None):
 
 
 def torch_predictor(model, cfg, store, device):
-    """final_reports için predict(idx) → (logits, pred)."""
+    """predict(idx) → (logits, pred) for final_reports."""
     full = {**DEFAULTS, **cfg}
 
     def predict(idx):
@@ -245,10 +245,10 @@ def torch_predictor(model, cfg, store, device):
 
 
 def save_run(run_dir, cfg, history, info, reports, outs=None, save_probs=False, model=None):
-    """config.yaml, metrics.json, log.csv; episode_confusion.npz (uint8, git dışı); episode_slices.npz (bölüm başına
-    sessiz dilim sayımları, eşli bölüm bootstrap'ı için; git dışı); save_probs: test/ood olasılıkları float16 (git dışı;
-    protokol gereği yalnızca seed 0); model: ağırlıklar `model.pt` (state_dict, CPU; git dışı; M2'den beri, dikkat ve
-    IG analizleri ile sonradan eklenen metrikler yeniden eğitim istemesin)."""
+    """config.yaml, metrics.json, log.csv; episode_confusion.npz (uint8, not in git); episode_slices.npz (silent slice
+    counts per episode, for the paired episode bootstrap; not in git); save_probs: test/ood probabilities as float16 (not
+    in git; by protocol only seed 0); model: weights `model.pt` (state_dict, CPU; not in git; since M2, so that attention
+    and IG analyses and later metrics need no retraining)."""
     os.makedirs(run_dir, exist_ok=True)
     if model is not None:
         torch.save({key: v.detach().cpu() for key, v in model.state_dict().items()}, os.path.join(run_dir, 'model.pt'))
@@ -271,7 +271,7 @@ def save_run(run_dir, cfg, history, info, reports, outs=None, save_probs=False, 
             np.savez_compressed(os.path.join(run_dir, 'probs.npz'),
                                 **{s: M.softmax(o['logits'], T).astype(np.float16)
                                    for s, o in outs.items() if s != 'val' and o['logits'] is not None})
-    with open(os.path.join(run_dir, 'metrics.json'), 'w') as f:          # en son: varlığı "koşu tamam" demek
+    with open(os.path.join(run_dir, 'metrics.json'), 'w') as f:          # last: its presence means "run complete"
         json.dump({'info': info, 'reports': reports}, f, indent=2, ensure_ascii=False)
 
 
@@ -282,8 +282,8 @@ def main():
     p.add_argument('--seed', type=int)
     p.add_argument('--device')
     p.add_argument('--stage', default='asama1')
-    p.add_argument('--final', action='store_true', help='eğitimden sonra test + ood_test değerlendir')
-    p.add_argument('--smoke', action='store_true', help='200 bölüm, 1 epoch, val 200 bölüm')
+    p.add_argument('--final', action='store_true', help='evaluate test + ood_test after training')
+    p.add_argument('--smoke', action='store_true', help='200 episodes, 1 epoch, val 200 episodes')
     args = p.parse_args()
     with open(args.config) as f:
         cfg = yaml.safe_load(f)

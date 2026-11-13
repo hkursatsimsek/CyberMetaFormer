@@ -453,7 +453,7 @@
     "cybermetaformer-duz78": 0.7908919176307121,
     "cybermetaformer-host_yok": 0.6649649509000359
    },
-   "yaş hiç": {
+   "age never": {
     "n": 12614,
     "pay": 0.2539919054426837,
     "cybermetaformer": 0.9212250938111094,
@@ -461,7 +461,7 @@
     "cybermetaformer-duz78": 0.9156228529147509,
     "cybermetaformer-host_yok": 0.6322076000211405
    },
-   "yaş 1–3": {
+   "age 1–3": {
     "n": 864,
     "pay": 0.017397257515655518,
     "cybermetaformer": 0.7901234567901234,
@@ -469,7 +469,7 @@
     "cybermetaformer-duz78": 0.7534722222222223,
     "cybermetaformer-host_yok": 0.7229938271604938
    },
-   "yaş 4–7": {
+   "age 4–7": {
     "n": 2036,
     "pay": 0.04099631516420675,
     "cybermetaformer": 0.6499672560576294,
@@ -477,7 +477,7 @@
     "cybermetaformer-duz78": 0.6599541584806811,
     "cybermetaformer-host_yok": 0.5556647020301244
    },
-   "yaş 8–15": {
+   "age 8–15": {
     "n": 4863,
     "pay": 0.09791998066971387,
     "cybermetaformer": 0.6356844197683186,
@@ -485,7 +485,7 @@
     "cybermetaformer-duz78": 0.6572074850915073,
     "cybermetaformer-host_yok": 0.41819178833367604
    },
-   "yaş 16–31": {
+   "age 16–31": {
     "n": 9953,
     "pay": 0.20041076858023074,
     "cybermetaformer": 0.796744700090425,
@@ -493,7 +493,7 @@
     "cybermetaformer-duz78": 0.7953715797581968,
     "cybermetaformer-host_yok": 0.5928195853846412
    },
-   "yaş 32–63": {
+   "age 32–63": {
     "n": 14659,
     "pay": 0.2951694420393452,
     "cybermetaformer": 0.9367623985265024,
@@ -501,7 +501,7 @@
     "cybermetaformer-duz78": 0.9225731632444232,
     "cybermetaformer-host_yok": 0.9272801691793439
    },
-   "yaş 64+": {
+   "age 64+": {
     "n": 4674,
     "pay": 0.09411433058816422,
     "cybermetaformer": 0.9855940664669806,
@@ -509,7 +509,7 @@
     "cybermetaformer-duz78": 0.9642704321780059,
     "cybermetaformer-host_yok": 0.9622022536014834
    },
-   "son uyarı: hiç uyarı": {
+   "last alert: no alert": {
     "n": 12610,
     "pay": 0.2539113625838149,
     "cybermetaformer": 0.9215173143008194,
@@ -517,7 +517,7 @@
     "cybermetaformer-duz78": 0.9159132963256674,
     "cybermetaformer-host_yok": 0.6324081416864922
    },
-   "son uyarı: istismar": {
+   "last alert: exploit": {
     "n": 988,
     "pay": 0.01989408614058756,
     "cybermetaformer": 0.9993252361673415,
@@ -525,7 +525,7 @@
     "cybermetaformer-duz78": 0.8788798920377868,
     "cybermetaformer-host_yok": 0.97638326585695
    },
-   "son uyarı: istismar, sonra restore": {
+   "last alert: exploit, then restore": {
     "n": 33509,
     "pay": 0.67472766445845,
     "cybermetaformer": 0.8493837476498851,
@@ -533,7 +533,7 @@
     "cybermetaformer-duz78": 0.8442607458692689,
     "cybermetaformer-host_yok": 0.7647597162951247
    },
-   "son uyarı: diğer, sonra restore": {
+   "last alert: other, then restore": {
     "n": 2156,
     "pay": 0.04341260093027002,
     "cybermetaformer": 0.7295918367346937,
@@ -591,7 +591,7 @@
     "cybermetaformer-duz78": 0.643326013469497,
     "cybermetaformer-host_yok": 0.5079724924728585
    },
-   "yaş hiç": {
+   "age never": {
     "n": 96486,
     "pay": 0.3005719483626576,
     "cybermetaformer": 0.8297853229138598,
@@ -599,7 +599,7 @@
     "cybermetaformer-duz78": 0.7728375101050929,
     "cybermetaformer-host_yok": 0.4536962184496542
    },
-   "yaş 1–3": {
+   "age 1–3": {
     "n": 7821,
     "pay": 0.02436387878183721,
     "cybermetaformer": 0.8404722328772962,
@@ -607,7 +607,7 @@
     "cybermetaformer-duz78": 0.7122703831564591,
     "cybermetaformer-host_yok": 0.7515662958700933
    },
-   "yaş 4–7": {
+   "age 4–7": {
     "n": 13916,
     "pay": 0.04335094452474705,
     "cybermetaformer": 0.6597681326051547,
@@ -615,7 +615,7 @@
     "cybermetaformer-duz78": 0.6056817093034397,
     "cybermetaformer-host_yok": 0.578782217112197
    },
-   "yaş 8–15": {
+   "age 8–15": {
     "n": 31133,
     "pay": 0.09698512186612172,
     "cybermetaformer": 0.574931209113588,
@@ -623,7 +623,7 @@
     "cybermetaformer-duz78": 0.5527146971594985,
     "cybermetaformer-host_yok": 0.43600038544309894
    },
-   "yaş 16–31": {
+   "age 16–31": {
     "n": 62421,
     "pay": 0.19445309774211234,
     "cybermetaformer": 0.6589502464448396,
@@ -631,7 +631,7 @@
     "cybermetaformer-duz78": 0.6310376315662999,
     "cybermetaformer-host_yok": 0.4752353641669737
    },
-   "yaş 32–63": {
+   "age 32–63": {
     "n": 83306,
     "pay": 0.2595137815879978,
     "cybermetaformer": 0.8438047679638921,
@@ -639,7 +639,7 @@
     "cybermetaformer-duz78": 0.7849894765483079,
     "cybermetaformer-host_yok": 0.7934402484014756
    },
-   "yaş 64+": {
+   "age 64+": {
     "n": 25925,
     "pay": 0.08076122713452624,
     "cybermetaformer": 0.9255930568948892,
@@ -647,7 +647,7 @@
     "cybermetaformer-duz78": 0.8615236258437801,
     "cybermetaformer-host_yok": 0.871616843458695
    },
-   "son uyarı: hiç uyarı": {
+   "last alert: no alert": {
     "n": 84101,
     "pay": 0.26199035538055127,
     "cybermetaformer": 0.8365615945906311,
@@ -655,7 +655,7 @@
     "cybermetaformer-duz78": 0.7801135935759781,
     "cybermetaformer-host_yok": 0.46511139383994643
    },
-   "son uyarı: hiç uyarı, sonra restore": {
+   "last alert: no alert, then restore": {
     "n": 12385,
     "pay": 0.038581592982106366,
     "cybermetaformer": 0.7837706903512313,
@@ -663,7 +663,7 @@
     "cybermetaformer-duz78": 0.7234288790203203,
     "cybermetaformer-host_yok": 0.3761808639483246
    },
-   "son uyarı: istismar": {
+   "last alert: exploit": {
     "n": 26917,
     "pay": 0.08385149279768729,
     "cybermetaformer": 0.9921115527981078,
@@ -671,7 +671,7 @@
     "cybermetaformer-duz78": 0.84164901982638,
     "cybermetaformer-host_yok": 0.9736597689192704
    },
-   "son uyarı: istismar, sonra restore": {
+   "last alert: exploit, then restore": {
     "n": 141417,
     "pay": 0.44054042266859395,
     "cybermetaformer": 0.7460960610581943,
@@ -679,7 +679,7 @@
     "cybermetaformer-duz78": 0.7135940752054798,
     "cybermetaformer-host_yok": 0.684941225830935
    },
-   "son uyarı: root bayrağı (aktivitesiz)": {
+   "last alert: root flag (no activity)": {
     "n": 973,
     "pay": 0.0030310771071125953,
     "cybermetaformer": 0.99828708461802,
@@ -687,7 +687,7 @@
     "cybermetaformer-duz78": 0.7667009249743062,
     "cybermetaformer-host_yok": 0.9976019184652278
    },
-   "son uyarı: root bayrağı (aktivitesiz), sonra restore": {
+   "last alert: root flag (no activity), then restore": {
     "n": 3599,
     "pay": 0.011211558590440113,
     "cybermetaformer": 0.4646661109567472,
@@ -695,7 +695,7 @@
     "cybermetaformer-duz78": 0.5430212095952579,
     "cybermetaformer-host_yok": 0.10512179309067333
    },
-   "son uyarı: diğer": {
+   "last alert: other": {
     "n": 11287,
     "pay": 0.03516111747993819,
     "cybermetaformer": 1.0,
@@ -703,7 +703,7 @@
     "cybermetaformer-duz78": 0.8358288296270046,
     "cybermetaformer-host_yok": 1.0
    },
-   "son uyarı: diğer, sonra restore": {
+   "last alert: other, then restore": {
     "n": 40329,
     "pay": 0.12563238299357024,
     "cybermetaformer": 0.568581748452313,
@@ -745,7 +745,7 @@
     "cybermetaformer-duz78": 0.573138426107131,
     "cybermetaformer-host_yok": 0.23519901979136534
    },
-   "yaş hiç": {
+   "age never": {
     "n": 17500,
     "pay": 0.13631831494983487,
     "cybermetaformer": 0.677047619047619,
@@ -753,7 +753,7 @@
     "cybermetaformer-duz78": 0.6927238095238094,
     "cybermetaformer-host_yok": 0.2028
    },
-   "yaş 1–3": {
+   "age 1–3": {
     "n": 11819,
     "pay": 0.0920654951081199,
     "cybermetaformer": 0.7980088557971629,
@@ -761,7 +761,7 @@
     "cybermetaformer-duz78": 0.7499506444425643,
     "cybermetaformer-host_yok": 0.7635445751191584
    },
-   "yaş 4–7": {
+   "age 4–7": {
     "n": 23345,
     "pay": 0.1818486321430797,
     "cybermetaformer": 0.6536874419932891,
@@ -769,7 +769,7 @@
     "cybermetaformer-duz78": 0.6888841293638895,
     "cybermetaformer-host_yok": 0.5758834868280146
    },
-   "yaş 8–15": {
+   "age 8–15": {
     "n": 38151,
     "pay": 0.29718171620863715,
     "cybermetaformer": 0.5796527832385346,
@@ -777,7 +777,7 @@
     "cybermetaformer-duz78": 0.6772474290756905,
     "cybermetaformer-host_yok": 0.35135819943557617
    },
-   "yaş 16–31": {
+   "age 16–31": {
     "n": 30105,
     "pay": 0.23450644980370164,
     "cybermetaformer": 0.5917510933953386,
@@ -785,7 +785,7 @@
     "cybermetaformer-duz78": 0.7328461495875547,
     "cybermetaformer-host_yok": 0.37435641919946855
    },
-   "yaş 32–63": {
+   "age 32–63": {
     "n": 7211,
     "pay": 0.0561709353773291,
     "cybermetaformer": 0.709933897286553,
@@ -793,7 +793,7 @@
     "cybermetaformer-duz78": 0.8429713863079554,
     "cybermetaformer-host_yok": 0.927379466555725
    },
-   "yaş 64+": {
+   "age 64+": {
     "n": 245,
     "pay": 0.001908456409297688,
     "cybermetaformer": 0.9047619047619048,
@@ -801,7 +801,7 @@
     "cybermetaformer-duz78": 0.9605442176870748,
     "cybermetaformer-host_yok": 0.9687074829931973
    },
-   "son uyarı: hiç uyarı": {
+   "last alert: no alert": {
     "n": 17500,
     "pay": 0.13631831494983487,
     "cybermetaformer": 0.677047619047619,
@@ -809,7 +809,7 @@
     "cybermetaformer-duz78": 0.6927238095238094,
     "cybermetaformer-host_yok": 0.2028
    },
-   "son uyarı: istismar, sonra restore": {
+   "last alert: exploit, then restore": {
     "n": 101080,
     "pay": 0.7873745871502461,
     "cybermetaformer": 0.6512069647803721,
@@ -817,7 +817,7 @@
     "cybermetaformer-duz78": 0.7195719562063053,
     "cybermetaformer-host_yok": 0.5253198786439784
    },
-   "son uyarı: root bayrağı (aktivitesiz), sonra restore": {
+   "last alert: root flag (no activity), then restore": {
     "n": 8086,
     "pay": 0.06298685112482084,
     "cybermetaformer": 0.4191194657432599,
@@ -825,7 +825,7 @@
     "cybermetaformer-duz78": 0.6561958941380164,
     "cybermetaformer-host_yok": 0.08059196965949376
    },
-   "son uyarı: diğer, sonra restore": {
+   "last alert: other, then restore": {
     "n": 1710,
     "pay": 0.01332024677509815,
     "cybermetaformer": 0.4380116959064327,

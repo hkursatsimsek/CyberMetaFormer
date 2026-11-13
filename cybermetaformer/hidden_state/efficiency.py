@@ -1,22 +1,22 @@
-"""Verimlilik ve Pareto figürü.
+"""Efficiency and the Pareto figure.
 
-Final modeller HPO'nun seçtiği boyutlarla ölçülür (bench.py temel konfigürasyonları ölçüyordu): tek örnek gecikmesi
-(bs=1; MPS ve CPU) ve çıkarım verimi (MPS, bs=8192). Seed 0'ın config'i kullanılır (seed'ler aynı ayarı paylaşır);
-ağırlıklar rastgele, çünkü süre ağırlıktan bağımsız. Değerlendirme eager (train.py'deki gibi).
-- Tam geçmiş RNN çevrimiçi kullanımda adım başına tek hücre güncellemesi yapar; gecikmesi aynı ayarla k=1 penceresi
-  üzerinden ölçülür.
-- XGBoost ölçülmez (ağırlıkları saklanmadı); kurallar ve çoğunluk öğrenen model değil.
-Ölçüm başka iş koşmazken yapılmalı. Pareto: düşük gecikme ve yüksek host makro-F1 (seed ortalaması, `ozet.json`).
+The final models are measured at the sizes HPO chose (bench.py measured the base configurations): single-sample latency
+(bs=1; MPS and CPU) and inference throughput (MPS, bs=8192). The config of seed 0 is used (the seeds share settings);
+the weights are random, since timing does not depend on them. Evaluation is eager (as in train.py).
+- In online use a full-history RNN does a single cell update per step; its latency is measured with the same settings
+  on a k=1 window.
+- XGBoost is not measured (its weights were not kept); the rules and the majority baseline are not learned models.
+Measure while nothing else is running. Pareto: low latency and high host macro-F1 (seed mean, `ozet.json`).
 
-`--stage asama3`: aynı hücreler + CyberMetaFormer (B1 ana, B2), aynı oturumda yeniden ölçülür. CMF eğitilmiş
-ağırlıklarla yüklenir; gecikmesi çevrimiçi adım kipiyle (`CyberMetaFormer.step`: konv tamponu + SSD durumu, maliyeti
-t'den bağımsız; tam geçmiş GRU'nun tek hücre güncellemesinin karşılığı) ölçülür ve adım kipi önce gerçek bölümlerde
-forward_episode ile karşılaştırılır. Ayrıca her adımda tam yeniden hesap (S=101, bs=1; adım kipi olmasaydı) ve bölüm toplu
-verimi (MPS). Seed ortalamaları koşuların `metrics.json`'undan; 3 seed'lik topluluk satırları `ood_paketi/ozet.json`'dan,
-gecikme üye sayısıyla çarpılarak.
+`--stage asama3`: the same cells + CyberMetaFormer (B1 main, B2), remeasured in the same session. CMF is
+loaded with its trained weights; its latency is measured in the online step mode (`CyberMetaFormer.step`: conv buffer +
+SSD state, cost independent of t; the counterpart of the full-history GRU's single cell update), and the step mode is
+first compared with forward_episode on real episodes. Also a full recomputation at every step (S=101, bs=1; as without
+the step mode) and the episode-batch throughput (MPS). Seed means come from the runs' `metrics.json`; the 3-seed
+ensemble rows from `ood_suite/ozet.json`, with the latency multiplied by the number of members.
 
-    python -m cybermetaformer.hidden_state.efficiency --measure     # asama2/verimlilik/olcum_<makine>.json
-    python -m cybermetaformer.hidden_state.efficiency               # figür ve tablo (ölçüm json'u + ozet.json)
+    python -m cybermetaformer.hidden_state.efficiency --measure     # asama2/verimlilik/olcum_<machine>.json
+    python -m cybermetaformer.hidden_state.efficiency               # figure and table (measurement json + ozet.json)
     python -m cybermetaformer.hidden_state.efficiency --stage asama3 [--measure]   # asama3/verimlilik/
 """
 import argparse
@@ -45,13 +45,13 @@ from cybermetaformer.hidden_state.models import build_model                     
 HERE = os.path.dirname(os.path.abspath(__file__))
 RESULTS = os.path.join(os.path.dirname(HERE), 'results', 'hidden_state')
 OUT_DIRS = {st: os.path.join(RESULTS, st, 'verimlilik') for st in ('asama2', 'asama3')}
-M3_RUNS = ['cybermetaformer', 'cybermetaformer-b2']   # asama3 koşu adları (B1 ana, B2 ölçekleme kontrolü)
+M3_RUNS = ['cybermetaformer', 'cybermetaformer-b2']   # asama3 run names (B1 main, B2 scaling control)
 M3_LABEL = {'cybermetaformer': 'CyberMetaFormer', 'cybermetaformer-b2': 'CyberMetaFormer B2'}
 M3_STYLE = {'cybermetaformer': dict(color='#b3261e', marker='*', ms=13, mec=SURFACE, mew=0.8),
             'cybermetaformer-b2': dict(color='#b3261e', marker='*', ms=11, mfc=SURFACE, mew=1.2)}
-ENSEMBLE = {'cybermetaformer': 'cybermetaformer', 'gru_full': 'gru_full'}   # ood_paketi adı → hücre modeli
+ENSEMBLE = {'cybermetaformer': 'cybermetaformer', 'gru_full': 'gru_full'}   # ood_suite name → cell model
 NEURAL_M1 = [m for m in M1_LEARNED if not m.startswith('xgb')] + ['lstm_full', 'gru_full']
-STEP_OF = {'lstm_full': 'lstm', 'gru_full': 'gru'}   # çevrimiçi adım: aynı ayarlı RNN, k=1
+STEP_OF = {'lstm_full': 'lstm', 'gru_full': 'gru'}   # online step: the RNN with the same settings, k=1
 
 
 def label(c):
@@ -59,7 +59,7 @@ def label(c):
 
 
 def cells(stage='asama2'):
-    """[(aşama, model, k, config)]: seed 0 koşuları, öğrenen sinir ağları; asama3'te CMF koşuları da (model = koşu adı)."""
+    """[(stage, model, k, config)]: seed-0 runs of the learned neural networks; in asama3 also the CMF runs (model = run name)."""
     out = []
     for st, models in [('asama1', NEURAL_M1), ('asama2', M2_MODELS)]:
         for path in sorted(glob.glob(os.path.join(RESULTS, st, '*_s0', 'config.yaml'))):
@@ -114,8 +114,8 @@ def measure_one(name, k, args, wds, bs=8192):
 
 
 def measure_episode(run, cfg, wds, n_ep=82, reps=60, warm=10):
-    """CMF (bölüm kipi, eğitilmiş ağırlıklar): {params, lat_<cihaz>_ms (çevrimiçi adım, bs=1), lat_full_<cihaz>_ms (tam
-    yeniden hesap, S=101, bs=1), us_per_sample_mps (n_ep bölüm × T hedef, tek geçiş), step_max_abs_<cihaz>}."""
+    """CMF (episode mode, trained weights): {params, lat_<device>_ms (online step, bs=1), lat_full_<device>_ms (full
+    recomputation, S=101, bs=1), us_per_sample_mps (n_ep episodes × T targets, one pass), step_max_abs_<device>}."""
     res = {}
     for device, wd in wds.items():
         model = build_model(cfg['model'], cfg['k'], **cfg['model_args'])
@@ -131,7 +131,7 @@ def measure_episode(run, cfg, wds, n_ep=82, reps=60, warm=10):
             out = torch.stack([model.step(x[:4, t], state) for t in range(S)], 1)
             err = float((out - ref).abs().max())
             if err > 1e-3:
-                raise RuntimeError(f'{run} {device}: adım kipi forward_episode\'dan {err:.2e} sapıyor')
+                raise RuntimeError(f'{run} {device}: step mode deviates from forward_episode by {err:.2e}')
             res[f'step_max_abs_{device}'] = err
             lat = []
             for e in range((reps + warm) // S + 1):
@@ -172,9 +172,9 @@ def measure(stage='asama2'):
         else:
             r = measure_one(name, k, cfg.get('model_args') or {}, wds)
         res['cells'].append({'stage': st, 'model': name, 'k': k, **r})
-        extra = f"  tam yeniden hesap CPU {r['lat_full_cpu_ms']:6.2f} ms" if st == 'asama3' else ''
+        extra = f"  full recompute CPU {r['lat_full_cpu_ms']:6.2f} ms" if st == 'asama3' else ''
         print(f"[{i}/{len(todo)}] {name:12s} k={_k_label(k):>3s} param {r['params']:>9,d}  "
-              f"MPS {r['lat_mps_ms']:6.2f} ms  CPU {r['lat_cpu_ms']:6.2f} ms  verim {r['us_per_sample_mps']:7.2f} µs/örnek"
+              f"MPS {r['lat_mps_ms']:6.2f} ms  CPU {r['lat_cpu_ms']:6.2f} ms  throughput {r['us_per_sample_mps']:7.2f} µs/sample"
               + extra, flush=True)
     os.makedirs(OUT_DIRS[stage], exist_ok=True)
     path = os.path.join(OUT_DIRS[stage], f"olcum_{res['machine']}.json")
@@ -184,7 +184,7 @@ def measure(stage='asama2'):
 
 
 def pareto_front(points):
-    """points: [(x, y)]; x küçük, y büyük daha iyi → baskın olmayanların indeksleri (x'e göre sıralı)."""
+    """points: [(x, y)]; smaller x and larger y are better → indices of the non-dominated points (sorted by x)."""
     order = sorted(range(len(points)), key=lambda i: (points[i][0], -points[i][1]))
     front, best = [], -np.inf
     for i in order:
@@ -195,7 +195,7 @@ def pareto_front(points):
 
 
 def m3_summary(run, seeds=(0, 1, 2)):
-    """asama3 koşusunun seed ortalamaları, ozet.json biçiminde ({ölçüt: {'mean'}})."""
+    """Seed means of an asama3 run, in the ozet.json format ({criterion: {'mean'}})."""
     reps = [json.load(open(os.path.join(RESULTS, 'asama3', f'{run}_k101_s{s}', 'metrics.json')))['reports']
             for s in seeds]
     out = {}
@@ -231,7 +231,7 @@ def _style(c):
 
 
 def plot(rows, path, stage='asama2'):
-    panels = [('lat_cpu_ms', 'CPU gecikmesi, bs=1 (ms)'), ('params', 'eğitilebilir parametre')]
+    panels = [('lat_cpu_ms', 'CPU latency, bs=1 (ms)'), ('params', 'trainable parameters')]
     fig, axes = plt.subplots(1, 2, figsize=(12.5, 5))
     for ax, (xcol, xlabel) in zip(axes, panels):
         for c in rows:
@@ -244,7 +244,7 @@ def plot(rows, path, stage='asama2'):
                         textcoords='offset points', fontsize=7.5, color=INK)
         ax.set_xscale('log')
         ax.set_xlabel(xlabel)
-        ax.set_ylabel('OOD host makro-F1')
+        ax.set_ylabel('OOD host macro-F1')
         _grid(ax)
     from matplotlib.lines import Line2D
     handles = [Line2D([], [], ls='none', **_style({'stage': 'asama2', 'model': m}), label=LABEL[m]) for m in M2_MODELS]
@@ -252,9 +252,9 @@ def plot(rows, path, stage='asama2'):
                 for m in NEURAL_M1]
     if stage == 'asama3':
         handles = [Line2D([], [], ls='none', **M3_STYLE[m], label=M3_LABEL[m]) for m in M3_RUNS] + handles
-    handles.append(Line2D([], [], color=INK2, lw=1, ls='--', label='Pareto sınırı'))
+    handles.append(Line2D([], [], color=INK2, lw=1, ls='--', label='Pareto front'))
     fig.legend(handles=handles, loc='lower center', ncol=6, fontsize=8, bbox_to_anchor=(0.5, -0.01))
-    fig.suptitle('Verimlilik–doğruluk: her nokta bir model × k hücresi (seed ortalaması)', x=0.01, ha='left',
+    fig.suptitle('Efficiency–accuracy: each point is a model × k cell (seed mean)', x=0.01, ha='left',
                  fontsize=11, fontweight='bold')
     fig.tight_layout(rect=(0, 0.1, 1, 0.95))
     fig.savefig(path, dpi=180)
@@ -262,8 +262,8 @@ def plot(rows, path, stage='asama2'):
 
 
 def ensemble_rows(rows):
-    """3 seed'lik topluluk satırları (ood_paketi, topluluk_T): gecikme ve verim üye sayısı × üye."""
-    path = os.path.join(RESULTS, 'asama3', 'ood_paketi', 'ozet.json')
+    """3-seed ensemble rows (ood_suite, topluluk_T): latency and throughput = number of members × member."""
+    path = os.path.join(RESULTS, 'asama3', 'ood_suite', 'ozet.json')
     if not os.path.exists(path):
         return []
     models = json.load(open(path))['models']
@@ -282,12 +282,12 @@ def ensemble_rows(rows):
 def table_md(rows, meas, stage='asama2'):
     if stage == 'asama3':
         return table_m3_md(rows, meas)
-    lines = ['# Verimlilik (final modeller, HPO boyutları)', '',
-             f"Ölçüm: {meas['machine']}, {meas['platform']}, torch {meas['torch']}, CPU {meas['cpu_threads']} iş "
-             'parçacığı. Gecikme bs=1 medyanı (50 tekrar); verim MPS bs=8192. Tam geçmiş RNN: adım başına tek hücre '
-             "güncellemesi (aynı ayarla k=1). ★ = Pareto sınırında (CPU gecikmesi × OOD F1). Model başına val'e göre "
-             'en iyi k; bütün hücreler `olcum_*.json`.', '',
-             '| Model | k | Parametre | Gecikme CPU (ms) | Gecikme MPS (ms) | Verim MPS (µs/örnek) | Test F1 '
+    lines = ['# Efficiency (final models, HPO sizes)', '',
+             f"Measured on: {meas['machine']}, {meas['platform']}, torch {meas['torch']}, CPU {meas['cpu_threads']} "
+             'threads. Latency: median at bs=1 (50 repeats); throughput: MPS bs=8192. Full-history RNN: a single cell '
+             "update per step (same settings, k=1). ★ = on the Pareto front (CPU latency × OOD F1). Best k per model by val; "
+             'all cells in `olcum_*.json`.', '',
+             '| Model | k | Parameters | Latency CPU (ms) | Latency MPS (ms) | Throughput MPS (µs/sample) | Test F1 '
              '| OOD F1 |',
              '|---|---:|---:|---:|---:|---:|---:|---:|']
     front = {id(rows[i]) for i in pareto_front([(c['lat_cpu_ms'], c['ood']) for c in rows])}
@@ -296,7 +296,7 @@ def table_md(rows, meas, stage='asama2'):
         lines.append(f"| {name}{' ★' if id(c) in front else ''} | {_k_label(c['k'])} | {c['params']:,} | "
                      f"{c['lat_cpu_ms']:.2f} | {c['lat_mps_ms']:.2f} | {c['us_per_sample_mps']:.2f} | "
                      f"{c['test']:.3f} | {c['ood']:.3f} |".replace(',', ' '))
-    lines += ['', '## Pareto sınırı (bütün hücreler)', '', '| Model | k | Gecikme CPU (ms) | OOD F1 |',
+    lines += ['', '## Pareto front (all cells)', '', '| Model | k | Latency CPU (ms) | OOD F1 |',
               '|---|---:|---:|---:|']
     for i in pareto_front([(c['lat_cpu_ms'], c['ood']) for c in rows]):
         c = rows[i]
@@ -306,32 +306,34 @@ def table_md(rows, meas, stage='asama2'):
 
 def table_m3_md(rows, meas):
     front = {id(rows[i]) for i in pareto_front([(c['lat_cpu_ms'], c['ood']) for c in rows])}
-    lines = ['# Verimlilik, Aşama 3 (CyberMetaFormer + M1/M2 final modelleri, aynı oturumda)', '',
-             f"Ölçüm: {meas['machine']}, {meas['platform']}, torch {meas['torch']}, CPU {meas['cpu_threads']} iş "
-             'parçacığı. Gecikme bs=1 medyanı (50 tekrar); verim MPS bs≈8192. Tam geçmiş modeller (GRU/LSTM tam, CMF) '
-             'çevrimiçi adım kipinde: RNN tek hücre güncellemesi, CMF `CyberMetaFormer.step` (konv tamponu + SSD durumu; '
-             'maliyet t\'den bağımsız). CMF verimi: 82 bölüm × 100 hedef tek geçişte. ★ = Pareto sınırında (CPU '
-             "gecikmesi × OOD F1). Model başına val'e göre en iyi k; F1'ler seed ortalaması (CMF 3, M1/M2 ozet.json). "
-             'Topluluk satırları (ood_paketi, topluluk_T, 3 seed): maliyet üye × 3, Pareto\'ya girmez.', '',
-             '| Model | k | Parametre | Gecikme CPU (ms) | Gecikme MPS (ms) | Verim MPS (µs/örnek) | Test F1 '
-             '| OOD F1 | OOD sessiz recall |',
+    lines = ['# Efficiency, stage 3 (CyberMetaFormer + M1/M2 final models, same session)', '',
+             f"Measured on: {meas['machine']}, {meas['platform']}, torch {meas['torch']}, CPU {meas['cpu_threads']} "
+             'threads. Latency: median at bs=1 (50 repeats); throughput: MPS bs≈8192. Full-history models (full GRU/LSTM, '
+             'CMF) '
+             'in the online step mode: RNN single cell update, CMF `CyberMetaFormer.step` (conv buffer + SSD state; '
+             'cost independent of t). CMF throughput: 82 episodes × 100 targets in one pass. ★ = on the Pareto front (CPU '
+             "latency × OOD F1). Best k per model by val; F1 values are seed means (CMF 3, M1/M2 ozet.json). "
+             "Ensemble rows (ood_suite, topluluk_T, 3 seeds): cost = member × 3, not part of the Pareto front.", '',
+             '| Model | k | Parameters | Latency CPU (ms) | Latency MPS (ms) | Throughput MPS (µs/sample) | Test F1 '
+             '| OOD F1 | OOD silent recall |',
              '|---|---:|---:|---:|---:|---:|---:|---:|---:|']
     best = [c for c in rows if c['best_k']] + ensemble_rows(rows)
     for c in sorted(best, key=lambda c: -c['ood']):
-        name = label(c) + (f" topluluk ({c['ensemble']})" if c.get('ensemble') else '')
+        name = label(c) + (f" ensemble ({c['ensemble']})" if c.get('ensemble') else '')
         lines.append(f"| {name}{' ★' if id(c) in front else ''} | {_k_label(c['k'])} | {c['params']:,} | "
                      f"{c['lat_cpu_ms']:.2f} | {c['lat_mps_ms']:.2f} | {c['us_per_sample_mps']:.2f} | "
                      f"{c['test']:.3f} | {c['ood']:.3f} | {c['ood_silent']:.3f} |".replace(',', ' '))
-    lines += ['', '## CMF çevrimiçi çıkarım: adım kipi ve tam yeniden hesap', '',
-              'Adım kipi olmasaydı her adımda bütün geçmiş (S=101) yeniden hesaplanırdı; "tam yeniden hesap" bunun en kötü '
-              'durumu (son adım). Sapma: adım kipinin forward_episode\'a göre en büyük mutlak logit farkı (4 test bölümü).', '',
-              '| Model | Adım CPU (ms) | Adım MPS (ms) | Tam yeniden hesap CPU (ms) | Tam yeniden hesap MPS (ms) | Sapma CPU '
-              '| Sapma MPS |', '|---|---:|---:|---:|---:|---:|---:|']
+    lines += ['', '## CMF online inference: step mode and full recomputation', '',
+              'Without the step mode the whole history (S=101) would be recomputed at every step; "full recomputation" is '
+              "its worst case (last step). Deviation: largest absolute logit difference of the step mode from "
+              "forward_episode (4 test episodes).", '',
+              '| Model | Step CPU (ms) | Step MPS (ms) | Full recomputation CPU (ms) | Full recomputation MPS (ms) | Deviation CPU '
+              '| Deviation MPS |', '|---|---:|---:|---:|---:|---:|---:|']
     for c in rows:
         if c['stage'] == 'asama3':
             lines.append(f"| {label(c)} | {c['lat_cpu_ms']:.2f} | {c['lat_mps_ms']:.2f} | {c['lat_full_cpu_ms']:.2f} | "
                          f"{c['lat_full_mps_ms']:.2f} | {c['step_max_abs_cpu']:.1e} | {c['step_max_abs_mps']:.1e} |")
-    lines += ['', '## Pareto sınırı (bütün hücreler)', '', '| Model | k | Gecikme CPU (ms) | OOD F1 |',
+    lines += ['', '## Pareto front (all cells)', '', '| Model | k | Latency CPU (ms) | OOD F1 |',
               '|---|---:|---:|---:|']
     for i in pareto_front([(c['lat_cpu_ms'], c['ood']) for c in rows]):
         c = rows[i]
@@ -341,7 +343,7 @@ def table_m3_md(rows, meas):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument('--measure', action='store_true', help='gecikme ve verimi bu makinede ölç')
+    p.add_argument('--measure', action='store_true', help='measure latency and throughput on this machine')
     p.add_argument('--stage', choices=list(OUT_DIRS), default='asama2')
     args = p.parse_args()
     if args.measure:
@@ -349,7 +351,7 @@ def main():
     out_dir = OUT_DIRS[args.stage]
     paths = sorted(glob.glob(os.path.join(out_dir, 'olcum_*.json')))
     if not paths:
-        raise SystemExit(f'Ölçüm yok: önce --measure ({out_dir})')
+        raise SystemExit(f'No measurement: run --measure first ({out_dir})')
     meas = json.load(open(paths[0]))
     rows = load_rows(meas)
     fig = (os.path.join(RESULTS, 'asama2', 'figures', 'fig_pareto.png') if args.stage == 'asama2'

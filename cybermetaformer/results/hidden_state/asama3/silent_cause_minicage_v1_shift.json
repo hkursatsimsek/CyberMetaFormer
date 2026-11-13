@@ -10,11 +10,11 @@
     "bilinmiyor"
   ],
   "cause_text": {
-    "kacak_5": "İstismar %5 olasılıkla kaydedilmedi (SSH dışı istismar; minimal.py:1251)",
-    "green_maske": "Aynı adımda Green aynı hostu taradı, istismar görünmedi (minimal.py:1252)",
-    "remove_maske": "Blue 'remove' uyguladı; gözlem [1,0] 'kaldırıldı' gösterdi ama host hâlâ ele geçirilmiş (minimal.py:1308-1316)",
-    "restore": "Restore gözlemdeki bayrağı sildi ama host ele geçirilmiş kaldı",
-    "bilinmiyor": "Yukarıdakilerin hiçbiri"
+    "kacak_5": "Exploit not recorded, probability 5% (non-SSH exploit; minimal.py:1251)",
+    "green_maske": "Green scanned the same host at the same step; the exploit was not visible (minimal.py:1252)",
+    "remove_maske": "Blue applied 'remove'; the observation showed [1,0] 'removed' but the host is still compromised (minimal.py:1308-1316)",
+    "restore": "Restore cleared the flag in the observation but the host stayed compromised",
+    "bilinmiyor": "None of the above"
   },
   "genel": {
     "kacak_5": 0.0767629495051706,

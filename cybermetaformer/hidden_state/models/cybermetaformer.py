@@ -1,36 +1,37 @@
-"""CyberMetaFormer (Aşama 3). Bölüm kipinde (tam geçmiş, çoktan-çoğa) eğitilir.
+"""CyberMetaFormer (stage 3). Trained in episode mode (full history, many-to-many).
 
-    o_t (78) → 13 host token'ı × 6 öznitelik [+ uyarı yaşı kanalı] + host / alt ağ / zaman gömmesi
-    L × blok (pre-norm, artık bağlantılı):
-        x = x + TemporalMixer(Norm(x))   # her host için zaman ekseninde, nedensel, ağırlıklar hostlar arasında paylaşılır
-        x = x + HostMixer(Norm(x))       # her adımda 13 host arasında
+    o_t (78) → 13 host tokens × 6 features [+ alert-age channel] + host / subnet / time embedding
+    L × block (pre-norm, residual):
+        x = x + TemporalMixer(Norm(x))   # along time for each host, causal, weights shared across hosts
+        x = x + HostMixer(Norm(x))       # across the 13 hosts at each step
         x = x + ChannelMLP(Norm(x))
-    her adımın 12 etiket hostunun token'ı → paylaşılan host başlığı (3 sınıf) → (B, S, 12, 3)
+    tokens of the 12 label hosts at each step → shared host head (3 classes) → (B, S, 12, 3)
 
-Nedensellik: t. çıktı yalnızca obs[0..t]'yi görür (RNNFull ile aynı sözleşme; train.py `mode: episode`). Bütün zaman
-karıştırıcıları nedensel; `window` verilirse dikkat, SSD ve zaman-MLP'si yalnızca son `window` adımı görür (pencereli,
-"hafıza yok" ablasyonu; konvolüsyon ve havuz zaten yerel, GRU pencerelenemez).
+Causality: output t sees only obs[0..t] (the same contract as RNNFull; train.py `mode: episode`). All temporal
+mixers are causal; if `window` is given, attention, SSD and the time MLP see only the last `window` steps (windowed,
+"no memory" ablation; convolution and pooling are local anyway, GRU cannot be windowed).
 
-Zaman karıştırıcı kolları (`temporal`; birden çoksa token başına öğrenilen softmax kapısıyla birleşir):
-- `conv`: nedensel depthwise konvolüsyon (çekirdek `kernel`). nn.Conv1d yerine kaydırmalı toplam: MPS'in Conv1d
-  hatası (batch > 2^16; tslib_adapter) bu yolda yok.
-- `pool`: nedensel ortalama havuz − kimlik (PoolFormer). `mlp`: alt üçgen zaman-MLP'si (kanallar arası paylaşılan).
-- `attn`: nedensel çok kafalı dikkat. `gru`: GRU (M1'in kazanan mekanizması; tam geçmiş).
-- `ssd`: seçici durum uzayı, Mamba-2 SSD biçimi (kafa başına skaler, girdiye bağlı bozunma a_t ∈ (0, 1)):
-  h_t = a_t h_{t−1} + dt_t B_t x_tᵀ, y_t = C_t h_t + D x_t, çıkışta SiLU kapısı. Matris biçiminde hesaplanır:
-  y = (L ∘ C Bᵀ)(dt x), L[t, s] = Π_{r=s+1..t} a_r; S = 101'de dikkat kadar ucuz, MPS'te yalnızca matmul/exp/cumsum.
+Temporal mixer branches (`temporal`; several are combined with a learned per-token softmax gate):
+- `conv`: causal depthwise convolution (kernel `kernel`). A shifted sum instead of nn.Conv1d: the MPS Conv1d
+  bug (batch > 2^16; tslib_adapter) does not affect this path.
+- `pool`: causal average pooling − identity (PoolFormer). `mlp`: lower-triangular time MLP (shared across channels).
+- `attn`: causal multi-head attention. `gru`: GRU (the winning mechanism of M1; full history).
+- `ssd`: selective state space, Mamba-2 SSD form (scalar per head, input-dependent decay a_t ∈ (0, 1)):
+  h_t = a_t h_{t−1} + dt_t B_t x_tᵀ, y_t = C_t h_t + D x_t, SiLU gate at the output. Computed in matrix form:
+  y = (L ∘ C Bᵀ)(dt x), L[t, s] = Π_{r=s+1..t} a_r; as cheap as attention at S = 101, only matmul/exp/cumsum on MPS.
 
-Host karıştırıcı (`host_mixer`): `none`, `attn` (tam dikkat), `topo` (dikkat + ilişki türüne göre öğrenilen kafa başına
-sapma: kendisi / saldırı grafı kenarı (`CONNECTED_HOSTS`) / aynı alt ağ / diğer; `topo_mask` ise "diğer" maskelenir),
-`gcn` (sabit normalize bitişiklik, kenar ∪ aynı alt ağ ∪ kendisi).
+Host mixer (`host_mixer`): `none`, `attn` (full attention), `topo` (attention + a learned per-head bias by relation
+type: self / attack-graph edge (`CONNECTED_HOSTS`) / same subnet / other; with `topo_mask` "other" is masked),
+`gcn` (fixed normalised adjacency, edge ∪ same subnet ∪ self).
 
-Hafıza: `age=True` açık uyarı yaşı kanalı: host başına 4 olay (export uyarısı, güvenlik bayrağı, root
-`[1,1]`, kaldırıldı `[1,0]`; features.temporal_features ile aynı olaylar) için tam geçmişteki son olaydan bu yana geçen
-adım, log1p(yaş)/log1p(100) ve "hiç görülmedi" bayrağı. `window`'dan bağımsız (pencerenin ötesini taşıyan kanal budur).
+Memory: `age=True` is the explicit alert-age channel: for 4 events per host (export alert, security
+flag, root `[1,1]`, removed `[1,0]`; the same events as features.temporal_features), the steps since the last event in
+the full history, log1p(age)/log1p(100) and a "never seen" flag. Independent of `window` (this channel carries what
+lies beyond the window).
 
-Ablasyonlar: `tokens='flat'` (78 boyutlu tek token, host karıştırıcı yok, başlık 36), `pos='none'`,
-`action_input=True`: obs[t]'yi üreten Blue aksiyonu (`act_blue[t−1]`, t = 0'da "yok") gömmesi her adımda
-bütün token'lara eklenir; `forward_episode(x, act)`.
+Ablations: `tokens='flat'` (a single 78-dim token, no host mixer, head 36), `pos='none'`,
+`action_input=True`: an embedding of the Blue action that produced obs[t] (`act_blue[t−1]`, "none" at
+t = 0) is added to all tokens at every step; `forward_episode(x, act)`.
 """
 import math
 
@@ -42,8 +43,8 @@ from cybermetaformer.hidden_state.data import (BITS, LABEL_HOSTS, N_BLUE_ACTIONS
                                              to_host_tokens)
 
 MAX_STEPS = 101                                  # obs[0..T], T = 100
-# MiniCAGE topolojisi (CybORG_plus_plus/mini_CAGE/minimal.py; CybORG++ klonu olmayan makinelerde de çalışsın diye
-# kopyalandı; test_m3 klon varsa birebir karşılaştırır)
+# MiniCAGE topology (CybORG_plus_plus/mini_CAGE/minimal.py; copied so that it also runs on machines without the
+# CybORG++ clone; test_m3 compares it one-to-one when the clone exists)
 HOSTS = ['def', 'ent0', 'ent1', 'ent2', 'ophost0', 'ophost1', 'ophost2', 'opserv', 'user0', 'user1', 'user2', 'user3',
          'user4']
 CONNECTED_HOSTS = [None, None, None, 'opserv', None, None, None, None, None, 'ent0', 'ent0', 'ent1', 'ent1']
@@ -54,8 +55,8 @@ TOKEN_FEATS = 6
 
 
 def host_relations(connected=None):
-    """(13, 13) ilişki türü: kendisi, saldırı grafı kenarı (simetrik), aynı alt ağ, diğer. connected: HOSTS sırasında
-    bağlantı tablosu (varsayılan MiniCAGE'in `CONNECTED_HOSTS`'u; topoloji OOD'sinde güncellenmiş önsel için)."""
+    """(13, 13) relation type: self, attack-graph edge (symmetric), same subnet, other. connected: link table in HOSTS
+    order (default: MiniCAGE's `CONNECTED_HOSTS`; for the updated prior of the topology OOD)."""
     rel = torch.full((NUM_HOSTS, NUM_HOSTS), REL_OTHER, dtype=torch.long)
     same = torch.tensor(SUBNET)[:, None] == torch.tensor(SUBNET)[None]
     rel[same] = REL_SUBNET
@@ -68,7 +69,7 @@ def host_relations(connected=None):
 
 
 def alert_age_features(x):
-    """Ölçekli gözlem (B, S, 78) → (B, S, 13, 8): 4 olay × [log1p(yaş)/log1p(100), hiç görülmedi]. Nedensel."""
+    """Scaled observation (B, S, 78) → (B, S, 13, 8): 4 events × [log1p(age)/log1p(100), never seen]. Causal."""
     b = x[..., BITS].reshape(*x.shape[:-1], NUM_HOSTS, 4) > 0.5
     ev = torch.stack([b[..., 1] | b[..., 3], b[..., 3], b[..., 2] & b[..., 3], b[..., 2] & ~b[..., 3]], -1)
     S = x.shape[1]
@@ -81,13 +82,13 @@ def alert_age_features(x):
 
 
 def _band(S, window, device):
-    """(S, S) bool: s ≤ t ve (window verilmişse) t − s < window."""
+    """(S, S) bool: s ≤ t and (if window is given) t − s < window."""
     t = torch.arange(S, device=device)
     d = t[:, None] - t[None]
     return (d >= 0) & (d < window) if window else d >= 0
 
 
-# ── zaman karıştırıcı kolları: (N, S, d) → (N, S, d) ──────────────────────
+# ── temporal mixer branches: (N, S, d) → (N, S, d) ─────────────────────────
 
 class CausalConv(nn.Module):
     def __init__(self, d, kernel=4, **_):
@@ -104,10 +105,10 @@ class CausalConv(nn.Module):
         return self.out(nnf.gelu(y + self.bias))
 
     def init_state(self, N, d, device):
-        return torch.zeros(N, self.kernel - 1, d, device=device)          # önceki girdiler (eskiden yeniye; dolgu sıfır)
+        return torch.zeros(N, self.kernel - 1, d, device=device)          # previous inputs (oldest first; zero padding)
 
     def step(self, x, buf):
-        """x (N, d), buf (N, kernel−1, d) → (N, d), yeni buf."""
+        """x (N, d), buf (N, kernel−1, d) → (N, d), new buf."""
         win = torch.cat([buf, x[:, None]], 1)
         y = sum(self.weight[j] * win[:, -1 - j] for j in range(self.kernel))
         return self.out(nnf.gelu(y + self.bias)), win[:, 1:]
@@ -162,10 +163,10 @@ class GRUMixer(nn.Module):
         return self.rnn(x)[0]
 
     def init_state(self, N, d, device):
-        return torch.zeros(1, N, d, device=device)                       # nn.GRU gizli durumu (katman, N, d)
+        return torch.zeros(1, N, d, device=device)                       # nn.GRU hidden state (layer, N, d)
 
     def step(self, x, h):
-        """x (N, d), h (1, N, d) → (N, d), yeni h (M4 madde 4: gru_host_* varyantlarının çevrimiçi gecikmesi)."""
+        """x (N, d), h (1, N, d) → (N, d), new h (M4 item 4: online latency of the gru_host_* variants)."""
         y, h = self.rnn(x[:, None], h)
         return y[:, 0], h
 
@@ -177,7 +178,7 @@ class SSD(nn.Module):
         self.inp = nn.Linear(d, 2 * d + 2 * heads * state + heads)       # x, z, B, C, dt
         self.A_log = nn.Parameter(torch.log(torch.linspace(1.0, 16.0, heads)))
         dt = torch.exp(torch.empty(heads).uniform_(math.log(1e-3), math.log(1e-1)))
-        self.dt_bias = nn.Parameter(dt + torch.log(-torch.expm1(-dt)))    # softplus⁻¹ (Mamba başlatması)
+        self.dt_bias = nn.Parameter(dt + torch.log(-torch.expm1(-dt)))    # softplus⁻¹ (Mamba initialisation)
         self.D = nn.Parameter(torch.ones(heads))
         self.out = nn.Linear(d, d)
 
@@ -196,11 +197,11 @@ class SSD(nn.Module):
 
     def init_state(self, N, d, device):
         if self.window:
-            raise NotImplementedError('pencereli SSD için adım kipi yok')
+            raise NotImplementedError('no step mode for windowed SSD')
         return torch.zeros(N, self.heads, self.state, self.p, device=device)
 
     def step(self, u, h):
-        """Yinelemeli biçim: h_t = a_t h_{t−1} + dt_t B_t x_tᵀ, y_t = C_t h_t + D x_t. u (N, d), h (N, H, Ns, P)."""
+        """Recurrent form: h_t = a_t h_{t−1} + dt_t B_t x_tᵀ, y_t = C_t h_t + D x_t. u (N, d), h (N, H, Ns, P)."""
         N, d = u.shape
         H, P, Ns = self.heads, self.p, self.state
         x, z, B, C, dt = self.inp(u).split([d, d, H * Ns, H * Ns, H], -1)
@@ -225,7 +226,7 @@ class TemporalMixer(nn.Module):
         self.gate = nn.Linear(d, len(kinds)) if len(kinds) > 1 else None
 
     def forward(self, x):
-        """(B, S, H, d): her host ayrı dizi, ağırlıklar paylaşılır."""
+        """(B, S, H, d): each host a separate sequence, shared weights."""
         B, S, H, d = x.shape
         seq = x.transpose(1, 2).reshape(B * H, S, d)
         ys = [b(seq) for b in self.branches]
@@ -239,11 +240,11 @@ class TemporalMixer(nn.Module):
     def init_state(self, N, d, device):
         for b in self.branches:
             if not hasattr(b, 'step'):
-                raise NotImplementedError(f'{type(b).__name__} için adım kipi yok')
+                raise NotImplementedError(f'no step mode for {type(b).__name__}')
         return [b.init_state(N, d, device) for b in self.branches]
 
     def step(self, x, states):
-        """(B, H, d), kol durumları → (B, H, d), yeni durumlar."""
+        """(B, H, d), branch states → (B, H, d), new states."""
         B, H, d = x.shape
         seq = x.reshape(B * H, d)
         outs = [b.step(seq, st) for b, st in zip(self.branches, states)]
@@ -256,7 +257,7 @@ class TemporalMixer(nn.Module):
         return y.view(B, H, d), [o[1] for o in outs]
 
 
-# ── host karıştırıcı: (B, S, 13, d) → aynı ───────────────────────────────
+# ── host mixer: (B, S, 13, d) → same ─────────────────────────────────────
 
 class HostMixer(nn.Module):
     def __init__(self, d, kind='topo', heads=4, topo_mask=False):
@@ -310,7 +311,7 @@ class Block(nn.Module):
         return x + self.drop(self.mlp(self.n3(x)))
 
     def step(self, x, states):
-        """(B, H, d) tek adım (eval; dropout yok)."""
+        """(B, H, d) single step (eval; no dropout)."""
         y, states = self.temporal.step(self.n1(x), states)
         x = x + y
         if self.host is not None:
@@ -318,7 +319,7 @@ class Block(nn.Module):
         return x + self.mlp(self.n3(x)), states
 
 
-BUDGETS = {'b1': (147_000, 220_000), 'b2': (1_900_000, 2_900_000)}    # B1/B2 bütçesi: GRU tam / Transformer k=64 ± %20
+BUDGETS = {'b1': (147_000, 220_000), 'b2': (1_900_000, 2_900_000)}    # B1/B2 budget: full GRU / Transformer k=64 ± 20%
 
 
 def n_params(**kw):
@@ -326,8 +327,8 @@ def n_params(**kw):
 
 
 def fit_width(budget='b1', step=8, **kw):
-    """Bütçenin üst sınırına sığan en büyük d (step'in katı; step kafa sayısına bölünmeli). Alt sınıra ulaşmazsa
-    ValueError. kw: CyberMetaFormer argümanları (d hariç)."""
+    """Largest d that fits under the upper budget bound (a multiple of step; step must divide by the head count).
+    ValueError if the lower bound is not reached. kw: CyberMetaFormer arguments (without d)."""
     lo, hi = BUDGETS[budget]
     best = None
     for d in range(step, 4096, step):
@@ -336,7 +337,7 @@ def fit_width(budget='b1', step=8, **kw):
             break
         best = (d, n)
     if best is None or best[1] < lo:
-        raise ValueError(f'{kw}: bütçe {budget} ({lo}–{hi}) sağlanamıyor: {best}')
+        raise ValueError(f'{kw}: budget {budget} ({lo}–{hi}) cannot be met: {best}')
     return best[0]
 
 
@@ -351,7 +352,7 @@ class CyberMetaFormer(nn.Module):
         if tokens not in ('host', 'flat'):
             raise ValueError(f'tokens: {tokens}')
         if tokens == 'flat' and host_mixer != 'none':
-            raise ValueError("tokens='flat' yalnızca host_mixer='none' ile")
+            raise ValueError("tokens='flat' only with host_mixer='none'")
         self.tokens, self.age, self.action_input = tokens, age, action_input
         self.act_emb = nn.Embedding(N_BLUE_ACTIONS + 1, d) if action_input else None
         n_in = (TOKEN_FEATS + 2 * AGE_EVENTS if age else TOKEN_FEATS) if tokens == 'host' else \
@@ -371,7 +372,7 @@ class CyberMetaFormer(nn.Module):
         self.register_buffer('label_hosts', torch.tensor(LABEL_HOSTS), persistent=False)
 
     def embed(self, x, act=None):
-        """(B, S, 78) ölçekli gözlem [+ (B, S) önceki aksiyon] → (B, S, 13 ya da 1, d)."""
+        """(B, S, 78) scaled observation [+ (B, S) previous action] → (B, S, 13 or 1, d)."""
         B, S, _ = x.shape
         if self.tokens == 'host':
             feats = to_host_tokens(x)                                        # (B, S, 13, 6)
@@ -390,8 +391,8 @@ class CyberMetaFormer(nn.Module):
         return h
 
     def forward_episode(self, x, act=None, return_features=False):
-        """(B, S, 78) → (B, S, 12, 3). return_features: ayrıca son normalize token'lar (B, S, 13 ya da 1, d)
-        (alan genelleme: CORAL, DANN)."""
+        """(B, S, 78) → (B, S, 12, 3). return_features: also the last normalised tokens (B, S, 13 or 1, d)
+        (domain generalisation: CORAL, DANN)."""
         h = self.embed(x, act)
         for blk in self.blocks:
             h = blk(h)
@@ -403,9 +404,9 @@ class CyberMetaFormer(nn.Module):
         return (out, h) if return_features else out
 
     def init_state(self, batch=1, device='cpu'):
-        """Çevrimiçi çıkarım durumu: adım sayacı, host başına son olay adımı, her bloğun zaman karıştırıcı durumu."""
+        """Online inference state: step counter, last event step per host, temporal mixer state of each block."""
         if self.action_input:
-            raise NotImplementedError('aksiyon girdili model için adım kipi yok')
+            raise NotImplementedError('no step mode for a model with action input')
         n = NUM_HOSTS if self.tokens == 'host' else 1
         d = self.inp.out_features
         return {'t': 0, 'last': torch.full((batch, NUM_HOSTS, AGE_EVENTS), -1, device=device),
@@ -413,11 +414,11 @@ class CyberMetaFormer(nn.Module):
 
     @torch.no_grad()
     def step(self, x, state):
-        """Çevrimiçi tek adım (eval): ölçekli obs[t] (B, 78) → (B, 12, 3); forward_episode(x)[:, t] ile aynı. Maliyeti
-        t'den bağımsız (konv tamponu + SSD durumu); "çevrimiçi çıkarım ucuz" iddiası bununla ölçülür."""
+        """Online single step (eval): scaled obs[t] (B, 78) → (B, 12, 3); same as forward_episode(x)[:, t]. Its cost
+        does not depend on t (conv buffer + SSD state); the "online inference is cheap" claim is measured with this."""
         t = state['t']
         if t >= MAX_STEPS:
-            raise ValueError(f'en fazla {MAX_STEPS} adım')
+            raise ValueError(f'at most {MAX_STEPS} steps')
         B = x.shape[0]
         feats = to_host_tokens(x) if self.tokens == 'host' else x
         if self.age:
@@ -444,5 +445,5 @@ class CyberMetaFormer(nn.Module):
         return self.head(h[:, 0]).view(B, len(LABEL_HOSTS), N_CLASSES)
 
     def forward(self, x, mask=None):
-        """Pencere arayüzü (şekil kontrolleri; RNNFull gibi): pencerenin son adımı. Dolgu sıfır girdi olarak görülür."""
+        """Window interface (shape checks; like RNNFull): the last step of the window. Padding is seen as zero input."""
         return self.forward_episode(x)[:, -1]
